@@ -17,7 +17,7 @@ function row(parent,text,role='assistant',receipt){
     line.textContent='Расходы ИИ: '+(cost.rub!=null?cost.rub+' ₽':cost.usd!=null?cost.usd+' USD':'не подтверждены')+(u?' · вход '+u.input+' · кэш '+u.cache+' · выход '+u.output:'');parent.append(line);}
   parent.scrollTop=parent.scrollHeight;
 }
-function navigate(name){for(const el of document.querySelectorAll('[data-panel]'))el.hidden=el.dataset.panel!==name;for(const el of document.querySelectorAll('[data-page]'))el.classList.toggle('active',el.dataset.page===name);const pager=$('#event-pager');if(pager)pager.hidden=!['stock','purchases','manufacture','sales','expenses','journal','workers','assets'].includes(name);const filters=$('#accounting-filters');if(filters)filters.hidden=['admin','wallet','settings','integrations','tasks'].includes(name);window.PMExtras?.navigate(name);}
+function navigate(name,reveal=true){for(const el of document.querySelectorAll('[data-panel]'))el.hidden=el.dataset.panel!==name;for(const el of document.querySelectorAll('[data-page]'))el.classList.toggle('active',el.dataset.page===name);const pager=$('#event-pager');if(pager)pager.hidden=!['stock','purchases','manufacture','sales','expenses','journal','workers','assets'].includes(name);const filters=$('#accounting-filters');if(filters)filters.hidden=['admin','wallet','settings','integrations','tasks'].includes(name);window.PMExtras?.navigate(name,reveal);}
 function table(host,cols,values){host.replaceChildren();const t=document.createElement('table'),h=t.createTHead().insertRow();for(const c of cols){const th=document.createElement('th');th.textContent=c;h.append(th);}const b=t.createTBody();for(const vals of values){const r=b.insertRow();for(const v of vals)r.insertCell().textContent=v??'Не указано';}host.append(t);}
 async function refresh(ui){return window.PMAccounting.refresh(ui);}
 async function wallet(){
@@ -32,7 +32,7 @@ async function initMember(){
   window.PMAccounting.init();
   window.PMExtras.initMember();
   for(const b of document.querySelectorAll('[data-page]'))b.onclick=()=>{navigate(b.dataset.page);window.PMAccounting.navigate();};
-  const query=new URLSearchParams(location.search);navigate(query.get('account')==='wallet'?'wallet':query.get('section')==='admin'&&admin?'admin':'summary');
+  const query=new URLSearchParams(location.search);const initial=query.get('account')==='wallet'?'wallet':query.get('section')==='admin'&&admin?'admin':'summary';navigate(initial,initial!=='summary'||!!sessionStorage.getItem('pm-calc-pending'));
   document.addEventListener('octo-wallet-refresh',()=>wallet().catch(()=>{}));
   await Promise.all([refresh(),wallet()]);
   const chat=(await post('/api/workshops/chat',{workshop:window.PMWorkshopId})).chatId;

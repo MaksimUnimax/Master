@@ -1,0 +1,7 @@
+# Assistant-first workspace v8
+
+- Desktop: navigation on the left, assistant as the primary central pane, operational workspace on the right. The assistant receives the larger share of the available content width. Close it with its header control or expand the workspace using the right-pane control; restore it without losing conversation history or the current draft.
+- Narrow screens (up to 960 CSS px): assistant first, with one visible content pane. Navigation and assistant actions reveal the selected workspace; return to the assistant using the header or workspace control. Explicit wallet/admin entry points and pending calculator data reveal the workspace.
+- Desktop panel collapse preferences persist across reloads. No changes to accounting, authentication, database schema or model invocation.
+
+Verification on isolated candidate: 3/3 layout browser tests (assistant-first, all member tabs and checkout, admin enrollment and statistics); 14/14 existing browser regression tests (13 independent UI cases excluding the unchanged registration case, plus accounting workflow). Chromium Playwright fixtures, no paid model calls. Visual evidence reviewed at 1440 and 390 px; layout assertions include 1440, 1200, 1024, 961, 960, 820, 390 and 320 px. Tested collapse/restore, navigation, retained history/draft and reload behavior. Live authenticated production-browser verification was not performed.
