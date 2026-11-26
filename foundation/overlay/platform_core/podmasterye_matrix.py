@@ -7,8 +7,11 @@ from decimal import Decimal
 from . import podmasterye_book as book
 from .podmasterye_domain import Conflict
 
-VERSION="accounting-v3"
+VERSION="accounting-v4"
+SERVICE_CARDS=json.loads(Path(__file__).with_name("podmasterye_service_faq.json").read_text(encoding="utf-8"))
 ITEMS=json.loads(Path(__file__).with_name("podmasterye_matrix.json").read_text(encoding="utf-8"))
+ITEMS.extend({"id":c["id"],"intent":"faq","aliases":c["aliases"],"public_topic":c["topic"],"answer":c["answer"]} for c in SERVICE_CARDS)
+SERVICE_ROWS={r["public_topic"]:r for r in ITEMS if "public_topic" in r}
 def norm(t):return " ".join(t.casefold().replace("ё","е").split()).strip("?! .")
 INDEX={}
 for entry in ITEMS:
@@ -64,7 +67,7 @@ def specific(db,w,t):
         found=read_material(db,w,m[1])
         out={"matrixId":{"stock":"A-R13","consumption":"A-R14","planning":"A-R15"}[kind],"matrixVersion":VERSION}
         if not found:
-            return {**out,"text":"Не нашёл однозначный материал. Укажите его точное название из справочника.","ui":{"page":"materials"}}
+            return {**out,"unresolved":True,"text":"Не нашёл однозначный материал. Укажите его точное название из справочника.","ui":{"page":"materials"}}
         mid,name=found
         if kind=="stock":
             d=book.report(db,w,view="stock");v=next(x for x in d["materials"] if x["id"]==mid)
@@ -79,7 +82,7 @@ def specific(db,w,t):
         return {**out,"text":f'{name}: по прогнозу на 30 дней — {v["buy_packs"]} упаковок, ориентировочная дата заказа {v["order_day"] or "нет спроса"}. Без резервов и поставок в пути.',"ui":{"page":"planning","entity":name}}
     return None
 
-def route(db,w,text):
+def route(db,w,text,faq=None):
     t=norm(text);suffix=None;entry=INDEX.get(t)
     if not entry:
         for p in PERIODS:
@@ -101,6 +104,11 @@ def route(db,w,text):
         a,b=dates(suffix);ui.update(filters={"from":a,"to":b})
     answer=entry.get("answer")
     out={"ui":ui,"matrixId":entry["id"],"matrixVersion":VERSION}
+    if kind=="faq" and "public_topic" in entry:
+        from .guest_billing import fill_terms
+        out["text"]=fill_terms(db,faq.template(entry["public_topic"]) if faq is not None else answer)
+        out["ui"]={}
+        return out
     if kind=="faq" or kind=="ui":
         out["text"]=answer or "Открываю нужный раздел."
         return out
@@ -142,17 +150,8 @@ def route(db,w,text):
 
 def operation_schema(ops=None):
     ops=list(book.FIELDS) if ops is None else list(ops)
-    properties={}
-    for op in ops:
-        for field in book.forms()[op]["fields"]:
-            n,t=field["name"],field["type"]
-            if t in ("int","int0"):s={"type":"integer","minimum":0,"maximum":book.MAX_Q}
-            elif t=="bool":s={"type":"boolean"}
-            else:s={"type":"string","maxLength":2000 if t=="identifiers" else 240}
-            properties[n]=s
-    # Keep a single compact tool schema. Backend validates exact fields per op.
     return {"type":"object","properties":{"operation":{"type":"string","enum":ops},
-            "arguments":{"type":"object","properties":properties,"additionalProperties":False}},
+            "arguments":{"type":"object","additionalProperties":{"type":["string","integer","boolean","null"]}}},
             "required":["operation","arguments"],"additionalProperties":False}
 
 def report_schema(views=None):
@@ -162,5 +161,4 @@ def report_schema(views=None):
         "limit":{"type":"integer","minimum":1,"maximum":30}},"required":["view"],"additionalProperties":False}
 
 def operation_description(ops=None):
-    return "Подготовить черновик операции, не записывает склад или деньги. Используй точные ID или названия; суммы строками в рублях, количества целыми базовыми единицами. Поля: "+ "; ".join(
-        k+"("+",".join(f["name"]+("!" if f["required"] and f["default"] is None else "") for f in v["fields"])+")" for k,v in book.forms().items() if ops is None or k in ops)+". Для отсутствующих обязательных параметров спроси пользователя. Подтверждение только в кабинете."
+    return "Подготовить черновик хозяйственной операции, не записывает склад или деньги. Схему полей выбранной операции получи через form_catalog, form=book.<operation>. Указывай только известные параметры. Подтверждение только в кабинете."

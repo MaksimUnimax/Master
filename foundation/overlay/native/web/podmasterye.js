@@ -105,7 +105,7 @@ async function initMember(){
      else telegramState(await post('/api/integrations/telegram',{action}));
    }catch(e){$('#pm-telegram-status').textContent=e.message;b.disabled=false;}
   };
-  for(const b of document.querySelectorAll('[data-page]'))b.onclick=()=>{navigate(b.dataset.page);window.PMAccounting.navigate();};
+  for(const b of document.querySelectorAll('[data-page]'))b.onclick=()=>{navigate(b.dataset.page);window.PMExtras.showWork(true);window.PMAccounting.navigate();};
   const query=new URLSearchParams(location.search);const initial=query.get('account')==='wallet'?'wallet':query.get('section')==='integrations'?'integrations':'summary';navigate(initial,initial!=='summary'||!!sessionStorage.getItem('pm-calc-pending'));
   document.addEventListener('octo-wallet-refresh',()=>wallet().catch(()=>{}));
   await Promise.all([refresh(),wallet()]);

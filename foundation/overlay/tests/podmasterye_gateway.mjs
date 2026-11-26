@@ -2,6 +2,7 @@
 import http from 'node:http';
 import {once} from 'node:events';
 import {join,dirname} from 'node:path';
+import {appendFileSync} from 'node:fs';
 import {journalVision} from '../native/verified-vision.mjs';
 import {createGateway} from '../../../integrations/harness-native-lab/gateway/server.mjs';
 import {openOperationResolver} from '../../../integrations/harness-native-lab/gateway/operation-resolver.mjs';
@@ -10,6 +11,7 @@ let calls=0;
 const upstream=http.createServer(async(req,res)=>{
   const chunks=[];for await(const c of req)chunks.push(c);
   const q=JSON.parse(Buffer.concat(chunks));
+  appendFileSync(journal+".requests",JSON.stringify(q)+"\n",{mode:0o600});
   const last=q.messages.findLast(x=>x.role==='user').content;
   const result=last.find(x=>x.type==='tool_result');
   const text=last.filter(x=>x.type==='text').map(x=>x.text).join("\n");
@@ -56,22 +58,22 @@ const upstream=http.createServer(async(req,res)=>{
   const report=text.includes('Тест свободного отчёта');
   const tool=q.tools?.find(t=>t.name==='mcp__platform__'+(settings?'prepare_form':accounting?'prepare_accounting':report?'accounting_report':'prepare_recipe'));
   const draft=!result&&(text.includes('Свободная формулировка')||accounting||report||settings);
-  if(!result&&accounting){
-    const ops=tool?.input_schema?.properties?.operation?.enum;
-    if(!ops||ops.length!==1||ops[0]!=='purchase'||q.tools.some(t=>t.name==='mcp__platform__prepare_recipe')){res.writeHead(422);res.end('oversized operation schema');return;}
-  }
-  if(!result&&report&&q.tools.some(t=>t.name.startsWith('mcp__platform__prepare_'))){res.writeHead(422);res.end('write tools in read request');return;}
+  const pressure=text.includes('fixture-pressure:');
+  const compact=text.includes('You are now acting as a compaction engine');
+
+  // Stable, complete draft/read tool contract; no lexical filter may hide it.
+  if(!result&&accounting&&!tool?.input_schema?.properties?.operation?.enum?.includes('purchase')){res.writeHead(422);res.end('missing purchase operation');return;}
   if(draft&&!tool){res.writeHead(422);res.end('missing built-in tool');return;}
   if(result&&(result.is_error||!['80.00','800.00','1600.00','inventory_rub','missing','workshop_create'].some(x=>JSON.stringify(result.content).includes(x)))){res.writeHead(422);res.end('invalid draft or report');return;}
   const event=(type,fields={})=>res.write('event: '+type+'\ndata: '+JSON.stringify({type,...fields})+'\n\n');
   res.writeHead(200,{'content-type':'text/event-stream'});
-  event('message_start',{message:{id:'fixture-'+ ++calls,role:'assistant',type:'message',content:[],model:q.model,usage:{input_tokens:10,output_tokens:0,cache_read_input_tokens:0,cache_creation_input_tokens:0}}});
+  event('message_start',{message:{id:'fixture-'+ ++calls,role:'assistant',type:'message',content:[],model:q.model,usage:{input_tokens:10,output_tokens:0,cache_read_input_tokens:pressure?50000:0,cache_creation_input_tokens:0}}});
   if(draft){
     event('content_block_start',{index:0,content_block:{type:'tool_use',id:'prepare-1',name:tool.name,input:{}}});
     event('content_block_delta',{index:0,delta:{type:'input_json_delta',partial_json:JSON.stringify(settings?{form:'workshop_create',arguments:{name:'Новая мастерская',description:'Проверка'}}:partial?{operation:'purchase',arguments:{material:'Бусины',quantity:2}}:continuation?{operation:'purchase',arguments:{total:'1600'}}:accounting?{operation:'purchase',arguments:{material:'Бусины',quantity:1,purchase_unit:'pack',total:'800'}}:report?{view:'summary'}:{material:'Бусины',product:'Браслет',pack_quantity:400,usage_quantity:40,pack_price:'800'})}});
   }else{
     event('content_block_start',{index:0,content_block:{type:'text',text:''}});
-    event('content_block_delta',{index:0,delta:{type:'text_delta',text:'Ответ тестовой модели.'}});
+    event('content_block_delta',{index:0,delta:{type:'text_delta',text:compact?'## Primary Request and Intent\n- Сохранить контекст проверки. Контрольная запись 0.':'Ответ тестовой модели.'}});
   }
   event('content_block_stop',{index:0});
   event('message_delta',{delta:{stop_reason:draft?'tool_use':'end_turn'},usage:{output_tokens:5}});

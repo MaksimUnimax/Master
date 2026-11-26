@@ -37,7 +37,7 @@ class ChatContext:
             db=identity._db
             domain.assert_scope(db,token,scope)
             rows=db.execute("""SELECT rid,text,result FROM pm_turns WHERE workspace=? AND chat=?
-                AND route='local' AND result IS NOT NULL AND rowid<(SELECT rowid FROM pm_turns WHERE workspace=? AND chat=? AND rid=?) ORDER BY rowid""",
+                AND route='local' AND result IS NOT NULL AND rowid<=(SELECT rowid FROM pm_turns WHERE workspace=? AND chat=? AND rid=?) ORDER BY rowid""",
                 (scope.workspace_id,scope.chat_id,scope.workspace_id,scope.chat_id,rid)).fetchall()
         seen=set()
         journal=self.state.worker.journal

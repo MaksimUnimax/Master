@@ -1,11 +1,11 @@
-"""Versioned intent filter and bounded schema selection. No guessed financial writes."""
+"""Optional deterministic shortcuts before the ordinary authenticated Harness agent."""
 import json, math, re
 from collections import Counter
 from datetime import timedelta
 from time import time
 from . import podmasterye_matrix as matrix, podmasterye_book as book, podmasterye_agent_forms as agent, podmasterye_domain as domain
 
-VERSION="routing-v11"
+VERSION="agent-first-v15"
 ROWS={x["id"]:x for x in matrix.ITEMS}
 SCHEMA=(
 """CREATE TABLE IF NOT EXISTS pm_matrix_edits(
@@ -40,19 +40,7 @@ SYN={"покажите":"покажи","откройте":"открой","выв
      "остаток":"остатки","остатков":"остатки","материалов":"материалы","закупок":"закупки","закупку":"закупка",
      "закупки":"закупки","отчетность":"отчеты","отчет":"отчет","товаров":"товары","изделий":"изделия",
      "расходов":"расходы","расходам":"расходы","финансов":"финансы","станки":"оборудование"}
-BUSINESS=re.compile(r"\b(?:мастерск\w*|производств\w*|закуп\w*|материал\w*|сырь\w*|издел\w*|бусин\w*|браслет\w*|рецептур\w*|рецепт\w*|себестоим\w*|прибыл\w*|выруч\w*|прода\w*|склад\w*|запас\w*|расход\w*|финанс\w*|отчет\w*|амортиз\w*|оборудован\w*|станок\w*|комисси\w*|работник\w*|сотрудник\w*|задач\w*|экономик\w*|денег|денежн\w*|интеграц\w*|телеграм\w*|telegram|ozon|озон|wildberries|wb|вб|кошелек|баланс|монет\w*|учет\w*|расчет\w*|калькулятор\w*|канал\w*|магазин\w*|товар\w*)\b",re.I)
-OUTSIDE=re.compile(r"\b(?:погод\w*|столиц\w*|гороскоп\w*|футбол\w*|анекдот\w*|рецепт борща|напиши стих\w*|кто президент|python код|напиши код|игнорируй инструкц\w*)\b",re.I)
-ANALYSIS=re.compile(r"\b(?:почему|сравни\w*|объясни\w*|проанализируй\w*|анализ\w*|причин\w*|оцен\w*|динамик\w*|прогноз\w*|снижен\w*|упал\w*|вырос\w*)\b")
-READ=re.compile(r"\b(?:сколько|какая|какой|какие|покаж\w*|вывед\w*|отчет\w*|свер\w*|посчита\w*|рассчита\w*|сравни\w*)\b")
 WRITE=re.compile(r"\b(?:добав\w*|созда\w*|запиш\w*|внес\w*|введ\w*|оформ\w*|купил\w*|закупил\w*|продал\w*|изготов\w*|измени\w*|обнови\w*|спиш\w*|сдела\w*|подготов\w*|заполн\w*|дополн\w*|заведи\w*)\b")
-FORM_CUES={
- "purchase":r"\b(?:закуп\w*|купил\w*|покупк\w*)\b","sale":r"\b(?:продаж\w*|продал\w*)\b",
- "manufacture":r"\b(?:изготов\w*|выпуск\w*|партия|партию)\b","material":r"\bматериал\w*\b",
- "product":r"\b(?:издел\w*|товар\w*)\b","expense":r"\bрасход\w*\b","payment":r"\bоплат\w*\b",
- "return":r"\bвозврат\w*\b","task":r"\bзадач\w*\b","worker":r"\b(?:работник\w*|сотрудник\w*)\b",
- "asset_acquire":r"\b(?:станок\w*|оборудован\w*)\b","recipe_line":r"\bрецептур\w*\b","worker_payment":r"\bвыплат\w*\b",
- "opening":r"\bначальн\w+\s+остат\w*\b","writeoff":r"\bсписан\w*\b","sale_fee":r"\b(?:комисси\w*|удержан\w*)\b"}
-EXTRA_CUES={"recipe":r"\b(?:рецепт\w*|рецептур\w*|норм\w* расход\w*|упаковк\w*|расчет\w*)\b","workshop_create":r"\bмастерск\w*\b","workshop_settings":r"\b(?:ставк\w* мастера|цвет мастерск\w*)\b","source_create":r"\b(?:источник\w*|свой магазин)\b","planning":r"\b(?:горизонт\w*|страхов\w*|план закуп\w*)\b","unit_target":r"\b(?:целевая цена|целевая прибыль|юнит)\b","filters":r"\b(?:фильтр\w*|категори\w*|период\w*)\b"}
 def edit_rows(db):
     return {i:{"revision":v,"aliases":json.loads(a),"negatives":json.loads(n)} for i,v,a,n in db.execute("SELECT id,revision,aliases,negatives FROM pm_matrix_edits")}
 def tokens(t):return [SYN.get(w,w) for w in WORDS.findall(t) if w not in STOP]
@@ -87,20 +75,20 @@ def rank(t,catalog):
 def result(text,reason,ids=(),**kwargs):
     return {"text":text,"matrixVersion":VERSION,"filterReason":reason,**({"matrixId":ids[0],"matrixIds":list(ids)} if ids else {}),**kwargs}
 
-def known(db,w,t,catalog):
+def known(db,w,t,catalog,faq=None):
     core,p=split_period(t)
-    direct=matrix.route(db,w,t)
+    direct=matrix.route(db,w,t,faq)
     if direct:
         ids=[direct.get("matrixId")]
-        if any(r["id"] in ids and blocked(t,n) for _,r,n in catalog):return result("Фраза исключена из автоматического выбора. Уточните задачу.","excluded",ids)
+        if direct.get("unresolved") or any(r["id"] in ids and blocked(t,n) for _,r,n in catalog):return None
         return {**direct,"filterReason":"exact","matrixVersion":VERSION,"matrixIds":ids}
     # Admin aliases and strictly order-preserving synonym matches, no fuzzy write.
     exact=[(a,r) for a,r,n in catalog if (a==core or (r["intent"] in ("faq","ui","report") and tokens(a)==tokens(core) and len(tokens(core))>=2)) and not blocked(t,n) and (not p or r["intent"] in ("ui","report"))]
     unique={r["id"]:r for a,r in exact}
-    if len(unique)>1:return result("Уточните, какой раздел или показатель нужен: "+ "; ".join(r["aliases"][0] for r in list(unique.values())[:4])+".","ambiguous",tuple(unique))
+    if len(unique)>1:return None
     if len(unique)==1:
         r=next(iter(unique.values()));canonical=r["aliases"][0]+(" "+p if p else "")
-        d=matrix.route(db,w,canonical)
+        d=matrix.route(db,w,canonical,faq)
         if d:return {**d,"filterReason":"lexical","matrixVersion":VERSION,"matrixIds":[r["id"]]}
     return None
 
@@ -156,7 +144,7 @@ def local_context(db,scope,rid,w,t,ctx):
         m=re.fullmatch(r"\s*([^:=]{1,100})\s*[:=]\s*(.+?)\s*",part)
         if not m or clean(m[1]) not in labels:assignments={};break
         k=labels[clean(m[1])]
-        if k in assignments:return result("Поле указано дважды. Уточните одно значение.","ambiguous")
+        if k in assignments:return None
         assignments[k]=m[2]
     if not assignments and len(missing)==1 and (re.fullmatch(r"\d+(?:[.,]\d{1,2})?(?:\s*(?:₽|рублей|шт|штук|пачек))?",t.strip(),re.I) or (types[missing[0]] in ("material","product") and len(t.split())<=4)):
         assignments={missing[0]:t}
@@ -166,45 +154,6 @@ def local_context(db,scope,rid,w,t,ctx):
         parsed=agent.normalize(db,w,form,parsed)
         return from_draft(db,scope,rid,form,{**a,**parsed})
     except ValueError as e:return result("Не удалось заполнить поле: "+str(e),"invalid_parameter")
-
-def plan(t,ctx,ids):
-    if ctx:
-        f=ctx["form"]
-        return {"tools":["current_form","prepare_accounting" if f.startswith("book.") else "prepare_form","form_catalog"],"forms":[f],"views":[]}
-    # Narrow by lexical intent. BM25 is a candidate generator, not permission to execute.
-    forms=[]
-    if WRITE.search(t) or re.search(r"\b(?:архивир\w*|восстанов\w*|сторнир\w*|заверш\w*|перенес\w*|спис\w*|начн\w*)\b",t):
-        forms=["book."+k for k,p in FORM_CUES.items() if re.search(p,t)]
-        if "book.purchase" in forms:forms=[x for x in forms if x!="book.material"]
-        if "book.worker_payment" in forms:forms=[x for x in forms if x!="book.worker"]
-        forms += [k for k,p in EXTRA_CUES.items() if re.search(p,t)]
-        if not forms:
-            forms=["book."+ROWS[i]["op"] for i in ids if ROWS[i]["intent"]=="form" and len(set(tokens(t))&set(tokens(ROWS[i]["aliases"][0])))>=2][:3]
-        if "book.sale_fee" in forms:forms=[f for f in forms if f not in ("book.sale","book.expense")]
-        # For explicit forms use only the matching contract, never all 28 operations.
-        if forms:
-            forms=list(dict.fromkeys(forms))[:6]
-            tools=["form_catalog"]
-            if any(f.startswith("book.") for f in forms):tools.append("prepare_accounting")
-            if any(not f.startswith("book.") for f in forms):tools.append("prepare_form")
-            if "recipe" in forms:tools.append("prepare_recipe")
-            if any(f.startswith("book.") for f in forms):tools.append("production_state")
-            return {"tools":tools,"forms":forms,"views":[]}
-    if ANALYSIS.search(t) or READ.search(t) or BUSINESS.search(t):
-        views=[]
-        if re.search(r"прибыл|финанс|выруч|денеж|расход|комисси",t):views.append("finance")
-        if re.search(r"склад|остат|запас|сырь|материал",t):views.append("stock")
-        if re.search(r"прода|товар|издел",t):views.append("sales")
-        if re.search(r"закуп|прогноз",t):views.append("planning")
-        if re.search(r"задач",t):views.append("tasks")
-        if re.search(r"работник|сотрудник",t):views.append("workers")
-        if re.search(r"оборудован|амортиз",t):views.append("assets")
-        if re.search(r"себестоим|юнит|рентабель",t):views.append("unit")
-        if not views:views=["summary"]
-        # Summary is a small, useful companion for analytical questions.
-        if ANALYSIS.search(t) and "summary" not in views:views.append("summary")
-        return {"tools":["accounting_report","production_state"] if any(x in views for x in ("stock","unit","planning")) else ["accounting_report"],"forms":[],"views":views}
-    return {"tools":[],"forms":[],"views":[]}
 
 def compare_profit(db,w):
     from decimal import Decimal
@@ -262,68 +211,64 @@ def view_followup(db,scope,w,t,view):
     if page in ("finance","sales","purchases","expenses","journal","assets","workers"):
         start,end=matrix.dates(p)
         return result("Установил период в текущем разделе.","view_context",ui={"page":page,"filters":{"from":start,"to":end}})
-    return result("Уточните, какой показатель или раздел нужен за этот период.","clarify")
+    return None
 
-def choose(db,scope,rid,w,text,ctx,view=None,*,attachments=False,has_files=False):
+def service_match(db,w,t,cat,faq):
+    # Exact published questions only. The guest selector's subject filter must
+    # not classify or reject authenticated member messages.
+    entry=matrix.INDEX.get(t)
+    if entry is None and re.fullmatch(r"[^\d]+[а-яa-z]7",t):
+        entry=matrix.INDEX.get(t[:-1])
+    if not entry or "public_topic" not in entry:return None
+    return known(db,w,entry["aliases"][0],cat,faq)
+
+def choose(db,scope,rid,w,text,ctx,view=None,*,attachments=False,has_files=False,faq=None):
     t=clean(text);cat=aliases(db);view=view or {}
-    # File data is analyzed by the inherited Harness file tool, never a guessed
-    # answer from a similarly worded local accounting command.
-    file_reference=re.search(r"\b(?:файл\w*|вложен\w*|документ\w*|таблиц\w*|фото\w*|картинк\w*|изображен\w*|аудио|накладн\w*|скан\w*|pdf|xlsx|csv)\b",t)
-    if attachments or (has_files and file_reference):
-        selected=plan(t,ctx,rank(t,cat))
-        selected["media"]=True
-        return None,selected
-    if not ctx:
-        follow=view_followup(db,scope,w,t,view)
-        if follow:return follow,{}
+    # Stable contract: the native agent is always the fallback. Ranking is
+    # diagnostic only; it neither admits users nor removes tools.
+    def fallback(reason):
+        return None,{"reason":reason,"candidateIds":rank(t,cat),"contract":"production-tools-v2"}
+    if attachments:return fallback("attachment")
     if ctx:
         d=local_context(db,scope,rid,w,text,ctx)
         if d:return d,{}
-        if OUTSIDE.search(t):return result("Помощник работает с учётом мастерской. Уточните поле формы.","outside"),{}
-        return None,plan(t,ctx,[])
-    if OUTSIDE.search(t):return result("Помогу с производством, учётом, продажами и экономикой мастерской. Уточните хозяйственный вопрос.","outside"),{}
-    # Composite reads only. All components must resolve independently; no partial writes.
+        return fallback("form_context_miss")
+    service=service_match(db,w,t,cat,faq)
+    if service:return service,{}
+    if has_files and re.search(r"\b(?:файл\w*|вложен\w*|документ\w*|таблиц\w*|фото\w*|картинк\w*|изображен\w*|аудио|накладн\w*|скан\w*|pdf|xlsx|csv)\b",t):
+        return fallback("file_reference")
+    follow=view_followup(db,scope,w,t,view)
+    if follow:return follow,{}
+    # A compound query is local only if all parts are fully matched read commands.
     pieces=re.split(r"\s*;\s*|\s+и\s+(?=(?:покажи|открой|выведи|сколько)\b)",t)
     if 1<len(pieces)<=5:
-        matches=[known(db,w,p,cat) for p in pieces]
-        if all(m and not m.get("accountingDraft") and m.get("filterReason") not in ("ambiguous","invalid_parameter") for m in matches):
+        matches=[known(db,w,p,cat,faq) for p in pieces]
+        if all(m and not m.get("accountingDraft") and not m.get("draft") for m in matches):
             ids=[i for m in matches for i in m.get("matrixIds",[])]
             return result("\n".join(m["text"] for m in matches),"composite",ids,ui=matches[-1].get("ui",{})),{}
-    # Full legacy recipe grammar is deliberately a draft now, not a silent mutation.
     if m:=domain.PATTERN.fullmatch(t):
         a=dict(material=m["material"],product=m["product"],pack_quantity=int(m["pack"]),usage_quantity=int(m["usage"]),pack_price=m["price"])
         d=domain.preview(a)
         return result("Подготовил рецептуру. "+domain.explain(d)+" Проверьте и сохраните форму.","recipe",ui={"page":"products"},draft=d),{}
-    # Negation/condition cannot be silently stripped to a positive action.
     if re.search(r"\b(?:не (?:добавляй|записывай|показывай|открывай|создавай|списывай|продавай|сохраняй)|вместо|если|отмени запрос)\b",t):
-        return result("Уточните, что нужно сделать. Ничего не изменено.","ambiguous"),{}
-    d=known(db,w,t,cat)
+        return fallback("conditional")
+    d=known(db,w,t,cat,faq)
     if d:return d,{}
-    if re.fullmatch(r"почему (?:упала|снизилась|выросла|изменилась) (?:чистая )?прибыль",t):return compare_profit(db,w),{}
-    # Natural complete read-only request, preserving meaning of its period.
+    if re.fullmatch(r"почему (?:упала|снизилась|выросла|изменилась) (?:чистая )?прибыль",t):
+        return compare_profit(db,w),{}
     core,p=split_period(t)
     if re.fullmatch(r"(?:покажи|выведи|посчитай)\s+(?:мне\s+)?(?:чистую\s+)?прибыль",core):
-        return known(db,w,"покажи чистую прибыль"+(" "+p if p else ""),cat),{}
-    if has_files and not BUSINESS.search(t) and re.search(r'\b(?:там|в нем|в ней|в них|этот|эта|предыдущ\w*|сумм\w*|итог\w*)\b',t):
-        return None,{**plan(t,ctx,rank(t,cat)),"media":True}
-    if not BUSINESS.search(t):
-        return result("Не распознал хозяйственный запрос. Уточните показатель, раздел или операцию.","clarify"),{}
-    ids=rank(t,cat)
-    if len(tokens(core))<=1:
-        labels=[ROWS[i]["aliases"][0] for i in ids if ROWS[i]["aliases"]][:3]
-        return result("Уточните действие"+(": "+"; ".join(labels) if labels else "")+".","clarify",ids),{}
-    # Unknown read/write question may use the model, but with bounded schemas.
-    selected=plan(t,None,ids);selected["candidateIds"]=ids
-    if has_files:selected["media"]=True
-    return None,selected
+        d=known(db,w,"покажи чистую прибыль"+(" "+p if p else ""),cat,faq)
+        if d:return d,{}
+    return fallback("template_miss")
 
 def record(db,scope,rid,out,selected,started,view=None):
     ids=(out or {}).get("matrixIds",selected.get("candidateIds",[]))
     kind="local" if out else "model"
     if selected:
         import hashlib
-        selected["prefixId"]=hashlib.sha256(domain.encode({k:selected.get(k) for k in ("tools","forms","views","media")}).encode()+VERSION.encode()).hexdigest()[:16]
-    reason=(out or {}).get("filterReason","model_fallback")
+        selected["prefixId"]=hashlib.sha256(selected["contract"].encode()).hexdigest()[:16]
+    reason=(out or {}).get("filterReason",selected.get("reason","model_fallback"))
     db.execute("INSERT INTO pm_route_decisions VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
         (scope.workspace_id,scope.chat_id,rid,VERSION,kind,reason,domain.encode(ids),domain.encode(selected),started,int(time()*1000) if out else None,"complete" if out else "pending",domain.encode(view or {})))
 def selection(db,scope,rid):

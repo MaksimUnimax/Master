@@ -146,6 +146,16 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
       "platforms":"Интеграции Ozon, WB и внешних магазинов запланированы; в первой сборке не подключены.",
     }
     for key,value in new.items(): cards[key]["answer"]=value
+    # Shared published service FAQ: member matrix and guest chat use one source.
+    service=json.loads((HERE/"overlay/platform_core/podmasterye_service_faq.json").read_text())
+    import re
+    for card in service:
+        topic=card["topic"]
+        row=cards.setdefault(topic,{"answer":"","patterns":[]})
+        previous=row["answer"]
+        row["answer"]=card["answer"]
+        if previous and previous!=card["answer"]:row["previous_answers"]=[previous]
+        row["patterns"]=list(dict.fromkeys([*row["patterns"],*(re.escape(" ".join(a.casefold().replace("ё","е").split())) for a in card["aliases"])]))
     faq.write_text(json.dumps(cards,ensure_ascii=False,indent=2)+"\n")
     for rel in ("platform_core/access_mail.py","platform_core/access_web.py","platform_core/checkout.py","native/web/checkout.js","native/web/payment-return.js","platform_core/guest_selector.py","platform_core/guest_billing.py","platform_core/admin_statistics.py"):
         f=root/rel;s=f.read_text()
@@ -189,6 +199,31 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
     s=s.replace("octoport.logout","podmasterye.logout")
     f.write_text(s)
     edit("native/web/file-drafts.js","octoport.file-drafts.","podmasterye.file-drafts.")
+    # Use the native Harness token meter and replay-aware compaction. The full
+    # event journal stays intact; only the model-facing surface is compacted.
+    edit("native/model-turn.mjs",
+         "  const unregister = ctx.llm.registerAdapter([provider], adapter);",
+         """  if (provider === 'platform-gateway') {
+    for (const [name,config] of [
+      ['dsh-token-meter',{}],
+      ['dsh-compaction-tool-result-pruner',{}],
+      ['dsh-compaction-basic',{auto:true,thresholdRatio:0.04,retainTokens:8000,headroomTokens:8192,maxTokens:2048,compactionRetries:0,maxOverflowRetries:1}],
+    ]) {
+      const plugin=await load(name);
+      const fiber=ctx.plugin(plugin.default ?? plugin,config);
+      await fiber.await();
+      if(fiber._error)throw fiber._error;
+    }
+  }
+  const unregister = ctx.llm.registerAdapter([provider], adapter);""")
+    # A native compaction checkpoint belongs to the model surface, not the
+    # public conversation. Retain its events in the journal for native replay.
+    for rel in ("native/chat-worker.mjs","native/public-events.mjs"):
+        f=root/rel;s=f.read_text()
+        s=s.replace("e.data.source?.kind!=='runtime-context'","!['runtime-context','compact-checkpoint'].includes(e.data.source?.kind)")
+        s=s.replace("event.data.source?.kind !== 'runtime-context'","!['runtime-context','compact-checkpoint'].includes(event.data.source?.kind)")
+        s=s.replace("message.source?.kind === 'runtime-context'","['runtime-context','compact-checkpoint'].includes(message.source?.kind)")
+        f.write_text(s)
     # Native worker: static product MCP only; no marketplace composition.
     f=root/"native/chat-worker.mjs";s=f.read_text()
     s=s.replace("import { mountPlatformMcp } from './platform-mcp.mjs';","import { mountProductionMcp, registerProductionContext } from './podmasterye-mcp.mjs';")

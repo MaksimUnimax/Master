@@ -156,6 +156,10 @@ def routes(token_for,body):
             try: route,cached=await run_in_threadpool(domain.decide,identity,scope,token,rid,text,fields.pop('formContext',None),fields.pop('viewContext',None),ids,await run_in_threadpool(app.pm_chat_context.has_files,scope))
             except domain.Conflict as e: raise HTTPException(409,str(e)) from None
             if cached is not None:
+                if route=="local":
+                    # Durable local result precedes native publication. Retry with
+                    # the same ID resumes publication without another calculation.
+                    await app.pm_chat_context.sync_local(scope,token,rid)
                 return JSONResponse(await run_in_threadpool(render,identity,app.admin_costs,token,scope,"turn",cached))
             def failed(code):
                 with identity._write() as db:

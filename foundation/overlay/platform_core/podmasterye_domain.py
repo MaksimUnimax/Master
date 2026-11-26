@@ -208,7 +208,7 @@ def decide(store,scope,token,rid,text,form_context=None,view_context=None,attach
             return old[1],json.loads(old[2]) if old[2] else None
         started=int(time()*1000)
         if ctx is not None:db.execute('INSERT INTO pm_agent_context VALUES(?,?,?,?)',(w,c,rid,encode(ctx)))
-        result,selected=router.choose(db,scope,rid,data_scope,text,ctx,view,attachments=bool(ids),has_files=has_files)
+        result,selected=router.choose(db,scope,rid,data_scope,text,ctx,view,attachments=bool(ids),has_files=has_files,faq=getattr(store,'faq',None))
         route="local" if result else "model"
         if result:result.update(role="assistant",requestId=rid,route=route,workshop=data_scope)
         db.execute("INSERT INTO pm_turns VALUES(?,?,?,?,?,?,?)",(w,c,rid,text,route,encode(result) if result else None,started))
