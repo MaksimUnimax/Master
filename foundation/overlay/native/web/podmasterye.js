@@ -5,13 +5,22 @@ async function api(url,options={}){
   if(window.PMWorkshopId&&/^\/api\/(accounting|production|integrations|materials|calculator\/save)(?:[/?]|$)/.test(url)){const u=new URL(url,location.origin);u.searchParams.set('workshop',window.PMWorkshopId);url=u.pathname+u.search;}
   const r=await fetch(url,{cache:'no-store',credentials:'same-origin',...options});
   const d=await r.json().catch(()=>({}));
-  if(!r.ok)throw new Error(r.status===402?'Для запроса к ИИ пополните баланс.':d.error||d.detail||'Не удалось выполнить запрос.');
+  if(!r.ok){const e=new Error(r.status===402?'Для запроса к ИИ пополните баланс.':d.error||d.detail||'Не удалось выполнить запрос.');e.status=r.status;throw e;}
   return d;
 }
 const post=(url,data)=>api(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
 function row(parent,text,role='assistant',receipt){
   const node=document.createElement('div');node.className='message '+role;node.textContent=text;
   parent.append(node);
+  if(receipt?.attachments?.length){
+    const box=document.createElement('div');box.className='pm-message-files';
+    for(const f of receipt.attachments){
+      const a=document.createElement(f.download?'a':'span');a.textContent=f.name+' · '+Math.max(1,Math.ceil(f.bytes/1024))+' КБ';
+      if(f.download){const url=new URL(f.download,location.origin);if(url.origin!==location.origin||!/^\/api\/chats\/[A-Za-z0-9_-]+\/files\/[a-f0-9]{32}$/.test(url.pathname))continue;a.href=url.pathname;a.download=f.name;}
+      box.append(a);
+    }
+    node.append(box);
+  }
   if(admin&&receipt?.modelCost){const line=document.createElement('small');line.className='receipt';const cost=receipt.modelCost;
     const u=receipt.modelUsage?.tokens;
     line.textContent='Расходы ИИ: '+(cost.rub!=null?cost.rub+' ₽':cost.usd!=null?cost.usd+' USD':'не подтверждены')+(u?' · вход '+u.input+' · кэш '+u.cache+' · выход '+u.output:'');parent.append(line);}
@@ -116,10 +125,42 @@ async function initMember(){
    return out;
   }
   const f=$('#assistant-form');let pending=null;
-  f.onsubmit=async e=>{e.preventDefault();const input=f.elements.text,txt=input.value.trim();if(!txt)return;const b=f.querySelector('button');b.disabled=true;if(!pending||pending.text!==txt||agentContext){pending={requestId:crypto.randomUUID(),text:txt,viewContext:viewContext(),...(agentContext?{formContext:agentContext}:{})};agentContext=null;row(messages,txt,'user');}input.value='';$('#assistant-status').textContent='Обрабатываю…';
-    try{const m=await post('/api/chats/'+encodeURIComponent(chat)+'/turns',pending);pending=null;if(m.workshop&&m.workshop!==window.PMWorkshopId)throw new Error('Ответ относится к другой мастерской.');row(messages,m.text,m.role,m);if(m.ui?.page)navigate(m.ui.page);await Promise.all([refresh(m.ui),wallet()]);if(m.formDraft)await applyAgentDraft(m.formDraft);if(m.draft)formRecipe(m.draft);if(m.accountingDraft){const d=m.accountingDraft;window.PMAccounting.open(d.operation,d.arguments,d);}$('#assistant-status').textContent='';}
-    catch(err){if(pending)input.value=txt;$('#assistant-status').textContent=err.message;}finally{b.disabled=false;}};
-  f.querySelector('button').disabled=false;
+  const {mountComposer}=await import('/assets/podmasterye-composer.js');
+  const composer=await mountComposer(f,chat,api);
+  f.onsubmit=async e=>{
+    e.preventDefault();
+    if(!composer.ready())return;
+    const input=f.elements.text,txt=input.value.trim(),ids=composer.ids(),files=composer.files();
+    if(!txt&&!ids.length)return;
+    composer.lock();
+    const signature=JSON.stringify([txt,ids]);
+    if(!pending||pending.signature!==signature||agentContext){
+      pending={signature,body:{requestId:crypto.randomUUID(),text:txt,viewContext:viewContext(),...(ids.length?{attachments:ids}:{}),...(agentContext?{formContext:agentContext}:{})}};
+      agentContext=null;
+    }
+    try{
+      $('#assistant-status').textContent=ids.length?'Проверяю вложения…':'Обрабатываю…';
+      if(ids.length)await composer.prepare(ids);
+      $('#assistant-status').textContent='Обрабатываю…';
+      const m=await post('/api/chats/'+encodeURIComponent(chat)+'/turns',pending.body);
+      pending=null;
+      composer.committed(ids);input.value='';composer.resize();
+      row(messages,txt,'user',{attachments:files.map(file=>({...file,download:'/api/chats/'+encodeURIComponent(chat)+'/files/'+file.attachmentId}))});
+      if(m.workshop&&m.workshop!==window.PMWorkshopId)throw new Error('Ответ относится к другой мастерской.');
+      row(messages,m.text,m.role,m);
+      if(m.ui?.page)navigate(m.ui.page);
+      await Promise.all([refresh(m.ui),wallet()]);
+      if(m.formDraft)await applyAgentDraft(m.formDraft);
+      if(m.draft)formRecipe(m.draft);
+      if(m.accountingDraft){const d=m.accountingDraft;window.PMAccounting.open(d.operation,d.arguments,d);}
+      $('#assistant-status').textContent='';
+    }catch(err){
+      $('#assistant-status').textContent=err.message;
+      // Keep the exact draft and request ID after refusal, cancellation or unknown outcome.
+      if(pending){input.value=txt;composer.resize();}
+      await wallet().catch(()=>{});
+    }finally{composer.unlock();}
+  };
   $('#recipe-form').onsubmit=async e=>{e.preventDefault();const f=e.target,o=Object.fromEntries(new FormData(f));o.pack_quantity=Number(o.pack_quantity);o.usage_quantity=Number(o.usage_quantity);o.pack_price=o.pack_price.trim()||null;
     const b=f.querySelector('button');b.disabled=true;try{await post('/api/production/recipe',{requestId:crypto.randomUUID(),recipe:o});await refresh();$('#recipe-status').textContent='Сохранено.';}catch(err){$('#recipe-status').textContent=err.message;}finally{b.disabled=false;}};
 

@@ -10,6 +10,7 @@ from .identity import _secret_digest, AuthenticationError, ChatUnavailable
 from . import podmasterye_integrations as integrations, podmasterye_import as imports, podmasterye_corrections as corrections, podmasterye_photos as photos
 from .chat_worker import WorkerError
 from .admin_costs import present_chat
+from . import chat_attachments
 
 def render(identity,costs,token,scope,action,result):
     result=present_chat(identity,costs,token,scope,action,result)
@@ -139,48 +140,53 @@ def routes(token_for,body):
     async def scoped(req,action):
         token=token_for(req,allow_cookie=True); app=req.app.state; identity=app.identity
         if action=="turn":
-            fields=await body(req,"requestId","text",optional=("maxCoins","formContext","viewContext"))
+            fields=await body(req,"requestId","text",optional=("maxCoins","formContext","viewContext","attachments"))
             rid,text=fields["requestId"],fields["text"]
             domain.key_id(rid)
-            if not isinstance(text,str) or not text.strip() or len(text.encode())>8192:
+            ids=chat_attachments.validate_ids(fields.get("attachments",[]))
+            if not isinstance(text,str) or (not text.strip() and not ids) or len(text.encode())>8192:
                 raise HTTPException(400,"Некорректное сообщение.")
             if "maxCoins" in fields: coins.parse_amount(fields["maxCoins"])
         scope=await run_in_threadpool(identity.resolve_chat,token,req.path_params["chat_id"])
         if action=="history":
             result=await run_in_threadpool(domain.history,identity,token,scope,50)
+            await app.pm_chat_context.enrich(scope,result)
             return JSONResponse(await run_in_threadpool(render,identity,app.admin_costs,token,scope,"history",result))
-        try: route,cached=await run_in_threadpool(domain.decide,identity,scope,token,rid,text,fields.pop('formContext',None),fields.pop('viewContext',None))
-        except domain.Conflict as e: raise HTTPException(409,str(e)) from None
-        if cached is not None:
-            return JSONResponse(await run_in_threadpool(render,identity,app.admin_costs,token,scope,"turn",cached))
-        def failed(code):
-            with identity._write() as db:
-                domain.assert_scope(db,token,scope)
-                db.execute("UPDATE pm_route_decisions SET outcome=?,finished=unixepoch()*1000 WHERE workspace=? AND chat=? AND rid=? AND outcome!='complete'",(code,scope.workspace_id,scope.chat_id,rid))
-        if not app.worker.gateway:
-            await run_in_threadpool(failed,"gateway_unavailable")
-            raise HTTPException(503,"ИИ пока не подключён. Известные команды и ручной учёт работают.")
-        fields["session_digest"]=_secret_digest(token)
-        if await run_in_threadpool(identity.has_claimed_guest_turns,scope): fields["claimedGuest"]=True
-        live,owner=app.progress.begin(scope,rid)
-        if owner: fields["on_progress"]=live.set
-        async def work():
-            try:
-                result=await app.worker.request(scope,"turn",**fields)
-                result=await run_in_threadpool(domain.complete,identity,scope,token,rid,result)
-                return JSONResponse(await run_in_threadpool(render,identity,app.admin_costs,token,scope,"turn",result))
-            except WorkerError as e:
-                await run_in_threadpool(failed,e.code)
-                if e.code=="turn_unconfirmed":
-                    result={"error":e.code,"operationId":e.operation_id}
-                    return JSONResponse(await run_in_threadpool(present_chat,identity,app.admin_costs,token,scope,"turn",result),status_code=409)
-                raise
-            except Exception:
-                await run_in_threadpool(failed,"failed")
-                raise
-            finally:
-                if owner: app.progress.finish(scope,rid,live)
-        return await work()
+        async with app.pm_chat_context.lock(scope):
+            try: route,cached=await run_in_threadpool(domain.decide,identity,scope,token,rid,text,fields.pop('formContext',None),fields.pop('viewContext',None),ids,await run_in_threadpool(app.pm_chat_context.has_files,scope))
+            except domain.Conflict as e: raise HTTPException(409,str(e)) from None
+            if cached is not None:
+                return JSONResponse(await run_in_threadpool(render,identity,app.admin_costs,token,scope,"turn",cached))
+            def failed(code):
+                with identity._write() as db:
+                    domain.assert_scope(db,token,scope)
+                    db.execute("UPDATE pm_route_decisions SET outcome=?,finished=unixepoch()*1000 WHERE workspace=? AND chat=? AND rid=? AND outcome!='complete'",(code,scope.workspace_id,scope.chat_id,rid))
+            if not app.worker.gateway:
+                await run_in_threadpool(failed,"gateway_unavailable")
+                raise HTTPException(503,"ИИ пока не подключён. Известные команды и ручной учёт работают.")
+            fields["session_digest"]=_secret_digest(token)
+            if await run_in_threadpool(identity.has_claimed_guest_turns,scope): fields["claimedGuest"]=True
+            live,owner=app.progress.begin(scope,rid)
+            if owner: fields["on_progress"]=live.set
+            async def work():
+                try:
+                    if ids:await app.media_jobs.automatic(scope,token,ids,rid,fields.get("maxCoins"))
+                    await app.pm_chat_context.sync_local(scope,token,rid)
+                    result=await app.worker.request(scope,"turn",**fields)
+                    result=await run_in_threadpool(domain.complete,identity,scope,token,rid,result)
+                    return JSONResponse(await run_in_threadpool(render,identity,app.admin_costs,token,scope,"turn",result))
+                except WorkerError as e:
+                    await run_in_threadpool(failed,e.code)
+                    if e.code=="turn_unconfirmed":
+                        result={"error":e.code,"operationId":e.operation_id}
+                        return JSONResponse(await run_in_threadpool(present_chat,identity,app.admin_costs,token,scope,"turn",result),status_code=409)
+                    raise
+                except Exception:
+                    await run_in_threadpool(failed,"failed")
+                    raise
+                finally:
+                    if owner: app.progress.finish(scope,rid,live)
+            return await work()
     return [
         Route("/api/workshops",workshop_list),
         Route("/api/integrations",sources),

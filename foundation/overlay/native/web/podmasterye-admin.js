@@ -24,12 +24,13 @@ async function refreshUsage(){
  const values=(label,b)=>[label,b.attempts,b.input,b.cache,b.output,b.rub+(b.rubIncomplete?' (неполная)':''),b.usd,b.coins,b.pending];
  table($('#ai-usage-periods'),cols,Object.entries(d.periods).map(([k,b])=>values(({all:'За всё время',today:'Сегодня',month:'Этот месяц'})[k],b)));
  table($('#ai-usage-accounts'),cols,d.accounts.map(b=>values(b.login,b)));
+ table($('#ai-usage-media'),['Режим','Попыток','Подтверждённые единицы','Расход, ₽','На сверке'],(d.media||[]).map(b=>[b.mode,b.attempts,b.quantity+(b.unit==='seconds'?' с':' стр.'),b.rub,b.pending]));
 }
 function renderCharge(c){
  const li=document.createElement('li');li.textContent=(c.pending?'На сверке':'Списано')+' · '+c.coins+' монет · '+(c.chatId?'Чат '+c.chatId.slice(-8):c.operationId||c.requestId||'');
  if(c.meter){const detail=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Расход модели · '+(c.meter.rubPerUsd?c.meter.rubPerUsd+' ₽/USD':'прежний тариф');detail.append(summary);
  if(c.meter.providerUsd!=null){const p=document.createElement('p');p.textContent='Себестоимость · $'+c.meter.providerUsd;detail.append(p);}
- for(const a of c.meter.attempts||[]){const p=document.createElement('p'),u=a.usage;p.textContent='DeepSeek · '+a.model+' · '+(u?'Вход '+u.input_tokens+' · Кэш '+u.cache_read_input_tokens+' · Выход '+u.output_tokens:'Ожидается сверка расхода');if(a.providerUsd!=null)p.append(' · $'+a.providerUsd);detail.append(p);}li.append(detail);}
+ for(const a of c.meter.attempts||[]){const p=document.createElement('p'),u=a.usage;p.textContent='DeepSeek · '+a.model+' · '+(u?(u.unit?(u.quantity??'Не подтверждено')+(u.unit==='seconds'?' с':' стр.'):'Вход '+(u.input_tokens??0)+' · Кэш '+(u.cache_read_input_tokens??0)+' · Выход '+(u.output_tokens??0)):'Ожидается сверка расхода');if(a.providerUsd!=null)p.append(' · $'+a.providerUsd);detail.append(p);}li.append(detail);}
  return li;
 }
 if($('#ai-usage-refresh')){action($('#ai-usage-refresh'),refreshUsage);refreshUsage().catch(error);}

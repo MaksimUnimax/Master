@@ -264,8 +264,15 @@ def view_followup(db,scope,w,t,view):
         return result("Установил период в текущем разделе.","view_context",ui={"page":page,"filters":{"from":start,"to":end}})
     return result("Уточните, какой показатель или раздел нужен за этот период.","clarify")
 
-def choose(db,scope,rid,w,text,ctx,view=None):
+def choose(db,scope,rid,w,text,ctx,view=None,*,attachments=False,has_files=False):
     t=clean(text);cat=aliases(db);view=view or {}
+    # File data is analyzed by the inherited Harness file tool, never a guessed
+    # answer from a similarly worded local accounting command.
+    file_reference=re.search(r"\b(?:файл\w*|вложен\w*|документ\w*|таблиц\w*|фото\w*|картинк\w*|изображен\w*|аудио|накладн\w*|скан\w*|pdf|xlsx|csv)\b",t)
+    if attachments or (has_files and file_reference):
+        selected=plan(t,ctx,rank(t,cat))
+        selected["media"]=True
+        return None,selected
     if not ctx:
         follow=view_followup(db,scope,w,t,view)
         if follow:return follow,{}
@@ -297,6 +304,8 @@ def choose(db,scope,rid,w,text,ctx,view=None):
     core,p=split_period(t)
     if re.fullmatch(r"(?:покажи|выведи|посчитай)\s+(?:мне\s+)?(?:чистую\s+)?прибыль",core):
         return known(db,w,"покажи чистую прибыль"+(" "+p if p else ""),cat),{}
+    if has_files and not BUSINESS.search(t) and re.search(r'\b(?:там|в нем|в ней|в них|этот|эта|предыдущ\w*|сумм\w*|итог\w*)\b',t):
+        return None,{**plan(t,ctx,rank(t,cat)),"media":True}
     if not BUSINESS.search(t):
         return result("Не распознал хозяйственный запрос. Уточните показатель, раздел или операцию.","clarify"),{}
     ids=rank(t,cat)
@@ -305,6 +314,7 @@ def choose(db,scope,rid,w,text,ctx,view=None):
         return result("Уточните действие"+(": "+"; ".join(labels) if labels else "")+".","clarify",ids),{}
     # Unknown read/write question may use the model, but with bounded schemas.
     selected=plan(t,None,ids);selected["candidateIds"]=ids
+    if has_files:selected["media"]=True
     return None,selected
 
 def record(db,scope,rid,out,selected,started,view=None):
@@ -312,7 +322,7 @@ def record(db,scope,rid,out,selected,started,view=None):
     kind="local" if out else "model"
     if selected:
         import hashlib
-        selected["prefixId"]=hashlib.sha256(domain.encode({k:selected[k] for k in ("tools","forms","views")}).encode()+VERSION.encode()).hexdigest()[:16]
+        selected["prefixId"]=hashlib.sha256(domain.encode({k:selected.get(k) for k in ("tools","forms","views","media")}).encode()+VERSION.encode()).hexdigest()[:16]
     reason=(out or {}).get("filterReason","model_fallback")
     db.execute("INSERT INTO pm_route_decisions VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
         (scope.workspace_id,scope.chat_id,rid,VERSION,kind,reason,domain.encode(ids),domain.encode(selected),started,int(time()*1000) if out else None,"complete" if out else "pending",domain.encode(view or {})))

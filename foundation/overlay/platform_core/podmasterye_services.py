@@ -43,7 +43,14 @@ def usage(identity,token):
             LEFT JOIN identity_accounts i ON i.actor_id=u.actor_id
             LEFT JOIN coin_ruble_orders r USING(operation_id)
             WHERE a.rate_version!='openrouter-v1'""").fetchall()
-    return aggregate(rows)
+        media=identity._db.execute("""SELECT a.model,COUNT(*),SUM(CASE WHEN a.charge IS NULL THEN 1 ELSE 0 END),
+            COALESCE(SUM(CASE WHEN a.charge IS NOT NULL THEN json_extract(a.usage_json,'$.quantity') ELSE 0 END),0),
+            COALESCE(SUM(a.charge),0)
+            FROM coin_attempts a WHERE a.model IN ('deepseek-asr','deepseek-ocr','deepseek-ocr-layout','deepseek-parse','deepseek-parse-layout')
+            GROUP BY a.model ORDER BY a.model""").fetchall()
+    result=aggregate(rows)
+    result["media"]=[{"mode":model.removeprefix("deepseek-"),"attempts":count,"pending":pending,"quantity":qty,"unit":"seconds" if model=="deepseek-asr" else "pages","rub":coins.display(cost)} for model,count,pending,qty,cost in media]
+    return result
 
 def routes(token_for,body):
     async def admin(req):

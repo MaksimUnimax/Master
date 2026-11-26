@@ -88,7 +88,7 @@ class IndependentUI(unittest.TestCase):
         self.ready()
     def ready(self):
         expect(self.page.locator("body")).to_have_attribute("data-mode","member")
-        expect(self.page.locator("#assistant-form button")).to_be_enabled(timeout=10000)
+        expect(self.page.locator("#assistant-form button[type=submit]")).to_be_enabled(timeout=10000)
     def nav(self,section):
         p=self.page
         with p.expect_response(lambda r:"/api/accounting?" in r.url and r.request.method=="GET") as got:
@@ -142,7 +142,7 @@ class IndependentUI(unittest.TestCase):
     def ask(self,phrase):
         p=self.page;p.locator("#assistant-form textarea").fill(phrase)
         with p.expect_response(lambda r:r.request.method=="POST" and "/turns" in r.url) as got:
-            p.locator("#assistant-form button").click()
+            p.locator("#assistant-form button[type=submit]").click()
         self.assertEqual(got.value.status,200,got.value.text())
         expect(p.locator("#assistant-status")).to_have_text("")
         return got.value.json()

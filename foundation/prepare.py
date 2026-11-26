@@ -51,7 +51,7 @@ from .identity import AuthenticationError, ChatUnavailable
 from .guest_registration import RegistrationStore
 from .guest_web import guest_routes
 from .web_ui import web_routes
-from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, telegram_integration, podmasterye_market_links, podmasterye_telegram_config, podmasterye_matrix_admin
+from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, telegram_integration, podmasterye_market_links, podmasterye_telegram_config, podmasterye_matrix_admin, chat_attachments
 '''+s[stop:]
     start=s.index("    router_plugin = None",s.index("def create_app("))
     stop=s.index("    async def logout(req):",start)
@@ -72,6 +72,10 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
             if not os.getenv("HARNESS_USAGE_JOURNAL"):
                 app.state.admin_costs.journal=Path(shared_path).with_name("usage.jsonl")
             app.state.worker=ChatWorker(shared_path,chat_directory)
+            from .media_jobs import MediaJobs
+            from .podmasterye_chat_context import ChatContext
+            app.state.media_jobs=MediaJobs(app.state)
+            app.state.pm_chat_context=ChatContext(app.state)
             app.state.model_router=None
             app.state.pm_metrika_path=Path(shared_path).resolve().with_name("metrika.json")
             app.state.market_links=podmasterye_market_links.Store(app.state.identity,Path(shared_path).resolve().parent)
@@ -80,8 +84,14 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
                 try:
                     async with telegram_integration.activate(app.state):
                         app.state.provider_balances=provider_balances.BalanceMonitor(app.state.identity,http,None,telegram=app.state.telegram)
+                        import asyncio
+                        from .media_maintenance import maintain
+                        media_task=asyncio.create_task(maintain(app.state))
                         try:yield
-                        finally:await app.state.provider_balances.close()
+                        finally:
+                            media_task.cancel()
+                            await asyncio.gather(media_task,return_exceptions=True)
+                            await app.state.provider_balances.close()
                 finally:
                     await app.state.progress.close()
                     await app.state.worker.close()
@@ -102,7 +112,7 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
         *access_web.routes(),Route("/api/logout",logout,methods=["POST"]),
         Route("/api/recover",recover,methods=["POST"]),
         Route("/api/chats",chats,methods=["GET","POST"]),
-        *podmasterye_scoped.routes(_token,_body),*podmasterye_services.routes(_token,_body),*podmasterye_market_links.routes(_token,_body),*podmasterye_telegram_config.routes(_token,_body),*podmasterye_matrix_admin.routes(_token,_body),
+        *chat_attachments.routes(_token),*podmasterye_scoped.routes(_token,_body),*podmasterye_services.routes(_token,_body),*podmasterye_market_links.routes(_token,_body),*podmasterye_telegram_config.routes(_token,_body),*podmasterye_matrix_admin.routes(_token,_body),
         *telegram_integration.routes(_body),
     ],exception_handlers={cls:error_response for cls in (
         AuthenticationError,ChatUnavailable,WorkerError,HTTPException,ValueError)})
@@ -162,6 +172,23 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
     start=s.index("    # Keep administrator authenticator")
     end=s.index("    html = f",start)
     s=s[:start]+s[end:];f.write_text(s)
+    # Retain Octoport's recording, media processing and receipt logic.
+    # Adapt only the host composer DOM (Podmasterye uses a textarea).
+    f=root/"native/web/voice.js";s=f.read_text()
+    s=s.replace("job.input.isContentEditable","!job.input.readOnly && !job.input.disabled")
+    s=s.replace("document.querySelector('[data-composer-input][contenteditable=true]')","document.querySelector('textarea[data-composer-input]')")
+    s=s.replace("card?.querySelector('.uV2eYG_trailing')","card?.querySelector('.composer-footer')")
+    s=s.replace("host?.querySelector('button.uV2eYG_primary')","host?.querySelector('button[type=submit]')")
+    a=s.index("      const selection=window.getSelection()");b=s.index("      display('','Голосовой ввод',false);",a)
+    s=s[:a]+"""      job.input.focus();
+      const prefix=job.input.value.trim()?' ':'';
+      job.input.setRangeText(prefix+answer.text.trim(),job.input.value.length,job.input.value.length,'end');
+      job.input.dispatchEvent(new Event('input',{bubbles:true}));
+"""+s[b:]
+    s=s.replace("attributeFilter:['contenteditable']","attributeFilter:['readonly','disabled']")
+    s=s.replace("octoport.logout","podmasterye.logout")
+    f.write_text(s)
+    edit("native/web/file-drafts.js","octoport.file-drafts.","podmasterye.file-drafts.")
     # Native worker: static product MCP only; no marketplace composition.
     f=root/"native/chat-worker.mjs";s=f.read_text()
     s=s.replace("import { mountPlatformMcp } from './platform-mcp.mjs';","import { mountProductionMcp, registerProductionContext } from './podmasterye-mcp.mjs';")
@@ -175,7 +202,9 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
           });
 '''+s[end:]
     s=s.replace("registerConnectionContext(ctx,attached,available,req.connectionGuides,metered && !!req.knowledge);","registerProductionContext(ctx);")
+    s=s.replace("req.action === 'timerExchange'","req.action === 'localExchange'",1)
     f.write_text(s)
+    edit("native/timer-exchange.mjs","source:{provider:'octoport',model:'timer'}","source:{provider:'harness-local',model:'podmasterye-matrix'}")
     edit("platform_core/provider_keys.py", "/var/lib/harness-prod/provider-keys", "/var/lib/podmasterye/provider-keys")
     edit("native/web/checkout.js", "'octoport-checkout'", "'podmasterye-checkout'")
     edit("native/web/checkout.js", "if (new URLSearchParams(location.search).get('account') === 'wallet') reconcileOnReturn();",

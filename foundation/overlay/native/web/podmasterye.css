@@ -87,9 +87,9 @@ body[data-mode="member"] .layout>aside:has(.messages:not(:empty)) .assistant-int
 body[data-mode="member"] .layout>aside .messages:empty{display:none}
 body[data-mode="member"] .layout>aside .messages{padding:20px 2px;gap:14px}
 body[data-mode="member"] .layout>aside .message{font-size:15px;line-height:1.6}
-body[data-mode="member"] .layout>aside .composer{padding:12px 14px;margin-top:12px}
-body[data-mode="member"] .layout>aside .composer textarea{min-height:82px;font-size:15px}
-body[data-mode="member"] .layout>aside .composer button{width:38px;height:38px}
+body[data-mode="member"] .layout>aside .composer{padding:7px 10px 8px;margin-top:8px;flex:none}
+body[data-mode="member"] .layout>aside .composer textarea{min-height:26px;max-height:124px;height:26px;resize:none;font-size:15px;line-height:20px;padding:3px 4px;overflow-y:auto}
+body[data-mode="member"] .layout>aside .composer button{width:34px;height:34px;min-height:34px;min-width:34px;padding:0;flex:none;border-radius:50%}
 .pm-work-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 16px;padding:0 0 12px;border-bottom:1px solid var(--line);color:var(--muted);font-size:13px}
 .pm-work-header strong{color:var(--ink);font-weight:600}
 .pm-work-header button{flex-shrink:0;font-size:12px;padding:6px 9px}
@@ -116,10 +116,34 @@ body[data-mode="member"].pm-helper-hidden .layout>main .metric-grid{grid-templat
  body[data-mode="member"].pm-mobile-work .layout>aside{display:none}
  body[data-mode="member"].pm-mobile-work .layout>main{display:block}
  body[data-mode="member"] .layout>aside .assistant-header{padding-top:12px}
- body[data-mode="member"] .layout>aside .composer textarea{min-height:64px}
+ body[data-mode="member"] .layout>aside .composer textarea{min-height:26px}
 }
 
 /* Match the actual Octoport scale; keep Podmasterye's existing green palette. */
 :root{zoom:var(--octo-ui-scale);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Helvetica,Arial,sans-serif;}
 .layout nav .pm-admin-link{display:flex;align-items:center;min-height:36px;padding:9px 10px;color:var(--ink);font-size:13.5px;font-weight:500;border-radius:9px;text-decoration:none;}
 .layout nav .pm-admin-link:hover{background:var(--hover);}
+
+.composer-footer{display:flex;align-items:center;gap:6px;margin-top:2px}
+.composer-footer .spacer{flex:1}
+.composer-footer .pm-attach{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.composer-footer .pm-attach:hover:not(:disabled){background:var(--hover)}
+.pm-attachment-drafts{display:flex;flex-wrap:wrap;gap:6px;max-height:160px;overflow:auto;margin-bottom:6px}
+.pm-attachment-drafts[hidden]{display:none}
+.pm-file-chip{display:flex;align-items:center;gap:6px;max-width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;padding:4px 7px;background:var(--bg);font-size:12px}
+.pm-file-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.pm-file-chip img{width:32px;height:32px;object-fit:cover;border-radius:4px}
+.composer .pm-file-chip button{width:22px!important;height:22px!important;min-width:22px!important;min-height:22px!important;background:transparent;color:var(--ink);border:0}
+.pm-message-files{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;font-size:12px}
+.pm-message-files a,.pm-message-files span{max-width:100%;overflow-wrap:anywhere;display:block;padding:7px 10px;border-radius:8px;border:1px solid var(--line);color:var(--ink);text-decoration:none}
+.octo-voice{display:inline-flex;align-items:center;gap:4px;position:relative;flex:none;color:var(--muted)}
+.composer .octo-voice button{background:transparent;color:var(--ink);border:0;display:grid;place-items:center}
+.composer .octo-voice button.octo-voice-main{background:var(--hover);border:1px solid var(--line)}
+.composer .octo-voice[data-state=recording] button.octo-voice-main{background:#c9343b;color:#fff}
+.octo-voice button svg{width:20px;height:20px;pointer-events:none}
+.octo-voice [hidden]{display:none!important}
+.octo-voice-status:not([data-error=true]){position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.octo-voice-status[data-error=true]{position:absolute;bottom:calc(100% + 8px);right:0;z-index:3;width:max-content;max-width:240px;overflow-wrap:anywhere;border:1px solid var(--line);background:var(--panel);padding:8px;border-radius:8px;font-size:12px;color:var(--danger)}
+.octo-voice-clock{font-size:12px;font-variant-numeric:tabular-nums}
+.octo-voice-spinner{animation:octo-voice-spin .8s linear infinite}
+@keyframes octo-voice-spin{to{transform:rotate(360deg)}}

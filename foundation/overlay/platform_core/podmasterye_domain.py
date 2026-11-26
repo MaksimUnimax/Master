@@ -59,6 +59,9 @@ def init(store):
         agent.init(db)
         from . import podmasterye_router as router
         router.init(db)
+        db.execute("""CREATE TABLE IF NOT EXISTS pm_turn_attachments(
+          workspace TEXT NOT NULL,chat TEXT NOT NULL,rid TEXT NOT NULL,ids TEXT NOT NULL,
+          PRIMARY KEY(workspace,chat,rid),FOREIGN KEY(workspace,chat,rid) REFERENCES pm_turns(workspace,chat,rid) ON DELETE CASCADE)""")
 
 def encode(value):
     return json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(",",":"),allow_nan=False)
@@ -185,7 +188,7 @@ def explain(r):
     price="Цена упаковки не указана." if r["material_cost_rub"] is None else "Стоимость материала на изделие: "+r["material_cost_rub"]+" ₽."
     return f'{r["material"]}: упаковка {r["pack_quantity"]} {r.get("base_unit","шт")}, на {r["product"]} — {r["usage_quantity"]} {r.get("base_unit","шт")}. Из упаковки — {r["products_per_pack"]} целых изделий. {price}'
 
-def decide(store,scope,token,rid,text,form_context=None,view_context=None):
+def decide(store,scope,token,rid,text,form_context=None,view_context=None,attachment_ids=None,has_files=False):
     key_id(rid)
     with store._write() as db:
         assert_scope(db,token,scope)
@@ -197,15 +200,19 @@ def decide(store,scope,token,rid,text,form_context=None,view_context=None):
         from . import podmasterye_router as router
         view=router.validate_view(view_context)
         old=db.execute("SELECT text,route,result FROM pm_turns WHERE workspace=? AND chat=? AND rid=?",(w,c,rid)).fetchone()
+        ids=attachment_ids or []
         if old:
+            a=db.execute("SELECT ids FROM pm_turn_attachments WHERE workspace=? AND chat=? AND rid=?",(w,c,rid)).fetchone()
+            if (json.loads(a[0]) if a else [])!=ids:raise Conflict("Этот идентификатор уже использован.")
             if old[0]!=text or agent.current(db,scope,rid)!=ctx or router.previous_view(db,scope,rid)!=view: raise Conflict("Этот идентификатор уже использован.")
             return old[1],json.loads(old[2]) if old[2] else None
         started=int(time()*1000)
         if ctx is not None:db.execute('INSERT INTO pm_agent_context VALUES(?,?,?,?)',(w,c,rid,encode(ctx)))
-        result,selected=router.choose(db,scope,rid,data_scope,text,ctx,view)
+        result,selected=router.choose(db,scope,rid,data_scope,text,ctx,view,attachments=bool(ids),has_files=has_files)
         route="local" if result else "model"
         if result:result.update(role="assistant",requestId=rid,route=route,workshop=data_scope)
         db.execute("INSERT INTO pm_turns VALUES(?,?,?,?,?,?,?)",(w,c,rid,text,route,encode(result) if result else None,started))
+        if ids:db.execute('INSERT INTO pm_turn_attachments VALUES(?,?,?,?)',(w,c,rid,encode(ids)))
         router.record(db,scope,rid,result,selected,started,view)
         return route,result
 
