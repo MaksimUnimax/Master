@@ -43,7 +43,7 @@ def main():
     start=s.index("from .account_access import AccountAccess")
     stop=s.index("\n\nclass PrivateResponses",start)
     s=s[:start]+'''from .account_access import AccountAccess
-from . import access_web, admin_statistics, provider_keys, chat_defaults, turn_progress
+from . import access_web, admin_statistics, provider_keys, chat_defaults, turn_progress, provider_balances, podmasterye_admin_web, podmasterye_visits
 from .admin_costs import AdminCosts
 from .browser_session import browser_routes, browser_token
 from .chat_worker import ChatWorker, WorkerError
@@ -73,12 +73,15 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
                 app.state.admin_costs.journal=Path(shared_path).with_name("usage.jsonl")
             app.state.worker=ChatWorker(shared_path,chat_directory)
             app.state.model_router=None
+            app.state.pm_metrika_path=Path(shared_path).resolve().with_name("metrika.json")
             app.state.market_links=podmasterye_market_links.Store(app.state.identity,Path(shared_path).resolve().parent)
             async with httpx.AsyncClient(timeout=10,trust_env=False,follow_redirects=False) as http:
                 app.state.http=http
                 try:
                     async with telegram_integration.activate(app.state):
-                        yield
+                        app.state.provider_balances=provider_balances.BalanceMonitor(app.state.identity,http,None,telegram=app.state.telegram)
+                        try:yield
+                        finally:await app.state.provider_balances.close()
                 finally:
                     await app.state.progress.close()
                     await app.state.worker.close()
@@ -89,7 +92,7 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
     s=s[:start]+s[stop:]
     start=s.index("    return Starlette(lifespan=lifespan")
     s=s[:start]+'''    return Starlette(lifespan=lifespan,middleware=[Middleware(PrivateResponses)],routes=[
-        *browser_routes(),*guest_routes(),*web_routes(),
+        *browser_routes(),*guest_routes(),*web_routes(),*podmasterye_admin_web.routes(),*podmasterye_visits.routes(),*provider_balances.routes(_token,_body),
         *[r for r in admin_statistics.routes() if r.path not in ("/admin/statistics/remove","/admin/statistics/remove-batch")],
         *turn_progress.routes(_token),*provider_keys.routes(_token,_body),*chat_defaults.routes(_token,_body),
         Route("/api/wallet",wallet),Route("/api/wallet/balance",wallet),
@@ -100,7 +103,7 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
         Route("/api/recover",recover,methods=["POST"]),
         Route("/api/chats",chats,methods=["GET","POST"]),
         *podmasterye_scoped.routes(_token,_body),*podmasterye_services.routes(_token,_body),*podmasterye_market_links.routes(_token,_body),*podmasterye_telegram_config.routes(_token,_body),*podmasterye_matrix_admin.routes(_token,_body),
-        *[r for r in telegram_integration.routes(_body) if r.path!='/api/admin/provider-balances/telegram-connect'],
+        *telegram_integration.routes(_body),
     ],exception_handlers={cls:error_response for cls in (
         AuthenticationError,ChatUnavailable,WorkerError,HTTPException,ValueError)})
 '''
@@ -217,6 +220,24 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
             title={401:"Требуется вход",403:"Доступ ограничен",404:"Страница не найдена"}.get(status,"Не удалось открыть страницу")
             return auth_document(title,'<p class="auth-desc">Проверьте адрес или вернитесь в мастерскую.</p><a class="pm-auth-back" href="/login">Перейти ко входу</a><a class="pm-auth-back" href="/app/">Моя мастерская</a>',status=status)
 """)
+    f.write_text(s)
+    edit("native/web/presence.js","const memberPage = Boolean(account?.login)","const memberPage = page.dataset.mode === 'member' || Boolean(account?.login)")
+    # Reference balance monitoring is local to this database and only DeepSeek is active.
+    f=root/"platform_core/provider_balances.py";s=f.read_text()
+    s=s.replace('    "openrouter": "https://openrouter.ai/api/v1/credits",\n'.replace('\\\n','\n'),'')
+    # The unused provider branches are removed rather than exposing an alternate route.
+    a=s.index("            elif self.router is not None:")
+    b=s.index("            if not credential:",a)
+    s=s[:a]+"            else:raise ValueError('Unsupported provider')\n"+s[b:]
+    s=s.replace('message = ("Ключу OpenRouter недоступен баланс аккаунта. Проверьте право чтения кредитов."\n                           if provider == "openrouter" else "DeepSeek отклонил API-ключ.")','message = "DeepSeek отклонил API-ключ."')
+    s=s.replace('return [], "Маршрут OpenRouter не настроен."','return [], "Шлюз не настроен."')
+    f.write_text(s)
+    edit("platform_core/provider_balance_alerts.py",'LABELS = {"deepseek": "DeepSeek", "openrouter": "OpenRouter"}','LABELS = {"deepseek": "DeepSeek"}')
+    f=root/"platform_core/provider_balance_alerts.py";s=f.read_text().replace("Октопорта","Подмастерья").replace("Октопорт","Подмастерье");f.write_text(s)
+    f=root/"platform_core/metrika_report.py";s=f.read_text().replace("114504756","0").replace("octoport.ru','www.octoport.ru","podmasterye.185-219-43-9.sslip.io").replace("octoport.ru","podmasterye.185-219-43-9.sslip.io").replace("/etc/octoport-metrika.oauth","/etc/podmasterye-metrika.oauth").replace("/var/lib/harness-prod/metrika.oauth","/var/lib/podmasterye-stage/metrika.oauth");f.write_text(s)
+    f=root/"platform_core/admin_statistics.py";s=f.read_text()
+    s=s.replace('    template = Template((UI / "admin-statistics.html").read_text())','    from .podmasterye_admin_web import nav\n    template = Template((UI / "admin-statistics.html").read_text())')
+    s=s.replace('        rows=items, headers=headers(filters),','        admin_nav=nav("statistics"), rows=items, headers=headers(filters),')
     f.write_text(s)
     # No product-specific cost/receipt logic is reimplemented.
     shutil.copytree(HERE/"overlay",root,dirs_exist_ok=True)

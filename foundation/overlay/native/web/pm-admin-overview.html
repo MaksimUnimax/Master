@@ -1,0 +1,46 @@
+<section aria-labelledby="balance-heading">
+<h2 id="balance-heading">Баланс DeepSeek</h2><p class="hint">Баланс API-аккаунта провайдера; расходы Подмастерья учитываются отдельно.</p>
+<div class="balance-grid">
+  <div class="balance-card"><h3>DeepSeek</h3><p id="balance-deepseek" class="balance-value">—</p><p id="balance-deepseek-status" class="balance-status">Загрузка…</p></div>
+
+</div>
+<div class="balance-controls">
+  <button id="balance-refresh" type="button">Обновить</button>
+  <form id="balance-settings">
+    <label>Интервал, мин<input type="number" name="intervalMinutes" value="60" min="1" max="2147483647" step="1" required disabled></label>
+    <button type="submit" disabled>Сохранить интервал</button>
+  </form>
+</div>
+<div class="balance-alerts">
+  <h3>Оповещения в Telegram</h3>
+  <p id="balance-telegram-status" class="balance-status">Проверяем подключение…</p>
+  <form id="balance-alert-settings">
+    <label>Порог, USD<input name="thresholdUsd" type="number" min="0.01" step="0.01" value="1.00" required disabled></label>
+    <label>Курс, CNY за 1 USD<input name="cnyPerUsd" type="number" min="0.00000001" step="any" inputmode="decimal" disabled></label>
+    <button type="submit" disabled>Сохранить оповещения</button>
+  </form>
+  <div class="balance-telegram-actions">
+    <button id="balance-telegram-test" type="button">Проверить связь с Telegram</button>
+    <button id="balance-telegram-connect" type="button">Переподключить Telegram</button>
+  </div>
+</div>
+<p id="balance-message" role="status" aria-live="polite"></p>
+</section>
+<section id="guest-activity" aria-labelledby="guest-activity-heading">
+<header><h2 id="guest-activity-heading">Гостевой чат</h2><a href="/admin/statistics#guest-filter">Лимиты и расходы</a></header>
+<div class="guest-period">
+  <label>Период<select id="guest-period"><option value="today">Сегодня</option><option value="month">30 дней</option><option value="day">Конкретный день</option><option value="range">Диапазон дат</option></select></label>
+  <label id="guest-from-label" hidden><span>Дата</span><input id="guest-from" type="date"></label>
+  <label id="guest-to-label" hidden>По<input id="guest-to" type="date"></label>
+</div>
+<dl id="guest-metrics" aria-live="polite">
+  <div><dt title="Вход, кэш и выход гостевого фильтра DeepSeek">Токены</dt><dd data-guest="tokens"></dd></div>
+  <div><dt>Расход, ₽</dt><dd data-guest="rub"></dd></div>
+  <div><dt>Расход, USD</dt><dd data-guest="usd"></dd></div>
+  <div><dt>Запросы в чат</dt><dd data-guest="messages"></dd></div>
+  <div><dt>Вызовы DeepSeek</dt><dd data-guest="calls"></dd></div>
+  <div><dt title="Разные гостевые чаты, в которых отправили сообщение">Гости</dt><dd data-guest="guests"></dd></div>
+</dl>
+<p id="guest-coverage" class="balance-status" role="status"></p>
+</section>
+

@@ -165,7 +165,7 @@ class IndependentUI(unittest.TestCase):
         p.locator("#cookie-accept").click();p.reload()
         self.assertEqual(p.evaluate("localStorage.getItem('pm-cookie-choice')"),"acknowledged")
         p.set_viewport_size({"width":390,"height":844})
-        self.assertLessEqual(p.evaluate("document.documentElement.scrollWidth"),390)
+        self.assertLessEqual(p.evaluate("document.documentElement.scrollWidth * Number(getComputedStyle(document.documentElement).zoom)"),390)
         expect(p.get_by_role("button",name="Войти",exact=True)).to_be_visible()
 
     def test_02_calculator_validation_live_recalculation(self):
@@ -238,13 +238,13 @@ class IndependentUI(unittest.TestCase):
                 self.nav(sec)
                 self.assertEqual(p.locator("[data-panel]:visible").count(),1)
                 self.assertEqual(p.locator("nav button.active").get_attribute("data-page"),sec)
-                self.assertLessEqual(p.evaluate("document.documentElement.scrollWidth"),1440)
+                self.assertLessEqual(p.evaluate("document.documentElement.scrollWidth * Number(getComputedStyle(document.documentElement).zoom)"),1440)
         self.nav("summary");p.set_viewport_size({"width":390,"height":844})
         for sec in ["products","sales","finance","settings","tasks"]:
             p.locator("#toggle-nav").click();p.locator('nav button[data-page="'+sec+'"]').click()
             expect(p.locator('[data-panel="'+sec+'"]')).to_be_visible()
             expect(p.locator("nav")).not_to_be_visible()
-            self.assertLessEqual(p.evaluate("document.documentElement.scrollWidth"),390)
+            self.assertLessEqual(p.evaluate("document.documentElement.scrollWidth * Number(getComputedStyle(document.documentElement).zoom)"),390)
         p.locator("#toggle-helper").click();expect(p.locator("aside")).to_be_visible();p.locator("#close-helper").click()
 
     def test_06_themes_colors_and_workshop_restore(self):

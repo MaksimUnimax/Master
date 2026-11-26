@@ -39,4 +39,4 @@ class MarketUI(IndependentUI):
         expect(p.locator("#pm-telegram-status")).to_contain_text("не настроен")
         self.assertFalse(p.locator("#tg-config-form").count())
         p.set_viewport_size({"width":390,"height":844})
-        self.assertLessEqual(p.evaluate("document.documentElement.scrollWidth"),390)
+        self.assertLessEqual(p.evaluate("document.documentElement.scrollWidth * Number(getComputedStyle(document.documentElement).zoom)"),390)

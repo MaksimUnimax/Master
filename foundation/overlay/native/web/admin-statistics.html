@@ -4,13 +4,12 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Статистика · Подмастерье</title>
 <script src="/assets/podmasterye-theme.js"></script>
-<link rel="stylesheet" href="/assets/podmasterye.css">
-<script defer src="/ui-assets/project/presence.js"></script>
+<link rel="stylesheet" href="/assets/appearance.css">
+<link rel="stylesheet" href="/assets/admin.css">
+<link rel="stylesheet" href="/assets/podmasterye-admin.css">
+<script defer src="/assets/presence.js"></script>
 </head>
-<body class="pm-simple octo-admin" data-mode="standalone">
-<header class="top"><a class="pm-brand" href="/app/"><span class="brand-mark" aria-hidden="true">П</span>Подмастерье</a><span class="spacer"></span><button type="button" class="icon-btn" data-pm-theme aria-label="Сменить тему">◐</button></header>
-<main class="pm-admin-main">
-<nav aria-label="Администрирование"><a href="/admin">Администрирование</a><a href="/app/">Мастерская</a></nav>
+<body class="pm-admin octo-admin octo-statistics"><div class="pm-admin-layout">$admin_nav<main class="pm-admin-main pm-admin-wide">
 <h1>Статистика</h1>
 <section aria-labelledby="stats-users">
   <h2 id="stats-users">Пользователи</h2>
@@ -47,4 +46,4 @@
   </form>
   <p class="stats-hint">Новая сумма действует для следующих регистраций. Ноль отключает начисление.</p>
 </section>
-</main></body></html>
+</main></div></body></html>

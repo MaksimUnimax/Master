@@ -17,14 +17,13 @@ function row(parent,text,role='assistant',receipt){
     line.textContent='Расходы ИИ: '+(cost.rub!=null?cost.rub+' ₽':cost.usd!=null?cost.usd+' USD':'не подтверждены')+(u?' · вход '+u.input+' · кэш '+u.cache+' · выход '+u.output:'');parent.append(line);}
   parent.scrollTop=parent.scrollHeight;
 }
-function navigate(name,reveal=true){for(const el of document.querySelectorAll('[data-panel]'))el.hidden=el.dataset.panel!==name;for(const el of document.querySelectorAll('[data-page]'))el.classList.toggle('active',el.dataset.page===name);const pager=$('#event-pager');if(pager)pager.hidden=!['stock','purchases','manufacture','sales','expenses','journal','workers','assets'].includes(name);const filters=$('#accounting-filters');if(filters)filters.hidden=['admin','wallet','settings','integrations','tasks'].includes(name);window.PMExtras?.navigate(name,reveal);if(name==='admin'&&admin)refreshUsage();if(name==='integrations'){refreshTelegram();window.PMMarket?.load();}if(name==='admin'&&admin)window.PMMarket?.loadConfig();if(name==='admin'&&admin)window.PMMatrix?.load();}
+function navigate(name,reveal=true){for(const el of document.querySelectorAll('[data-panel]'))el.hidden=el.dataset.panel!==name;for(const el of document.querySelectorAll('[data-page]'))el.classList.toggle('active',el.dataset.page===name);const pager=$('#event-pager');if(pager)pager.hidden=!['stock','purchases','manufacture','sales','expenses','journal','workers','assets'].includes(name);const filters=$('#accounting-filters');if(filters)filters.hidden=['admin','wallet','settings','integrations','tasks'].includes(name);window.PMExtras?.navigate(name,reveal);if(name==='integrations'){refreshTelegram();window.PMMarket?.load();}}
 function table(host,cols,values){host.replaceChildren();const t=document.createElement('table'),h=t.createTHead().insertRow();for(const c of cols){const th=document.createElement('th');th.textContent=c;h.append(th);}const b=t.createTBody();for(const vals of values){const r=b.insertRow();for(const v of vals)r.insertCell().textContent=v??'Не указано';}host.append(t);}
 async function refresh(ui){return window.PMAccounting.refresh(ui);}
 async function wallet(){
   const w=await api('/api/wallet');$('#balance-label').textContent='Баланс: '+w.available+' монет';
   $('#wallet-info').textContent='Доступно '+w.available+' · в резерве '+w.reserved+' · цена монеты '+w.salePrice.rubPerCoin+' ₽';
   table($('#wallet-history'),['Списание, монет','Статус'],w.charges.map(c=>[c.coins,c.pending?'В обработке':'Учтено']));
-  if(admin&&$('#pricing-form')){$('#pricing-form').elements.markupPercent.value=w.salePrice.markupPercent;if(!document.querySelector('[data-panel=admin]').hidden)refreshUsage();}
 }
 function formRecipe(d){const f=$('#recipe-form');for(const key of ['product','material','pack_quantity','usage_quantity','pack_price','unit'])f.elements[key].value=d[key]??(key==='unit'?d.base_unit||'шт':'');navigate('products');$('#recipe-status').textContent='Проверьте данные и сохраните форму.';}
 const agentForms={
@@ -72,16 +71,6 @@ async function applyAgentDraft(d){
   await refresh();
  }
 }
-async function refreshUsage(){
- const status=$('#ai-provider-status');if(!admin||!status)return;
- try{const d=await api('/api/admin/podmasterye/usage');
- status.textContent=(d.configured&&d.gateway?'DeepSeek подключён.':'DeepSeek не подключён.')+' · Отдельная статистика сервиса.';
- const cols=['Период / аккаунт','Вызовы','Вход','Кэш','Выход','Расход, ₽','Расход, USD','Монеты','Не подтверждено'];
- const values=(label,b)=>[label,b.attempts,b.input,b.cache,b.output,b.rub+(b.rubIncomplete?' (неполная)':''),b.usd,b.coins,b.pending];
- table($('#ai-usage-periods'),cols,Object.entries(d.periods).map(([k,b])=>values(({all:'За всё время',today:'Сегодня',month:'Этот месяц'})[k],b)));
- table($('#ai-usage-accounts'),cols,d.accounts.map(b=>values(b.login,b)));
- }catch(e){status.textContent=e.message;}
-}
 function telegramState(d){
  const s=$('#pm-telegram-status');if(!s)return;
  s.textContent=d.linked?'Telegram подключён.':d.configured?'Нет подтверждённой привязки аккаунта.':'Telegram не настроен.';
@@ -94,14 +83,6 @@ async function initMember(){
   window.PMAccounting.init();
   window.PMExtras.initMember();
   initAgent();
-  if(admin){
-   $('#ai-usage-refresh').onclick=refreshUsage;
-   $('#deepseek-key-form').onsubmit=async e=>{
-    e.preventDefault();const f=e.target,b=f.querySelector('button'),status=$('#deepseek-key-status');b.disabled=true;
-    try{await post('/api/admin/provider-keys/deepseek',{key:f.elements.key.value});f.reset();status.textContent='Ключ сохранён. Применяется к следующим запросам.';await refreshUsage();}
-    catch(err){status.textContent=err.message;}finally{b.disabled=false;}
-   };
-  }
   for(const b of document.querySelectorAll('[data-pm-telegram]'))b.onclick=async()=>{
    const action=b.dataset.pmTelegram;if(action==='disconnect'&&!confirm('Отключить Telegram только в Подмастерье?'))return;
    b.disabled=true;try{
@@ -116,7 +97,7 @@ async function initMember(){
    }catch(e){$('#pm-telegram-status').textContent=e.message;b.disabled=false;}
   };
   for(const b of document.querySelectorAll('[data-page]'))b.onclick=()=>{navigate(b.dataset.page);window.PMAccounting.navigate();};
-  const query=new URLSearchParams(location.search);const initial=query.get('account')==='wallet'?'wallet':query.get('section')==='admin'&&admin?'admin':query.get('section')==='integrations'?'integrations':'summary';navigate(initial,initial!=='summary'||!!sessionStorage.getItem('pm-calc-pending'));
+  const query=new URLSearchParams(location.search);const initial=query.get('account')==='wallet'?'wallet':query.get('section')==='integrations'?'integrations':'summary';navigate(initial,initial!=='summary'||!!sessionStorage.getItem('pm-calc-pending'));
   document.addEventListener('octo-wallet-refresh',()=>wallet().catch(()=>{}));
   await Promise.all([refresh(),wallet()]);
   const chat=(await post('/api/workshops/chat',{workshop:window.PMWorkshopId})).chatId;
@@ -141,11 +122,7 @@ async function initMember(){
   f.querySelector('button').disabled=false;
   $('#recipe-form').onsubmit=async e=>{e.preventDefault();const f=e.target,o=Object.fromEntries(new FormData(f));o.pack_quantity=Number(o.pack_quantity);o.usage_quantity=Number(o.usage_quantity);o.pack_price=o.pack_price.trim()||null;
     const b=f.querySelector('button');b.disabled=true;try{await post('/api/production/recipe',{requestId:crypto.randomUUID(),recipe:o});await refresh();$('#recipe-status').textContent='Сохранено.';}catch(err){$('#recipe-status').textContent=err.message;}finally{b.disabled=false;}};
-  if(admin){
-    $('#pricing-form').onsubmit=async e=>{e.preventDefault();try{await post('/api/admin/coin-pricing',Object.fromEntries(new FormData(e.target)));await wallet();}catch(err){alert(err.message);}};
-    $('#credit-form').onsubmit=async e=>{e.preventDefault();try{await post('/api/admin/coin-grants',{...Object.fromEntries(new FormData(e.target)),requestId:crypto.randomUUID()});await wallet();}catch(err){alert(err.message);}};
-    $('#account-costs').onsubmit=async e=>{e.preventDefault();try{$('#account-costs-result').textContent=JSON.stringify(await api('/api/admin/accounts/'+encodeURIComponent(e.target.elements.login.value)+'/wallet'),null,2);}catch(err){$('#account-costs-result').textContent=err.message;}};
-  }
+
 }
 async function initGuest(){
   const registration=document.querySelector('form[action="/register"]');
