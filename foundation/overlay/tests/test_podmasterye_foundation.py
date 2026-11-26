@@ -129,3 +129,27 @@ class Foundation(unittest.TestCase):
             r=self.turn(h,c,"unknown","uncertain fixture");self.assertEqual(r.status_code,409,r.text)
         self.assertGreater(Decimal(self.wallet(h)["reserved"]),0)
         with sqlite3.connect(self.db) as db:self.assertEqual(db.execute("SELECT COUNT(*) FROM coin_attempts").fetchone()[0],1)
+
+    def test_native_accounting_draft_and_report(self):
+        h,c=self.actor("buyer")
+        r=self.turn(h,c,"seed",EXAMPLE)
+        self.assertEqual(r.status_code,200,r.text)
+        r=self.turn(h,c,"purchase","Тест свободной закупки: оформите покупку материала.")
+        self.assertEqual(r.status_code,200,r.text)
+        draft=r.json()["accountingDraft"]
+        self.assertEqual(draft["operation"],"purchase")
+        self.assertEqual(draft["preview"]["value_rub"],"800.00")
+        before=self.c.get("/api/accounting",headers=h).json()
+        self.assertEqual(before["materials"][0]["quantity"],0)
+        data={"requestId":"confirm-purchase","operation":draft["operation"],"arguments":draft["arguments"],"revision":draft["revision"]}
+        a=self.c.post("/api/accounting/commit",headers=h,json=data)
+        b=self.c.post("/api/accounting/commit",headers=h,json=data)
+        self.assertEqual(a.status_code,200,a.text);self.assertEqual(a.json(),b.json())
+        self.assertEqual(self.c.get("/api/accounting",headers=h).json()["materials"][0]["quantity"],400)
+        self.assertEqual(self.wallet(h)["available"],"9.99856")
+        r=self.turn(h,c,"report","Тест свободного отчёта: сверьте показатели.")
+        self.assertEqual(r.status_code,200,r.text)
+        self.assertEqual(self.wallet(h)["available"],"9.99712")
+        self.assertNotIn("modelCost",r.json())
+        with sqlite3.connect(self.db) as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM coin_attempts").fetchone()[0],4)

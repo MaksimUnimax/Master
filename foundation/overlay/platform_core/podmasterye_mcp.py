@@ -8,7 +8,7 @@ from .catalog import Capability
 from .dispatch import UnavailableTool, InvalidToolInput, ToolExecutionFailed
 from .mcp_server import serve_stdio
 from .storage import Scope, Store, _owns_chat
-from . import podmasterye_domain as domain
+from . import podmasterye_domain as domain, podmasterye_book as book, podmasterye_matrix as matrix
 
 class ProductionTools:
     def __init__(self,store,scope,request,grant):
@@ -16,6 +16,8 @@ class ProductionTools:
         self.digest=hashlib.sha256(grant.encode()).hexdigest() if grant else ""
         self.tools={
             "production_state":Capability("production_state","Получить текущие материалы, изделия и материальную себестоимость из БД.",{"type":"object","properties":{},"additionalProperties":False},self.snapshot),
+            "accounting_report":Capability("accounting_report","Получить рассчитанный сервером отчёт: summary, stock, sales, planning, finance, journal. Укажите даты периода; ограничьте детализацию.",matrix.report_schema(),self.accounting_report),
+            "prepare_accounting":Capability("prepare_accounting",matrix.operation_description(),matrix.operation_schema(),self.prepare_accounting,effect="edit"),
             "prepare_recipe":Capability("prepare_recipe","Подготовить форму материала и рецептуры. Не сохраняет изделие без подтверждения пользователя. Количество в упаковке и расход на изделие — штуки, цена всей упаковки необязательна.",domain.RECIPE_SCHEMA,self.prepare),
         }
     def authorize(self,db):
@@ -47,11 +49,36 @@ class ProductionTools:
         with self.store._lock:
             self.authorize(self.store._db)
             return domain.state(self.store._db,scope.workspace_id)
+    def accounting_report(self,scope,args):
+        with self.store._lock:
+            self.authorize(self.store._db)
+            result=book.report(self.store._db,scope.workspace_id,**args)
+            # Keep model responses bounded. Complete detail remains available in the browser.
+            for k,v in list(result.items()):
+                if isinstance(v,list) and len(v)>30:
+                    result[k]=v[:30];result[k+"_truncated"]=len(v)-30
+            return result
+    def prepare_accounting(self,scope,args):
+        operation=args["operation"]
+        with self.store._write() as db:
+            self.authorize(db)
+            if db.execute("SELECT 1 FROM pm_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,self.request)).fetchone():
+                raise ValueError("One draft per request")
+            a=book.validate(operation,args["arguments"])
+            raw=domain.encode({"operation":operation,"arguments":a})
+            row=db.execute("SELECT args,result FROM pm_accounting_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,self.request)).fetchone()
+            if row:
+                if row[0]!=raw:raise ValueError("One draft per request")
+                return {"draft":json.loads(row[1]),"saved":False}
+            draft=book.preview_action(db,scope.workspace_id,operation,a)
+            db.execute("INSERT INTO pm_accounting_drafts VALUES(?,?,?,?,?)",(scope.workspace_id,scope.chat_id,self.request,raw,domain.encode(draft)))
+            return {"draft":draft,"saved":False}
     def prepare(self,scope,args):
         result=domain.preview(args)
         raw=domain.encode(domain.recipe_args(args))
         with self.store._write() as db:
             self.authorize(db)
+            if db.execute("SELECT 1 FROM pm_accounting_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,self.request)).fetchone():raise ValueError("One draft per request")
             row=db.execute("SELECT args,result FROM pm_drafts WHERE workspace=? AND chat=? AND rid=?",
                            (scope.workspace_id,scope.chat_id,self.request)).fetchone()
             if row:

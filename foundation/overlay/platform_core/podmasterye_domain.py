@@ -32,13 +32,13 @@ SCHEMA = (
        chat TEXT NOT NULL REFERENCES chats(chat_id) ON DELETE CASCADE, rid TEXT NOT NULL,
        args TEXT NOT NULL, result TEXT NOT NULL, PRIMARY KEY(workspace,chat,rid))""",
 )
-RECIPE_FIELDS = {"material","product","pack_quantity","usage_quantity","pack_price"}
+RECIPE_FIELDS = {"material","product","pack_quantity","usage_quantity","pack_price","unit"}
 RECIPE_SCHEMA = {"type":"object","properties":{
     "material":{"type":"string","minLength":1,"maxLength":120},
     "product":{"type":"string","minLength":1,"maxLength":120},
     "pack_quantity":{"type":"integer","minimum":1,"maximum":1000000000},
     "usage_quantity":{"type":"integer","minimum":1,"maximum":1000000000},
-    "pack_price":{"type":["string","null"],"maxLength":22}},
+    "pack_price":{"type":["string","null"],"maxLength":22},"unit":{"type":"string","enum":["шт","г","мл","мм","см²","компл"]}},
     "required":["material","product","pack_quantity","usage_quantity"],"additionalProperties":False}
 REQUEST_ID = re.compile(r"[A-Za-z0-9_-]{1,128}")
 class Conflict(ValueError):
@@ -47,6 +47,8 @@ class Conflict(ValueError):
 def init(store):
     with store._write() as db:
         for stmt in SCHEMA: db.execute(stmt)
+        from . import podmasterye_book as book
+        book.init(db)
 
 def encode(value):
     return json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(",",":"),allow_nan=False)
@@ -65,7 +67,7 @@ def clean_name(value):
     return result
 
 def recipe_args(args):
-    if not isinstance(args,dict) or not RECIPE_FIELDS-{"pack_price"}<=args.keys()<=RECIPE_FIELDS:
+    if not isinstance(args,dict) or not RECIPE_FIELDS-{"pack_price","unit"}<=args.keys()<=RECIPE_FIELDS:
         raise ValueError("Укажите изделие, материал, упаковку и расход.")
     result={k:clean_name(args[k]) for k in ("material","product")}
     for k in ("pack_quantity","usage_quantity"):
@@ -79,6 +81,10 @@ def recipe_args(args):
             raise ValueError("Укажите цену упаковки в рублях.")
         price=format(Decimal(price.replace(",",".")),"f")
     result["pack_price"]=price
+    unit=args.get("unit")
+    if unit is not None and unit not in ("шт","г","мл","мм","см²","компл"):
+        raise ValueError("Неизвестная единица материала.")
+    if unit is not None:result["unit"]=unit
     return result
 
 def preview(args):
@@ -86,7 +92,7 @@ def preview(args):
     cost=None
     if v["pack_price"] is not None:
         cost=format((Decimal(v["pack_price"])*v["usage_quantity"]/v["pack_quantity"]).quantize(Decimal(".01"),rounding=ROUND_HALF_UP),"f")
-    return {**v,"base_unit":"шт","purchase_unit":"упаковка",
+    return {**v,"base_unit":v.get("unit","шт"),"purchase_unit":"упаковка",
             "products_per_pack":v["pack_quantity"]//v["usage_quantity"],
             "material_cost_rub":cost}
 
@@ -101,9 +107,11 @@ def _save(db,workspace,rid,args):
     if old:
         if old[0]!=raw: raise Conflict("Этот идентификатор уже использован.")
         return json.loads(old[1])
-    mat=db.execute("SELECT id,pack,price,name FROM pm_materials WHERE workspace=? AND normalized=?",(workspace,v["material"].casefold())).fetchone()
+    mat=db.execute("SELECT id,pack,price,name,unit FROM pm_materials WHERE workspace=? AND normalized=?",(workspace,v["material"].casefold())).fetchone()
     if mat:
-        mid,pack,price,name=mat
+        mid,pack,price,name,unit=mat
+        if v.get("unit",unit)!=unit:raise Conflict("Единица материала не совпадает со справочником.")
+        v["unit"]=unit
         if pack!=v["pack_quantity"]:
             raise Conflict("У материала уже другая упаковка. Изменение общей единицы требует отдельной операции.")
         if v["pack_price"] is not None:
@@ -113,13 +121,14 @@ def _save(db,workspace,rid,args):
         v["material"]=name
     else:
         mid=uuid4().hex
-        db.execute("INSERT INTO pm_materials VALUES(?,?,?,?,?,?)",(mid,workspace,v["material"],v["material"].casefold(),v["pack_quantity"],v["pack_price"]))
+        v["unit"]=v.get("unit","шт")
+        db.execute("INSERT INTO pm_materials(id,workspace,name,normalized,pack,price,unit) VALUES(?,?,?,?,?,?,?)",(mid,workspace,v["material"],v["material"].casefold(),v["pack_quantity"],v["pack_price"],v["unit"]))
     product=db.execute("SELECT id,name FROM pm_products WHERE workspace=? AND normalized=?",(workspace,v["product"].casefold())).fetchone()
     if product:
         pid,v["product"]=product
     else:
         pid=uuid4().hex
-        db.execute("INSERT INTO pm_products VALUES(?,?,?,?)",(pid,workspace,v["product"],v["product"].casefold()))
+        db.execute("INSERT INTO pm_products(id,workspace,name,normalized) VALUES(?,?,?,?)",(pid,workspace,v["product"],v["product"].casefold()))
     db.execute("INSERT INTO pm_recipe VALUES(?,?,?) ON CONFLICT(product,material) DO UPDATE SET qty=excluded.qty",(pid,mid,v["usage_quantity"]))
     result={**preview(v),"material_id":mid,"product_id":pid}
     db.execute("INSERT INTO pm_mutations VALUES(?,?,?,?)",(workspace,rid,raw,encode(result)))
@@ -131,12 +140,12 @@ def save_recipe(store,token,rid,args):
         return _save(db,workspace,"manual:"+key_id(rid),args)
 
 def state(db,workspace):
-    mats=[dict(id=r[0],name=r[1],pack_quantity=r[2],pack_price=r[3],base_unit="шт",stock=None)
-          for r in db.execute("SELECT id,name,pack,price FROM pm_materials WHERE workspace=? ORDER BY normalized",(workspace,))]
+    mats=[dict(id=r[0],name=r[1],pack_quantity=r[2],pack_price=r[3],base_unit=r[4],category=r[5],stock=None)
+          for r in db.execute("SELECT id,name,pack,price,unit,category FROM pm_materials WHERE workspace=? ORDER BY normalized",(workspace,))]
     products=[]
     for pid,name in db.execute("SELECT id,name FROM pm_products WHERE workspace=? ORDER BY normalized",(workspace,)):
-        rows=[{**preview(dict(product=name,material=mn,pack_quantity=pack,usage_quantity=qty,pack_price=price)), "material_id":mid}
-              for mid,mn,pack,price,qty in db.execute("""SELECT m.id,m.name,m.pack,m.price,r.qty FROM pm_recipe r JOIN pm_materials m ON m.id=r.material
+        rows=[{**preview(dict(product=name,material=mn,pack_quantity=pack,usage_quantity=qty,pack_price=price,unit=unit)), "material_id":mid}
+              for mid,mn,pack,price,qty,unit in db.execute("""SELECT m.id,m.name,m.pack,m.price,r.qty,m.unit FROM pm_recipe r JOIN pm_materials m ON m.id=r.material
                 WHERE r.product=? AND m.workspace=? ORDER BY m.normalized""",(pid,workspace))]
         complete=bool(rows) and all(x["pack_price"] is not None for x in rows)
         total=sum((Decimal(x["pack_price"])*x["usage_quantity"]/x["pack_quantity"] for x in rows),Decimal(0)) if complete else None
@@ -157,7 +166,7 @@ PATTERN=re.compile(r"(?:добавь|создай|заведи) (?P<material>[^,
 
 def explain(r):
     price="Цена упаковки не указана." if r["material_cost_rub"] is None else "Стоимость материала на изделие: "+r["material_cost_rub"]+" ₽."
-    return f'{r["material"]}: упаковка {r["pack_quantity"]} шт., на {r["product"]} — {r["usage_quantity"]} шт. Из упаковки — {r["products_per_pack"]} целых изделий. {price}'
+    return f'{r["material"]}: упаковка {r["pack_quantity"]} {r.get("base_unit","шт")}, на {r["product"]} — {r["usage_quantity"]} {r.get("base_unit","шт")}. Из упаковки — {r["products_per_pack"]} целых изделий. {price}'
 
 def decide(store,scope,token,rid,text):
     key_id(rid)
@@ -168,15 +177,9 @@ def decide(store,scope,token,rid,text):
         if old:
             if old[0]!=text: raise Conflict("Этот идентификатор уже использован.")
             return old[1],json.loads(old[2]) if old[2] else None
-        normalized=" ".join(text.strip().casefold().replace("ё","е").split()).strip("?! .")
-        result=None
-        if normalized in FAQ:
-            result={"text":FAQ[normalized]}
-        elif normalized in ("открой материалы","покажи материалы","покажи остатки материалов"):
-            result={"text":"Открываю материалы. Фактические остатки пока не ведутся.","ui":{"page":"materials"}}
-        elif normalized in ("открой товары","покажи товары","покажи изделия"):
-            result={"text":"Открываю изделия и рецептуры.","ui":{"page":"products"}}
-        elif m:=PATTERN.fullmatch(text.strip().rstrip("!.")):
+        from . import podmasterye_matrix as matrix
+        result=matrix.route(db,w,text)
+        if result is None and (m:=PATTERN.fullmatch(text.strip().rstrip("!."))):
             a=dict(material=m["material"],product=m["product"],pack_quantity=int(m["pack"]),usage_quantity=int(m["usage"]),pack_price=m["price"])
             saved=_save(db,w,"assistant:"+c+":"+rid,a)
             result={"text":"Сохранено. "+explain(saved),"ui":{"page":"products"},"recipe":saved}
@@ -190,6 +193,12 @@ def complete(store,scope,token,rid,result):
         assert_scope(db,token,scope)
         d=db.execute("SELECT result FROM pm_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,rid)).fetchone()
         result={**result,"route":"model"}
+        a=db.execute("SELECT result FROM pm_accounting_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,rid)).fetchone()
+        if a:
+            from . import podmasterye_book as book
+            draft=json.loads(a[0]); result["accountingDraft"]=draft
+            result["text"]="Подготовил форму «"+book.FIELDS[draft["operation"]][0]+"». Проверьте расчёт и подтвердите запись."
+            result["ui"]={"page":book.PAGES[draft["operation"]]}
         if d:
             result["draft"]=json.loads(d[0])
             result["text"]="Подготовил форму рецептуры. "+explain(result["draft"])+" Проверьте данные и нажмите «Сохранить»."

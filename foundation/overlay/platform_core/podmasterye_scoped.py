@@ -3,9 +3,9 @@ import re
 from functools import partial
 from starlette.concurrency import run_in_threadpool
 from starlette.exceptions import HTTPException
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
-from . import podmasterye_domain as domain, coins, turn_progress
+from . import podmasterye_domain as domain, podmasterye_book as book, coins, turn_progress
 from .identity import _secret_digest, AuthenticationError, ChatUnavailable
 from .chat_worker import WorkerError
 from .admin_costs import present_chat
@@ -29,6 +29,34 @@ def routes(token_for,body):
         try: result=await run_in_threadpool(domain.save_recipe,req.app.state.identity,token,fields["requestId"],fields["recipe"])
         except domain.Conflict as e: raise HTTPException(409,str(e)) from None
         return JSONResponse(result)
+    async def accounting(req):
+        token=token_for(req,allow_cookie=True)
+        q=req.query_params
+        try:
+            opts={k:q[k] for k in ("start","end","event_group") if q.get(k)}
+            for k in ("horizon","lead","safety","offset","limit"):
+                if k in q:opts[k]=int(q[k])
+            return JSONResponse(await run_in_threadpool(book.read,req.app.state.identity,token,**opts))
+        except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+    async def prepare(req):
+        token=token_for(req,allow_cookie=True)
+        fields=await body(req,"operation","arguments")
+        try:
+            return JSONResponse(await run_in_threadpool(book.preview_for_user,req.app.state.identity,token,fields["operation"],fields["arguments"]))
+        except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+        except ValueError as e:raise HTTPException(400,str(e)) from None
+    async def commit(req):
+        token=token_for(req,allow_cookie=True)
+        fields=await body(req,"requestId","operation","arguments","revision")
+        try:
+            result=await run_in_threadpool(book.mutate,req.app.state.identity,token,fields["requestId"],fields["operation"],fields["arguments"],fields["revision"])
+            return JSONResponse(result)
+        except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+        except ValueError as e:raise HTTPException(400,str(e)) from None
+    async def export(req):
+        token=token_for(req,allow_cookie=True);fmt=req.path_params["format"]
+        data,media=await run_in_threadpool(book.export,req.app.state.identity,token,fmt)
+        return Response(data,media_type=media,headers={"Content-Disposition":"attachment; filename=podmasterye-accounting."+fmt,"Cache-Control":"no-store"})
     async def scoped(req,action):
         token=token_for(req,allow_cookie=True); app=req.app.state; identity=app.identity
         if action=="turn":
@@ -68,6 +96,10 @@ def routes(token_for,body):
     return [
         Route("/api/production",data),
         Route("/api/production/recipe",save,methods=["POST"]),
+        Route("/api/accounting",accounting),
+        Route("/api/accounting/preview",prepare,methods=["POST"]),
+        Route("/api/accounting/commit",commit,methods=["POST"]),
+        Route("/api/accounting/export/{format}",export),
         Route("/api/chats/{chat_id}/messages",partial(scoped,action="history")),
         Route("/api/chats/{chat_id}/turns",partial(scoped,action="turn"),methods=["POST"]),
     ]

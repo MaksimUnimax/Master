@@ -1,0 +1,49 @@
+id	intent	aliases	pattern	operation_or_view	page	verification
+A-F01	faq	как считается себестоимость | как рассчитывается себестоимость | как считается стоимость материала | как считается средняя цена материала			stock	primary_alias_tested
+A-F02	faq	почему прибыль отличается от денежного потока | почему закупки не вычитаются из прибыли | чем прибыль отличается от денежного потока			finance	primary_alias_tested
+A-F03	faq	как списывается сырье при продаже | как списываются материалы | как работает fifo | как считается себестоимость продажи			manufacture	primary_alias_tested
+A-F04	faq	как считаются закупки | как рассчитывается план закупок | как понять сколько пачек купить			planning	primary_alias_tested
+A-F05	faq	как учитывается возврат | как работает возврат | как оформить возврат			sales	primary_alias_tested
+A-F06	faq	как исправить ошибку | как отменить операцию | как работает сторно			journal	primary_alias_tested
+A-F07	faq	как добавить начальный остаток | как внести остатки			stock	primary_alias_tested
+A-F08	faq	как работает оплата продажи | как учитывать неоплаченные продажи			sales	primary_alias_tested
+A-F09	faq	как считается чистая прибыль | как считается прибыль | из чего складывается прибыль			finance	primary_alias_tested
+A-F10	faq	как работает помощник | почему помощник просит подтверждение			summary	primary_alias_tested
+A-U01	ui	открой склад | покажи склад | открой остатки			stock	primary_alias_tested
+A-U02	ui	открой закупки | покажи закупки			purchases	primary_alias_tested
+A-U03	ui	открой производство | покажи производство			manufacture	primary_alias_tested
+A-U04	ui	открой продажи | покажи продажи			sales	primary_alias_tested
+A-U05	ui	открой финансы | открой отчеты | покажи финансы			finance	primary_alias_tested
+A-U06	ui	открой расходы | покажи расходы			expenses	primary_alias_tested
+A-U07	ui	открой материалы | покажи материалы			materials	primary_alias_tested
+A-U08	ui	открой товары | покажи товары | покажи изделия			products	primary_alias_tested
+A-U09	ui	открой журнал | покажи журнал операций			journal	primary_alias_tested
+A-U10	ui	открой план закупок | открой рекомендации закупок			planning	primary_alias_tested
+A-U11	ui	открой сводку | покажи сводку			summary	primary_alias_tested
+A-R01	report	сколько заработал | покажи прибыль | какая прибыль | сколько прибыли | покажи чистую прибыль		finance	finance	primary_alias_tested
+A-R02	report	сколько выручка | покажи выручку | сколько продал		finance	sales	primary_alias_tested
+A-R03	report	покажи денежный поток | сколько денег осталось | сколько поступило и потрачено		finance	finance	primary_alias_tested
+A-R04	report	сколько денег на складе | стоимость запасов | сколько стоит склад		stock	stock	primary_alias_tested
+A-R05	report	покажи остатки материалов | сколько материалов осталось | сколько готовых изделий		stock	stock	primary_alias_tested
+A-R06	report	что нужно закупить | сколько нужно купить | что пора докупить | план закупок		planning	planning	primary_alias_tested
+A-R07	report	покажи расходы по статьям | сколько потратил | сколько расходов		finance	expenses	primary_alias_tested
+A-R08	report	покажи прибыль по товарам | какие товары прибыльные | прибыльность товаров		finance	finance	primary_alias_tested
+A-R09	report	покажи продажи по каналам | выручка по каналам		sales	sales	primary_alias_tested
+A-R10	report	сколько потратил на закупки | сумма закупок		finance	purchases	primary_alias_tested
+A-R11	report	сколько должны покупатели | покажи долги покупателей		summary	sales	primary_alias_tested
+A-R12	report	сколько списал материалов | стоимость списаний		finance	stock	primary_alias_tested
+A-W01	form	добавь материал | создай материал | изменить материал		material	from operation	primary_alias_tested
+A-W02	form	добавь изделие | создай изделие | изменить изделие		product	from operation	primary_alias_tested
+A-W03	form	внеси начальный остаток | добавь начальный остаток		opening	from operation	primary_alias_tested
+A-W04	form	добавь закупку | запиши закупку | создай закупку	(?:закупка|купил|закупил) (?P<material>.+?) (?P<quantity>\d+) (?P<purchase_unit>пачек|пачки|пачку|упаковок|упаковки|упаковку|шт|штук|г|мл) за (?P<total>\d+(?:[.,]\d{1,2})?)(?: ₽| рублей)?	purchase	from operation	primary_alias_tested
+A-W05	form	добавь производство | изготовил партию | выпусти партию	(?:изготовил|сделал|произвел|произвёл) (?P<quantity>\d+) (?:шт(?:ук)? )?(?P<product>.+)	manufacture	from operation	primary_alias_tested
+A-W06	form	добавь продажу | запиши продажу | создай продажу	(?:продал|продажа) (?P<quantity>\d+) (?:шт(?:ук)? )?(?P<product>.+?) по (?P<unit_price>\d+(?:[.,]\d{1,2})?)(?: ₽| рублей)?	sale	from operation	primary_alias_tested
+A-W07	form	запиши оплату | добавь оплату продажи | отметь оплату		payment	from operation	primary_alias_tested
+A-W08	form	оформи возврат | добавь возврат		return	from operation	primary_alias_tested
+A-W09	form	добавь расход | запиши расход	(?:расход|потратил) (?P<total>\d+(?:[.,]\d{1,2})?)(?: ₽| рублей)? (?:на )?(?P<category>.+)	expense	from operation	primary_alias_tested
+A-W10	form	спиши материал | добавь списание	спиши (?P<quantity>\d+) (?:шт(?:ук)? )?(?P<material>.+)	writeoff	from operation	primary_alias_tested
+A-W11	form	сторнируй операцию | отмени запись		reverse	from operation	primary_alias_tested
+A-U12	ui	скачай отчет | выгрузи отчет | экспорт отчета			finance	primary_alias_tested
+A-R13	specific		сколько <материал> осталось	stock	stock	specific_query_tested
+A-R14	specific		сколько упаковок <материал> ушло за месяц	planning	planning	specific_query_tested
+A-R15	specific		сколько <материал> нужно купить	planning	planning	specific_query_tested
