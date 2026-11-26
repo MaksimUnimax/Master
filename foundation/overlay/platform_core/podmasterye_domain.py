@@ -53,6 +53,8 @@ def init(store):
         workshops.init(db)
         from . import podmasterye_integrations as integrations
         integrations.init(db)
+        from . import podmasterye_agent_forms as agent
+        agent.init(db)
 
 def encode(value):
     return json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(",",":"),allow_nan=False)
@@ -179,20 +181,23 @@ def explain(r):
     price="Цена упаковки не указана." if r["material_cost_rub"] is None else "Стоимость материала на изделие: "+r["material_cost_rub"]+" ₽."
     return f'{r["material"]}: упаковка {r["pack_quantity"]} {r.get("base_unit","шт")}, на {r["product"]} — {r["usage_quantity"]} {r.get("base_unit","шт")}. Из упаковки — {r["products_per_pack"]} целых изделий. {price}'
 
-def decide(store,scope,token,rid,text):
+def decide(store,scope,token,rid,text,form_context=None):
     key_id(rid)
     with store._write() as db:
         assert_scope(db,token,scope)
         from . import podmasterye_workshops as workshops
         w,c=scope.workspace_id,scope.chat_id
         data_scope=workshops.chat_workspace(db,scope)
+        from . import podmasterye_agent_forms as agent
+        ctx=agent.context(db,scope,rid,form_context)
         old=db.execute("SELECT text,route,result FROM pm_turns WHERE workspace=? AND chat=? AND rid=?",(w,c,rid)).fetchone()
         if old:
-            if old[0]!=text: raise Conflict("Этот идентификатор уже использован.")
+            if old[0]!=text or agent.current(db,scope,rid)!=ctx: raise Conflict("Этот идентификатор уже использован.")
             return old[1],json.loads(old[2]) if old[2] else None
         from . import podmasterye_matrix as matrix
-        result=matrix.route(db,data_scope,text)
-        if result is None and (m:=PATTERN.fullmatch(text.strip().rstrip("!."))):
+        if ctx is not None:db.execute('INSERT INTO pm_agent_context VALUES(?,?,?,?)',(w,c,rid,encode(ctx)))
+        result=matrix.route(db,data_scope,text) if ctx is None else None
+        if ctx is None and result is None and (m:=PATTERN.fullmatch(text.strip().rstrip("!."))):
             a=dict(material=m["material"],product=m["product"],pack_quantity=int(m["pack"]),usage_quantity=int(m["usage"]),pack_price=m["price"])
             saved=_save(db,data_scope,"assistant:"+c+":"+rid,a)
             result={"text":"Сохранено. "+explain(saved),"ui":{"page":"products"},"recipe":saved}
@@ -217,6 +222,15 @@ def complete(store,scope,token,rid,result):
             result["draft"]=json.loads(d[0])
             result["text"]="Подготовил форму рецептуры. "+explain(result["draft"])+" Проверьте данные и нажмите «Сохранить»."
             result["ui"]={"page":"products"}
+        agent=db.execute("SELECT value FROM pm_agent_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,rid)).fetchone()
+        if agent:
+            prepared=json.loads(agent[0])
+            result.update({k:prepared[k] for k in ("accountingDraft","formDraft") if k in prepared})
+            result["ui"]={"page":prepared["page"]}
+            missing=prepared["missing"]
+            result["text"]="Заполнил форму. "+("Уточните: "+", ".join(missing)+"." if missing else "Проверьте данные перед сохранением.")
+            if prepared.get("accountingDraft",{}).get("validationError"):
+                result["text"]+=" "+prepared["accountingDraft"]["validationError"]
         db.execute("UPDATE pm_turns SET result=? WHERE workspace=? AND chat=? AND rid=? AND route='model'",
                    (encode(result),scope.workspace_id,scope.chat_id,rid))
         return result

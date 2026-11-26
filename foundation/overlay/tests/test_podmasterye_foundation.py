@@ -153,3 +153,52 @@ class Foundation(unittest.TestCase):
         self.assertNotIn("modelCost",r.json())
         with sqlite3.connect(self.db) as db:
             self.assertEqual(db.execute("SELECT COUNT(*) FROM coin_attempts").fetchone()[0],4)
+
+    def test_agent_partial_fill_context_and_separate_meter(self):
+        h,c=self.actor("admin")
+        self.assertEqual(self.turn(h,c,"seed",EXAMPLE).status_code,200)
+        r=self.turn(h,c,"partial","Тест частичной закупки")
+        self.assertEqual(r.status_code,200,r.text)
+        draft=r.json()["accountingDraft"]
+        self.assertIn("Общая сумма, ₽",draft["missing"])
+        self.assertNotIn("revision",draft)
+        ctx={"form":"book.purchase","arguments":draft["arguments"]}
+        args={"requestId":"continuation","text":"Тест дополнения закупки","formContext":ctx}
+        r=self.c.post(f"/api/chats/{c}/turns",headers=h,json=args)
+        self.assertEqual(r.status_code,200,r.text)
+        d=r.json()["accountingDraft"]
+        self.assertEqual(d["arguments"]["quantity"],2)
+        self.assertEqual(d["preview"]["value_rub"],"1600.00")
+        self.assertEqual(self.c.get("/api/accounting",headers=h).json()["materials"][0]["quantity"],0)
+        self.assertEqual(self.c.post(f"/api/chats/{c}/turns",headers=h,json=args).json(),r.json())
+        invalid={**args,"formContext":{"form":"book.purchase","arguments":{"quantity":3}}}
+        self.assertEqual(self.c.post(f"/api/chats/{c}/turns",headers=h,json=invalid).status_code,409)
+        r=self.turn(h,c,"workshop","Тест заполнения мастерской")
+        self.assertEqual(r.status_code,200,r.text)
+        self.assertEqual(r.json()["formDraft"]["arguments"]["name"],"Новая мастерская")
+        d=self.c.get("/api/admin/podmasterye/usage",headers=h)
+        self.assertEqual(d.status_code,200,d.text)
+        self.assertEqual(d.json()["periods"]["all"]["attempts"],6)
+        self.assertEqual(d.json()["periods"]["all"]["input"],60)
+        self.assertEqual(d.json()["periods"]["all"]["output"],30)
+        self.assertEqual(d.json()["periods"]["all"]["rub"],"0.00432")
+        u,uc=self.actor("buyer")
+        self.assertEqual(self.c.get("/api/admin/podmasterye/usage",headers=u).status_code,403)
+        self.assertEqual(self.c.post("/api/admin/provider-keys/openrouter",headers=h,json={"key":"local-fixture-only"}).status_code,400)
+        self.assertEqual(set(self.c.get("/api/admin/provider-keys",headers=h).json()),{"deepseek"})
+        self.assertEqual(self.c.get("/api/integrations/telegram",headers=h).json()["linked"],False)
+        self.assertEqual(self.c.post("/api/integrations/telegram",headers=h,json={"action":"test"}).status_code,409)
+
+    def test_agent_rejects_non_business_and_foreign_fields(self):
+        h,c=self.actor("buyer");other,oc=self.actor("other")
+        self.assertEqual(self.turn(other,oc,"seed",EXAMPLE).status_code,200)
+        material=self.c.get("/api/production",headers=other).json()["materials"][0]["id"]
+        for context in [
+            {"form":"login","arguments":{"password":"fixture"}},
+            {"form":"book.purchase","arguments":{"material":material}},
+            {"form":"recipe","arguments":{"secret":"fixture"}},
+            {"form":"book.purchase","arguments":{"quantity":-1}},
+        ]:
+            r=self.c.post(f"/api/chats/{c}/turns",headers=h,json={"requestId":"invalid","text":"заполни","formContext":context})
+            self.assertEqual(r.status_code,400,r.text)
+        self.assertFalse(self.journal.exists())

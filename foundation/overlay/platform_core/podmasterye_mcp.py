@@ -8,7 +8,7 @@ from .catalog import Capability
 from .dispatch import UnavailableTool, InvalidToolInput, ToolExecutionFailed
 from .mcp_server import serve_stdio
 from .storage import Scope, Store, _owns_chat
-from . import podmasterye_domain as domain, podmasterye_book as book, podmasterye_matrix as matrix, podmasterye_workshops as workshops
+from . import podmasterye_domain as domain, podmasterye_book as book, podmasterye_matrix as matrix, podmasterye_workshops as workshops, podmasterye_agent_forms as agent
 
 class ProductionTools:
     def __init__(self,store,scope,request,grant):
@@ -18,6 +18,9 @@ class ProductionTools:
             "production_state":Capability("production_state","Получить текущие материалы, изделия и материальную себестоимость из БД.",{"type":"object","properties":{},"additionalProperties":False},self.snapshot),
             "accounting_report":Capability("accounting_report","Получить рассчитанный сервером отчёт: summary, stock, sales, planning, finance, journal. Укажите даты периода; ограничьте детализацию.",matrix.report_schema(),self.accounting_report),
             "prepare_accounting":Capability("prepare_accounting",matrix.operation_description(),matrix.operation_schema(),self.prepare_accounting,effect="edit"),
+            "form_catalog":Capability("form_catalog","Каталог всех поддерживаемых полей и форм.",agent.empty_schema(),self.form_catalog),
+            "current_form":Capability("current_form","Получить текущий пользовательский черновик формы для дополнения.",agent.empty_schema(),self.current_form),
+            "prepare_form":Capability("prepare_form","Заполнить известные поля формы, включая неполные данные. Не сохраняет запись. Имена полей см. form_catalog.",agent.schema(),self.prepare_form,effect="edit"),
             "prepare_recipe":Capability("prepare_recipe","Подготовить форму материала и рецептуры. Не сохраняет изделие без подтверждения пользователя. Количество в упаковке и расход на изделие — штуки, цена всей упаковки необязательна.",domain.RECIPE_SCHEMA,self.prepare),
         }
     def authorize(self,db):
@@ -58,21 +61,25 @@ class ProductionTools:
                 if isinstance(v,list) and len(v)>30:
                     result[k]=v[:30];result[k+"_truncated"]=len(v)-30
             return result
-    def prepare_accounting(self,scope,args):
-        operation=args["operation"]
+    def form_catalog(self,scope,args):
+        with self.store._lock:
+            self.authorize(self.store._db)
+            return agent.catalog()
+    def current_form(self,scope,args):
+        with self.store._lock:
+            self.authorize(self.store._db)
+            return {"current":agent.current(self.store._db,scope,self.request)}
+    def prepare_form(self,scope,args):
         with self.store._write() as db:
             self.authorize(db)
-            if db.execute("SELECT 1 FROM pm_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,self.request)).fetchone():
-                raise ValueError("One draft per request")
-            a=book.validate(operation,args["arguments"])
-            raw=domain.encode({"operation":operation,"arguments":a})
-            row=db.execute("SELECT args,result FROM pm_accounting_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,self.request)).fetchone()
-            if row:
-                if row[0]!=raw:raise ValueError("One draft per request")
-                return {"draft":json.loads(row[1]),"saved":False}
-            draft=book.preview_action(db,workshops.chat_workspace(db,scope),operation,a)
-            db.execute("INSERT INTO pm_accounting_drafts VALUES(?,?,?,?,?)",(scope.workspace_id,scope.chat_id,self.request,raw,domain.encode(draft)))
-            return {"draft":draft,"saved":False}
+            result=agent.draft(db,scope,self.request,args["form"],args["arguments"],args.get("page"))
+            return agent.save_draft(db,scope,self.request,result)
+    def prepare_accounting(self,scope,args):
+        with self.store._write() as db:
+            self.authorize(db)
+            result=agent.draft(db,scope,self.request,"book."+args["operation"],args["arguments"])
+            agent.save_draft(db,scope,self.request,result)
+            return {"draft":result["accountingDraft"],"saved":False}
     def prepare(self,scope,args):
         result=domain.preview(args)
         raw=domain.encode(domain.recipe_args(args))
@@ -80,6 +87,7 @@ class ProductionTools:
             self.authorize(db)
             workshops.chat_workspace(db,scope)
             if db.execute("SELECT 1 FROM pm_accounting_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,self.request)).fetchone():raise ValueError("One draft per request")
+            if db.execute('SELECT 1 FROM pm_agent_drafts WHERE workspace=? AND chat=? AND rid=?',(scope.workspace_id,scope.chat_id,self.request)).fetchone():raise ValueError('One draft per request')
             row=db.execute("SELECT args,result FROM pm_drafts WHERE workspace=? AND chat=? AND rid=?",
                            (scope.workspace_id,scope.chat_id,self.request)).fetchone()
             if row:

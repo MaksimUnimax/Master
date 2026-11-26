@@ -12,18 +12,21 @@ const upstream=http.createServer(async(req,res)=>{
   const result=last.find(x=>x.type==='tool_result');
   const text=last.find(x=>x.type==='text')?.text||'';
   if(text==='uncertain fixture'){res.writeHead(503,{'content-type':'application/json'});res.end('{"error":{"type":"api_error","message":"fixture"}}');return;}
-  const accounting=text.includes('Тест свободной закупки');
+  const partial=text.includes('Тест частичной закупки');
+  const continuation=text.includes('Тест дополнения закупки');
+  const settings=text.includes('Тест заполнения мастерской');
+  const accounting=text.includes('Тест свободной закупки')||partial||continuation;
   const report=text.includes('Тест свободного отчёта');
-  const tool=q.tools?.find(t=>t.name==='mcp__platform__'+(accounting?'prepare_accounting':report?'accounting_report':'prepare_recipe'));
-  const draft=!result&&(text.includes('Свободная формулировка')||accounting||report);
+  const tool=q.tools?.find(t=>t.name==='mcp__platform__'+(settings?'prepare_form':accounting?'prepare_accounting':report?'accounting_report':'prepare_recipe'));
+  const draft=!result&&(text.includes('Свободная формулировка')||accounting||report||settings);
   if(draft&&!tool){res.writeHead(422);res.end('missing built-in tool');return;}
-  if(result&&(result.is_error||!['80.00','800.00','inventory_rub'].some(x=>JSON.stringify(result.content).includes(x)))){res.writeHead(422);res.end('invalid draft or report');return;}
+  if(result&&(result.is_error||!['80.00','800.00','1600.00','inventory_rub','missing','workshop_create'].some(x=>JSON.stringify(result.content).includes(x)))){res.writeHead(422);res.end('invalid draft or report');return;}
   const event=(type,fields={})=>res.write('event: '+type+'\ndata: '+JSON.stringify({type,...fields})+'\n\n');
   res.writeHead(200,{'content-type':'text/event-stream'});
   event('message_start',{message:{id:'fixture-'+ ++calls,role:'assistant',type:'message',content:[],model:q.model,usage:{input_tokens:10,output_tokens:0,cache_read_input_tokens:0,cache_creation_input_tokens:0}}});
   if(draft){
     event('content_block_start',{index:0,content_block:{type:'tool_use',id:'prepare-1',name:tool.name,input:{}}});
-    event('content_block_delta',{index:0,delta:{type:'input_json_delta',partial_json:JSON.stringify(accounting?{operation:'purchase',arguments:{material:'Бусины',quantity:1,purchase_unit:'pack',total:'800'}}:report?{view:'summary'}:{material:'Бусины',product:'Браслет',pack_quantity:400,usage_quantity:40,pack_price:'800'})}});
+    event('content_block_delta',{index:0,delta:{type:'input_json_delta',partial_json:JSON.stringify(settings?{form:'workshop_create',arguments:{name:'Новая мастерская',description:'Проверка'}}:partial?{operation:'purchase',arguments:{material:'Бусины',quantity:2}}:continuation?{operation:'purchase',arguments:{total:'1600'}}:accounting?{operation:'purchase',arguments:{material:'Бусины',quantity:1,purchase_unit:'pack',total:'800'}}:report?{view:'summary'}:{material:'Бусины',product:'Браслет',pack_quantity:400,usage_quantity:40,pack_price:'800'})}});
   }else{
     event('content_block_start',{index:0,content_block:{type:'text',text:''}});
     event('content_block_delta',{index:0,delta:{type:'text_delta',text:'Ответ тестовой модели.'}});

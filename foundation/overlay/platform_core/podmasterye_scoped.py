@@ -139,7 +139,7 @@ def routes(token_for,body):
     async def scoped(req,action):
         token=token_for(req,allow_cookie=True); app=req.app.state; identity=app.identity
         if action=="turn":
-            fields=await body(req,"requestId","text",optional=("maxCoins",))
+            fields=await body(req,"requestId","text",optional=("maxCoins","formContext"))
             rid,text=fields["requestId"],fields["text"]
             domain.key_id(rid)
             if not isinstance(text,str) or not text.strip() or len(text.encode())>8192:
@@ -149,7 +149,7 @@ def routes(token_for,body):
         if action=="history":
             result=await run_in_threadpool(domain.history,identity,token,scope,50)
             return JSONResponse(await run_in_threadpool(render,identity,app.admin_costs,token,scope,"history",result))
-        try: route,cached=await run_in_threadpool(domain.decide,identity,scope,token,rid,text)
+        try: route,cached=await run_in_threadpool(domain.decide,identity,scope,token,rid,text,fields.pop('formContext',None))
         except domain.Conflict as e: raise HTTPException(409,str(e)) from None
         if cached is not None:
             return JSONResponse(await run_in_threadpool(render,identity,app.admin_costs,token,scope,"turn",cached))

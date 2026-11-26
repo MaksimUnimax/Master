@@ -214,7 +214,10 @@ function open(op,args={},preview=null,edit=null){
  if(typ){const items=typ==='material'?data.materials:data.products;for(const c of [...new Set(items.map(x=>x.category).filter(Boolean))].sort())catSel.add(new Option(c,c));catSel.onchange=()=>{const sel=q('#book-fields [name="'+typ+'"]');if(!sel)return;const prev=sel.value;sel.replaceChildren(new Option('Выберите…',''));for(const item of items.filter(x=>!x.archived&&(!catSel.value||x.category===catSel.value)))sel.add(new Option(item.name,item.id));sel.value=prev;};}
 
  q('#book-preview').textContent='';q('#book-confirm').disabled=true;q('#book-form-status').textContent='';
+ q('#book-assist').hidden=!!edit;
  if(preview?.revision&&preview?.preview)showPreview(preview);
+ else if(preview?.missing?.length)q('#book-form-status').textContent='Уточните: '+preview.missing.join(', ');
+ else if(preview?.validationError)q('#book-form-status').textContent=preview.validationError;
  const choice=q('#book-fields [name="entity_id"]');
  if(choice)choice.addEventListener('change',()=>{
   if(!choice.value)return;
@@ -259,6 +262,10 @@ function init(){
  q('#events-prev').onclick=()=>{q('#event-offset').value=Math.max(0,data.offset-data.limit);refresh().catch(e=>status(e.message));};
  q('#events-next').onclick=()=>{q('#event-offset').value=data.offset+data.limit;refresh().catch(e=>status(e.message));};
  q('#book-close').onclick=()=>{if(!busy)q('#book-dialog').close();};
+ q('#book-assist').onclick=()=>{
+  if(busy||correction||q('#book-historical').checked){q('#book-form-status').textContent='Историческую корректировку подтвердите вручную.';return;}
+  window.PMAgent.begin('book.'+activeOp,formArgs());q('#book-dialog').close();
+ };
  q('#book-dialog').addEventListener('cancel',e=>{if(busy)e.preventDefault();});
  q('#book-form').oninput=()=>{formGeneration++;confirmed=null;requestId=null;q('#book-confirm').disabled=true;q('#book-preview').textContent='';};
  q('#book-form').onsubmit=async e=>{

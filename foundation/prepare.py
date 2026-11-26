@@ -51,7 +51,7 @@ from .identity import AuthenticationError, ChatUnavailable
 from .guest_registration import RegistrationStore
 from .guest_web import guest_routes
 from .web_ui import web_routes
-from . import podmasterye_domain, podmasterye_scoped
+from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, telegram_integration
 '''+s[stop:]
     start=s.index("    router_plugin = None",s.index("def create_app("))
     stop=s.index("    async def logout(req):",start)
@@ -76,7 +76,8 @@ from . import podmasterye_domain, podmasterye_scoped
             async with httpx.AsyncClient(timeout=10,trust_env=False,follow_redirects=False) as http:
                 app.state.http=http
                 try:
-                    yield
+                    async with telegram_integration.activate(app.state):
+                        yield
                 finally:
                     await app.state.progress.close()
                     await app.state.worker.close()
@@ -97,10 +98,18 @@ from . import podmasterye_domain, podmasterye_scoped
         *access_web.routes(),Route("/api/logout",logout,methods=["POST"]),
         Route("/api/recover",recover,methods=["POST"]),
         Route("/api/chats",chats,methods=["GET","POST"]),
-        *podmasterye_scoped.routes(_token,_body),
+        *podmasterye_scoped.routes(_token,_body),*podmasterye_services.routes(_token,_body),
     ],exception_handlers={cls:error_response for cls in (
         AuthenticationError,ChatUnavailable,WorkerError,HTTPException,ValueError)})
 '''
+    f.write_text(s)
+    edit("platform_core/provider_keys.py",'PROVIDERS = ("deepseek","openrouter")','PROVIDERS = ("deepseek",)')
+    f=root/"platform_core/provider_keys.py";s=f.read_text()
+    s=s.replace('            values=await body(req,"key")','            if req.path_params["provider"]!="deepseek":raise HTTPException(400,"Поддерживается только DeepSeek.")\n            values=await body(req,"key")',1)
+    a=s.index("        from . import router_status")
+    b=s.index("    return [Route",a)
+    s=s[:a]+"""        return JSONResponse({"deepseek":{"configured":bool(read("deepseek"))}})
+"""+s[b:]
     f.write_text(s)
     edit("platform_core/guest_registration.py","from .octopus_knowledge import published\nfrom .user_plugins.publication import synchronize\n","")
     edit("platform_core/guest_registration.py","                synchronize(db, published())\n","")

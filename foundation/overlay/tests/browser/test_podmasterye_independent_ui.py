@@ -272,7 +272,7 @@ class IndependentUI(unittest.TestCase):
         p.emulate_media(color_scheme="light");p.locator("#theme-select").select_option("system");expect(p.locator("html")).to_have_attribute("data-theme","light")
         p.emulate_media(color_scheme="dark");expect(p.locator("html")).to_have_attribute("data-theme","dark")
         p.locator("#theme-select").select_option("light")
-        p.locator("#workshop-create [name=name]").fill("Вторая мастерская");p.locator("#workshop-create button").click()
+        p.locator("#workshop-create [name=name]").fill("Вторая мастерская");p.locator("#workshop-create button:not([type=button])").click()
         self.ready();expect(p.locator("#workshop-caption")).to_have_text("Вторая мастерская")
         second=p.locator("#workshop-select").input_value()
         p.locator("#workshop-select").select_option(original);self.ready();self.nav("settings")
@@ -405,7 +405,7 @@ class IndependentUI(unittest.TestCase):
         self.sign_in();p=self.page
         m,n,a,b,c=self.seed();self.nav("integrations")
         p.locator("#source-create [name=name]").fill("Учебный источник")
-        p.locator("#source-create [name=auto_produce]").check();p.locator("#source-create button").click()
+        p.locator("#source-create [name=auto_produce]").check();p.locator("#source-create button:not([type=button])").click()
         expect(p.locator("#source-key-box")).to_be_visible();key=p.locator("#source-key").inner_text()
         p.locator("#source-copy").click();expect(p.locator("#source-status")).to_have_text("Ключ скопирован.")
         self.assertTrue(p.evaluate("(k)=>navigator.clipboard.readText().then(s=>s===k)",key))

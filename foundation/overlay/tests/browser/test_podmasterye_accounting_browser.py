@@ -136,7 +136,7 @@ class AccountingBrowser(unittest.TestCase):
             expect(page.locator("#materials")).to_contain_text("Нить")
             nav("integrations");expect(page.locator("#sources-list")).to_contain_text("Нет подключённых магазинов")
             page.locator('#source-create input[name="name"]').fill("Учебный магазин")
-            page.locator("#source-create button").click();expect(page.locator("#source-key-box")).to_be_visible()
+            page.locator("#source-create button:not([type=button])").click();expect(page.locator("#source-key-box")).to_be_visible()
             page.locator("#source-hide").click();expect(page.locator("#source-key-box")).not_to_be_visible()
             expect(page.locator("#sources-list")).to_contain_text("Учебный магазин")
             # New local manufacturing and financial operations, with real forms.
