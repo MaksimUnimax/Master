@@ -24,7 +24,7 @@ A-R01	report	сколько заработал | покажи прибыль | �
 A-R02	report	сколько выручка | покажи выручку | сколько продал		finance	sales	primary_alias_tested
 A-R03	report	покажи денежный поток | сколько денег осталось | сколько поступило и потрачено		finance	finance	primary_alias_tested
 A-R04	report	сколько денег на складе | стоимость запасов | сколько стоит склад		stock	stock	primary_alias_tested
-A-R05	report	покажи остатки материалов | сколько материалов осталось | сколько готовых изделий		stock	stock	primary_alias_tested
+A-R05	report	покажи остатки материалов | сколько материалов осталось | сколько готовых изделий | покажи остатки		stock	stock	primary_alias_tested
 A-R06	report	что нужно закупить | сколько нужно купить | что пора докупить | план закупок		planning	planning	primary_alias_tested
 A-R07	report	покажи расходы по статьям | сколько потратил | сколько расходов		finance	expenses	primary_alias_tested
 A-R08	report	покажи прибыль по товарам | какие товары прибыльные | прибыльность товаров		finance	finance	primary_alias_tested
@@ -32,35 +32,35 @@ A-R09	report	покажи продажи по каналам | выручка п
 A-R10	report	сколько потратил на закупки | сумма закупок		finance	purchases	primary_alias_tested
 A-R11	report	сколько должны покупатели | покажи долги покупателей		summary	sales	primary_alias_tested
 A-R12	report	сколько списал материалов | стоимость списаний		finance	stock	primary_alias_tested
-A-W01	form	добавь материал | создай материал | изменить материал		material		primary_alias_tested
-A-W02	form	добавь изделие | создай изделие | изменить изделие		product		primary_alias_tested
-A-W03	form	внеси начальный остаток | добавь начальный остаток		opening		primary_alias_tested
-A-W04	form	добавь закупку | запиши закупку | создай закупку	(?:закупка|купил|закупил) (?P<material>.+?) (?P<quantity>\d+) (?P<purchase_unit>пачек|пачки|пачку|упаковок|упаковки|упаковку|шт|штук|г|мл) за (?P<total>\d+(?:[.,]\d{1,2})?)(?: ₽| рублей)?	purchase		primary_alias_tested
-A-W05	form	добавь производство | изготовил партию | выпусти партию	(?:изготовил|сделал|произвел|произвёл) (?P<quantity>\d+) (?:шт(?:ук)? )?(?P<product>.+)	manufacture		primary_alias_tested
-A-W06	form	добавь продажу | запиши продажу | создай продажу	(?:продал|продажа) (?P<quantity>\d+) (?:шт(?:ук)? )?(?P<product>.+?) по (?P<unit_price>\d+(?:[.,]\d{1,2})?)(?: ₽| рублей)?	sale		primary_alias_tested
-A-W07	form	запиши оплату | добавь оплату продажи | отметь оплату		payment		primary_alias_tested
-A-W08	form	оформи возврат | добавь возврат		return		primary_alias_tested
-A-W09	form	добавь расход | запиши расход	(?:расход|потратил) (?P<total>\d+(?:[.,]\d{1,2})?)(?: ₽| рублей)? (?:на )?(?P<category>.+)	expense		primary_alias_tested
-A-W10	form	спиши материал | добавь списание	спиши (?P<quantity>\d+) (?:шт(?:ук)? )?(?P<material>.+)	writeoff		primary_alias_tested
-A-W11	form	сторнируй операцию | отмени запись		reverse		primary_alias_tested
+A-W01	form	добавь материал | создай материал | изменить материал				primary_alias_tested
+A-W02	form	добавь изделие | создай изделие | изменить изделие				primary_alias_tested
+A-W03	form	внеси начальный остаток | добавь начальный остаток				primary_alias_tested
+A-W04	form	добавь закупку | запиши закупку | создай закупку	(?:закупка|купил|закупил) (?P<material>.+?) (?P<quantity>\d+) (?P<purchase_unit>пачек|пачки|пачку|упаковок|упаковки|упаковку|шт|штук|г|мл) за (?P<total>\d+(?:[.,]\d{1,2})?)(?: ₽| рублей)?			primary_alias_tested
+A-W05	form	добавь производство | изготовил партию | выпусти партию	(?:изготовил|сделал|произвел|произвёл) (?P<quantity>\d+) (?:шт(?:ук)? )?(?P<product>.+)			primary_alias_tested
+A-W06	form	добавь продажу | запиши продажу | создай продажу	(?:продал|продажа) (?P<quantity>\d+) (?:шт(?:ук)? )?(?P<product>.+?) по (?P<unit_price>\d+(?:[.,]\d{1,2})?)(?: ₽| рублей)?			primary_alias_tested
+A-W07	form	запиши оплату | добавь оплату продажи | отметь оплату				primary_alias_tested
+A-W08	form	оформи возврат | добавь возврат				primary_alias_tested
+A-W09	form	добавь расход | запиши расход	(?:расход|потратил) (?P<total>\d+(?:[.,]\d{1,2})?)(?: ₽| рублей)? (?:на )?(?P<category>.+)			primary_alias_tested
+A-W10	form	спиши материал | добавь списание	спиши (?P<quantity>\d+) (?:шт(?:ук)? )?(?P<material>.+)			primary_alias_tested
+A-W11	form	сторнируй операцию | отмени запись				primary_alias_tested
 A-U12	ui	скачай отчет | выгрузи отчет | экспорт отчета			finance	primary_alias_tested
-A-R13	specific		сколько <материал> осталось	stock	stock	parameterized_tested
-A-R14	specific		сколько упаковок <материал> ушло за месяц	planning	planning	parameterized_tested
-A-R15	specific		сколько <материал> нужно купить	planning	planning	parameterized_tested
+A-R13	specific		сколько <материал> осталось	stock	stock	pattern_cases_in_suite
+A-R14	specific		сколько упаковок <материал> ушло за месяц	planning	planning	pattern_cases_in_suite
+A-R15	specific		сколько <материал> нужно купить	planning	planning	pattern_cases_in_suite
 A-U13	ui	открой задачи | список задач | мои задачи			tasks	primary_alias_tested
 A-U14	ui	открой работников | учёт труда | выплаты работникам			workers	primary_alias_tested
 A-U15	ui	открой юнит экономику | юнит-экономика | рентабельность товаров			unit	primary_alias_tested
 A-U16	ui	мои мастерские | открой настройки мастерской | сменить мастерскую			settings	primary_alias_tested
 A-U17	ui	открой интеграции | подключить магазин | внешние магазины			integrations	primary_alias_tested
 A-U18	ui	импорт материалов | загрузить материалы из excel | загрузить csv материалов			materials	primary_alias_tested
-A-W12	form	создать задачу | добавить задачу		task		primary_alias_tested
-A-W13	form	изменить статус задачи | завершить задачу		task_state		primary_alias_tested
-A-W14	form	добавить работника | создать работника		worker		primary_alias_tested
-A-W15	form	внести выплату работнику | записать выплату работнику		worker_payment		primary_alias_tested
-A-W16	form	изменить рецептуру | добавить строку рецептуры		recipe_line		primary_alias_tested
-A-W17	form	архивировать материал		material_archive		primary_alias_tested
-A-W18	form	архивировать изделие		product_archive		primary_alias_tested
-A-W19	form	настроить тариф канала | изменить комиссию канала		channel_rates		primary_alias_tested
+A-W12	form	создать задачу | добавить задачу				primary_alias_tested
+A-W13	form	изменить статус задачи | завершить задачу				primary_alias_tested
+A-W14	form	добавить работника | создать работника				primary_alias_tested
+A-W15	form	внести выплату работнику | записать выплату работнику				primary_alias_tested
+A-W16	form	изменить рецептуру | добавить строку рецептуры				primary_alias_tested
+A-W17	form	архивировать материал				primary_alias_tested
+A-W18	form	архивировать изделие				primary_alias_tested
+A-W19	form	настроить тариф канала | изменить комиссию канала				primary_alias_tested
 A-F11	faq	как считается целевая цена | как считается юнит экономика			unit	primary_alias_tested
 A-F12	faq	как работает архив | можно ли удалить материал			materials	primary_alias_tested
 A-F13	faq	как импортировать материалы | как загрузить excel			materials	primary_alias_tested
@@ -70,5 +70,32 @@ A-F16	faq	как учитывать оплату труда | как учиты�
 A-R16	report	покажи задачи | отчёт по задачам		tasks	tasks	primary_alias_tested
 A-R17	report	отчёт по работникам | покажи выплаты		workers	workers	primary_alias_tested
 A-R18	report	покажи целевые цены | покажи юнит экономику		unit	unit	primary_alias_tested
-A-W20	form	восстановить материал		material_archive		primary_alias_tested
-A-W21	form	восстановить изделие		product_archive		primary_alias_tested
+A-W20	form	восстановить материал				primary_alias_tested
+A-W21	form	восстановить изделие				primary_alias_tested
+A-W22	form	начать незавершенное производство | начать партию				primary_alias_tested
+A-W23	form	завершить незавершенное производство | завершить партию				primary_alias_tested
+A-W24	form	перенести полуфабрикат | полуфабрикат в материалы				primary_alias_tested
+A-W25	form	добавить оборудование | учесть станок				primary_alias_tested
+A-W26	form	списать оборудование | продать станок				primary_alias_tested
+A-W27	form	настроить накладные | распределить накладные				primary_alias_tested
+A-W28	form	внести удержание по продаже | добавить комиссию				primary_alias_tested
+A-W29	form	вернуть удержание | возврат комиссии				primary_alias_tested
+A-W30	form	архивировать несколько товаров | массовый архив каталога				primary_alias_tested
+A-U19	ui	открой оборудование | оборудование и амортизация			assets	primary_alias_tested
+A-U20	ui	исправить операцию задним числом | история исправлений			journal	primary_alias_tested
+A-U21	ui	покажи незавершенное производство | покажи полуфабрикаты			manufacture	primary_alias_tested
+A-R19	report	сколько амортизация | расходы на амортизацию		assets	assets	primary_alias_tested
+A-R20	report	стоимость незавершенного производства | сколько денег в незавершенке		finance	stock	primary_alias_tested
+A-R21	report	сколько удержаний по продажам | сумма комиссий по продажам		finance	sales	primary_alias_tested
+A-R22	report	сколько выплат работникам | сумма выплат сотрудникам		finance	finance	primary_alias_tested
+A-R23	report	остаточная стоимость оборудования		assets	assets	primary_alias_tested
+A-R24	report	валовая прибыль | сколько валовой прибыли		finance	finance	primary_alias_tested
+A-R25	report	сколько изделий продано | количество проданных изделий		finance	sales	primary_alias_tested
+A-R26	report	какая валовая маржа | процент валовой маржи		finance	finance	primary_alias_tested
+A-F17	faq	как считается амортизация			assets	primary_alias_tested
+A-F18	faq	как считаются накладные | как распределяются накладные			unit	primary_alias_tested
+A-F19	faq	как считается незавершенное производство			manufacture	primary_alias_tested
+A-F20	faq	как редактировать историю | как исправить закупку задним числом			journal	primary_alias_tested
+A-F21	faq	как учитывать комиссии | как учитывать удержания			sales	primary_alias_tested
+A-F22	faq	как учитывать полуфабрикаты			manufacture	primary_alias_tested
+A-F23	faq	как изменить себестоимость продажи			sales	primary_alias_tested

@@ -96,10 +96,14 @@ def change(store,token,rid,action,args):
                 if existing and existing[0]!=w:raise Conflict("Мастерская с таким названием уже существует.")
                 db.execute("UPDATE pm_workshops SET name=?,normalized=?,description=?,color=?,hourly_rate=? WHERE id=? AND account=?",(name,name.casefold(),description,color,rate,w,a))
             else:
-                if existing:raise Conflict("Мастерская с таким названием уже существует.")
-                w=uuid4().hex;db.execute("INSERT INTO workspaces(workspace_id,owner_id) VALUES(?,?)",(w,actor))
-                db.execute("INSERT INTO pm_workshops(id,account,name,normalized,description,color,hourly_rate,demo) VALUES(?,?,?,?,?,?,?,?)",(w,a,name,name.casefold(),description,color,rate,int(action=="demo")))
-                if action=="demo":seed_demo(db,w)
+                if existing:
+                    w=existing[0]
+                    if action!="demo" or not metadata(db,w)["demo"]:raise Conflict("Мастерская с таким названием уже существует.")
+                    db.execute("UPDATE pm_workshops SET archived=0 WHERE id=? AND account=?",(w,a))
+                else:
+                    w=uuid4().hex;db.execute("INSERT INTO workspaces(workspace_id,owner_id) VALUES(?,?)",(w,actor))
+                    db.execute("INSERT INTO pm_workshops(id,account,name,normalized,description,color,hourly_rate,demo) VALUES(?,?,?,?,?,?,?,?)",(w,a,name,name.casefold(),description,color,rate,int(action=="demo")))
+                    if action=="demo":seed_demo(db,w)
         result=metadata(db,w)
         db.execute("INSERT INTO pm_workshop_requests VALUES(?,?,?,?)",(a,rid,raw,encode(result)))
         return result

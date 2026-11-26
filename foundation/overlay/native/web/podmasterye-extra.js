@@ -50,6 +50,10 @@ function renderWorkshopSettings(){
 }
 function setTheme(mode){if(!['light','dark','system'].includes(mode))mode='light';localStorage.setItem('pm-theme',mode);document.documentElement.dataset.theme=mode==='system'?(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'):mode;}
 function initLayout(){
+ const consent=q('#cookie-choice');if(consent&&!localStorage.getItem('pm-cookie-choice')&&document.body.dataset.mode!=='member'){
+   consent.hidden=false;
+   for(const [id,value] of [['cookie-accept','acknowledged'],['cookie-decline','necessary']])q('#'+id).onclick=()=>{localStorage.setItem('pm-cookie-choice',value);consent.hidden=true;};
+ }
  setTheme(localStorage.getItem('pm-theme')||'light');
  const theme=q('#theme-select');if(theme){theme.value=localStorage.getItem('pm-theme')||'light';theme.onchange=()=>setTheme(theme.value);}
  const toggle=(kind)=>{const mobile=matchMedia('(max-width:820px)').matches;if(mobile){document.body.classList.toggle('pm-mobile-'+kind);document.body.classList.remove('pm-mobile-'+(kind==='nav'?'helper':'nav'));}else{const c='pm-'+kind+'-hidden';document.body.classList.toggle(c);localStorage.setItem(c,document.body.classList.contains(c)?'1':'0');}};
@@ -68,14 +72,18 @@ function charts(host,rows){
 function open(op,args){window.PMAccounting.open(op,args);}
 function render(d){
  state=d;
- if(q('#workshop-caption')&&d.workshop)q('#workshop-caption').textContent=d.workshop.name;
+ if(q('#workshop-caption')&&d.workshop){q('#workshop-caption').textContent=d.workshop.name;document.documentElement.dataset.workshopColor=d.workshop.color;}
+ const f=q('#recipe-form');
+ const materials=d.materials.filter(m=>!m.archived),products=d.products.filter(p=>!p.archived);
+ for(const [id,items] of [['recipe-materials',materials],['recipe-products',products]]){const node=q('#'+id);node.replaceChildren(...items.map(x=>{const o=el('option');o.value=x.name;return o;}));}
+ f.elements.material.onchange=()=>{const m=materials.find(x=>x.name===f.elements.material.value);if(m){f.elements.unit.value=m.unit;f.elements.pack_quantity.value=m.pack;f.elements.pack_price.value=m.planned_pack_price??'';textStatus('#recipe-status','Текущая средняя цена единицы: '+(m.average_price_rub??'нет движения')+' ₽. В форме — плановая цена упаковки.');}};
  rowTable(q('#recipe-lines'),['Изделие','Материал','Расход','Действие'],d.products.filter(p=>!p.archived).flatMap(p=>p.recipe.map(r=>{
   const a=el('div',null,'button-group');a.append(btn('Изменить',()=>open('recipe_line',{product:p.id,material:r.material_id,usage:r.usage})),btn('Удалить строку',()=>open('recipe_line',{product:p.id,material:r.material_id,usage:0})));
   return [p.name,r.material,r.usage+' '+r.unit,a];
  })));
  const taskStatus=q('#task-filter')?.value||'active';
  rowTable(q('#tasks-list'),['Задача','Срок','Важность','Категория','Статус','Действия'],d.tasks.filter(t=>taskStatus==='all'||t.status===taskStatus).map(t=>{
-  const a=el('div',null,'button-group');a.append(btn('Изменить',()=>open('task',{task_id:t.id,name:t.name,description:t.description,due:t.due||'',priority:t.priority,task_category:t.category})));
+  const a=el('div',null,'button-group');a.append(btn('Изменить',()=>open('task',{task_id:t.id,name:t.name,description:t.description,due:t.due||'',priority:t.priority,task_category:t.category,remind_days:t.remind_days})));
   a.append(btn(t.status==='active'?'Выполнено':'Возобновить',()=>open('task_state',{task_id:t.id,task_status:t.status==='active'?'done':'active'})));
   if(t.status!=='archived')a.append(btn('В архив',()=>open('task_state',{task_id:t.id,task_status:'archived'})));
   return [t.name+(t.description?' — '+t.description:''),t.due?t.due+(t.overdue?' · просрочено':''):'—',t.priority,t.category,{active:'Активна',done:'Выполнена',archived:'Архив'}[t.status],a];
@@ -87,13 +95,13 @@ function render(d){
   return [w.name+(w.archived?' · архив':''),w.position,w.payments_rub,a];
  }));
  rowTable(q('#unit-rates'),['Канал','Процент, %','Фиксировано, ₽','Действие'],d.channel_rates.map(r=>[r.channel,r.commission_percent,r.fixed_fee_rub,btn('Изменить',()=>open('channel_rates',{channel:r.channel,commission:r.commission_percent,fixed_fee:r.fixed_fee_rub}))]));
- rowTable(q('#unit-table'),['Изделие','Канал','Продано за 90 дн.','Цена','Материалы','С трудом','План. поступление','План. прибыль','Цена для цели'],d.unit_economics.map(u=>[u.product,u.channel,u.quantity_90d,u.average_price_rub,u.planned_material_cost_rub,u.planned_full_cost_rub,u.planned_proceeds_rub,u.planned_profit_rub,u.recommended_price_rub]));
+ rowTable(q('#unit-table'),['Изделие','Канал','Продано за 90 дн.','Цена','Факт. COGS/шт.','Факт. удержания/шт.','Факт. прибыль/шт.','Поступления за период','Материалы','Накладные','Полная себест.','План. поступление','План. прибыль','Цена для цели'],d.unit_economics.map(u=>[u.product,u.channel,u.quantity_90d,u.average_price_rub,u.actual_cogs_per_unit_rub,u.actual_fees_per_unit_rub,u.actual_profit_per_unit_rub,u.actual_receipts_rub,u.planned_material_cost_rub,u.planned_overhead_rub,u.planned_full_cost_rub,u.planned_proceeds_rub,u.planned_profit_rub,u.recommended_price_rub]));
  textStatus('#unit-period',d.unit_period.from+' — '+d.unit_period.to+' · целевая прибыль '+d.target_profit+' ₽. При неизвестных тарифах цена не рассчитывается.');
  charts(q('#summary-chart'),d.monthly.flatMap(m=>[{label:m.month+' выручка',value:m.revenue},{label:m.month+' прибыль',value:m.net_profit}]));
- charts(q('#summary-distribution'),[{label:'Себестоимость',value:d.summary.cogs},{label:'Расходы',value:d.summary.expenses},{label:'Списания',value:d.summary.writeoffs},{label:'Прибыль',value:d.summary.net_profit}]);
+ charts(q('#summary-distribution'),d.distribution.map(x=>({label:({cogs:'Себестоимость',other_expenses:'Прочие расходы',worker_payments:'Выплаты',sale_fees:'Удержания',writeoffs:'Списания',valuation:'Переоценка',depreciation:'Амортизация',asset_disposal:'Выбытие',net_profit:'Прибыль'})[x.key]||x.key,value:x.amount_rub})));
  charts(q('#finance-chart'),d.monthly.flatMap(m=>[{label:m.month+' выручка',value:m.revenue},{label:m.month+' прибыль',value:m.net_profit}]));
  charts(q('#stock-categories'),d.stock_categories.map(c=>({label:c.name,value:c.value_rub})));
- charts(q('#finance-distribution'),[{label:'Себестоимость',value:d.summary.cogs},{label:'Расходы',value:d.summary.expenses},{label:'Списания',value:d.summary.writeoffs},{label:'Прибыль',value:d.summary.net_profit}]);
+ charts(q('#finance-distribution'),d.distribution.map(x=>({label:({cogs:'Себестоимость',other_expenses:'Прочие расходы',worker_payments:'Выплаты',sale_fees:'Удержания',writeoffs:'Списания',valuation:'Переоценка',depreciation:'Амортизация',asset_disposal:'Выбытие',net_profit:'Прибыль'})[x.key]||x.key,value:x.amount_rub})));
  for(const link of qa('a[data-workshop-export]'))link.href=link.dataset.workshopExport+'?workshop='+encodeURIComponent(window.PMWorkshopId);
  const opts=q('#supplier-suggestions');if(opts)opts.replaceChildren(...d.suppliers.map(n=>{const x=el('option');x.value=n;return x;}));
  if(q('#workshop-settings')&&!q('[data-panel="settings"]').hidden)renderWorkshopSettings();
@@ -111,11 +119,14 @@ async function loadSources(){
    btn('Перевыпустить ключ',()=>{if(confirm('Старый ключ перестанет действовать. Продолжить?'))run('rotate',{});}),
    btn('Повторить обработку',()=>run('retry',{})),
    btn(s.auto_produce?'Запретить автовыпуск':'Разрешить автовыпуск',()=>{if(confirm('Изменить политику выпуска для новых и ожидающих заказов?'))run('configure',{auto_produce:!s.auto_produce});}));
+  actions.append(btn('Копировать адрес API',async()=>{try{await navigator.clipboard.writeText(location.origin+'/api/hook/order');textStatus('#source-status','Адрес скопирован.');}catch{ textStatus('#source-status',location.origin+'/api/hook/order'); }}));
   card.append(actions,el('h3','Артикулы'));const offerHost=el('div');card.append(offerHost);
-  rowTable(offerHost,['Артикул','Название','Цена, ₽','Изделие'],s.offers.map(o=>{
+  rowTable(offerHost,['Артикул','Название','Цена, ₽','Остаток источника','Изделие'],s.offers.map(o=>{
    const a=el('div',null,'button-group'),sel=el('select');sel.add(new Option('Не привязан',''));
    for(const p of (state?.products||[]).filter(p=>!p.archived))sel.add(new Option(p.name,p.id));sel.value=o.product_id||'';
-   a.append(sel,btn('Связать',()=>{if(sel.value)run('map',{offer:o.offer_id,product:sel.value});}));return [o.offer_id,o.name,o.price,a];
+   a.append(sel,btn('Связать',()=>{if(sel.value)run('map',{offer:o.offer_id,product:sel.value});}));
+   if(!o.product_id)a.append(btn('Создать изделие',()=>{if(confirm('Создать изделие «'+o.name+'» из артикула? Рецептуру необходимо заполнить отдельно.'))run('create_product',{offer:o.offer_id,name:o.name});}));
+   return [o.offer_id,o.name,o.price,o.external_stock,a];
   }));
   card.append(el('h3','Последние заказы'));const orders=el('div');card.append(orders);
   rowTable(orders,['Номер','Дата','Строк','Статус','Причина'],s.orders.map(o=>[o.order_ref,o.day,o.items,{posted:'Учтён',pending_mapping:'Нужна привязка',pending_stock:'Не проведён'}[o.status]||o.status,o.error]));
@@ -162,7 +173,7 @@ function initMember(){
 }
 function initCalculator(){
  const form=q('#calc-form');if(!form)return;
- initLayout();let calc=null;let saveRid=null;
+ initLayout();let calc=null;let saveRid=null;let generation=0;let timer=null;
  const rows=q('#calc-rows');
  function add(values={}){const line=el('div',null,'calc-line');
   for(const [key,label] of [['name','Материал'],['quantity','Количество'],['unit','Единица'],['price','Цена за ед., ₽']]){
@@ -170,20 +181,22 @@ function initCalculator(){
    if(key==='unit')for(const u of ['шт','г','кг','мл','л','мм','см','м','см²','дм²','м²','компл'])input.add(new Option(u,u));else if(key!=='name')input.inputMode='decimal';
    input.value=values[key]??(key==='unit'?'шт':'');wrap.append(input);line.append(wrap);
   }
-  line.append(btn('×',()=>{line.remove();invalidate();},'secondary compact'));rows.append(line);
+  line.append(btn('×',()=>{line.remove();schedule();},'secondary compact'));rows.append(line);
  }
- function invalidate(){calc=null;saveRid=null;q('#calc-save').disabled=true;}
+ function invalidate(){generation++;calc=null;saveRid=null;q('#calc-save').disabled=true;clearTimeout(timer);return generation;}
+ function schedule(){invalidate();if(rows.children.length&&form.checkValidity())timer=setTimeout(()=>calculate(),350);}
  add({name:'',quantity:'1',unit:'шт',price:''});
- q('#calc-add').onclick=()=>{if(rows.children.length<50){add();invalidate();}};
- form.oninput=invalidate;
- form.onsubmit=async e=>{e.preventDefault();invalidate();try{
+ q('#calc-add').onclick=()=>{if(rows.children.length<50){add();schedule();}};
+ form.oninput=schedule;
+ form.onsubmit=e=>{e.preventDefault();calculate();};
+ async function calculate(){const n=invalidate();if(!rows.children.length){textStatus('#calc-status','Добавьте материал.');return;}try{
   const items=Array.from(rows.children).map(row=>Object.fromEntries(Array.from(row.querySelectorAll('input,select')).map(x=>[x.name,x.value])));
   const a={name:form.elements.product_name.value,items,sale_price:form.elements.sale_price.value,minutes:form.elements.minutes.value,hourly_rate:form.elements.hourly_rate.value};
-  const r=await post('/api/calculator',a);calc=a;saveRid=crypto.randomUUID();
+  const r=await post('/api/calculator',a);if(n!==generation)return;calc=a;saveRid=crypto.randomUUID();
   const h=q('#calc-result');h.replaceChildren();
-  rowTable(h,['Показатель','Значение'],[['Материалы',r.materials_rub+' ₽'],['Труд',r.labor_rub+' ₽'],['Полная себестоимость',r.full_cost_rub+' ₽'],['Прибыль до учёта труда',r.material_profit_rub+' ₽'],['Прибыль после учёта труда',r.profit_rub+' ₽'],['Материальная маржа',r.margin_percent==null?'—':r.margin_percent+'%'],['Доход в час до учёта труда',r.income_per_hour_rub==null?'—':r.income_per_hour_rub+' ₽']]);
+  rowTable(h,['Показатель','Значение'],[['Материалы',r.materials_rub+' ₽'],['Труд',r.labor_rub+' ₽'],['Полная себестоимость',r.full_cost_rub+' ₽'],['Прибыль до учёта труда',r.material_profit_rub+' ₽'],['Прибыль после учёта труда',r.profit_rub+' ₽'],['Материальная маржа',r.margin_percent==null?'—':r.margin_percent+'%'],['Маржа с трудом',r.full_margin_percent==null?'—':r.full_margin_percent+'%'],['Наценка к полной себестоимости',r.markup_percent==null?'—':r.markup_percent+'%'],['Доход в час до учёта труда',r.income_per_hour_rub==null?'—':r.income_per_hour_rub+' ₽']]);
   q('#calc-save').disabled=false;textStatus('#calc-status','Расчёт выполнен без ИИ.');
- }catch(err){textStatus('#calc-status',err.message);}};
+ }catch(err){if(n===generation)textStatus('#calc-status',err.message);}}
  q('#calc-save').onclick=()=>{if(!calc)return;sessionStorage.setItem('pm-calc-pending',JSON.stringify({requestId:saveRid,calculation:calc}));location.href='/app/';};
 }
 window.PMExtras={initWorkshops,initMember,initLayout,initCalculator,render,navigate:navigateExtra,switchTo};

@@ -208,7 +208,7 @@ class Accounting(unittest.TestCase):
         r=self.client.get("/api/accounting/export/csv",headers=self.h);self.assertEqual(r.status_code,200)
         self.assertIn("12.34",r.text);self.assertIn("'=1+1",r.text)
         r=self.client.get("/api/accounting/export/xlsx",headers=self.h);self.assertEqual(r.status_code,200)
-        wb=load_workbook(io.BytesIO(r.content));self.assertEqual(wb.sheetnames,["Журнал","Сырьё","Готовые изделия","Рецептуры","Партии","Продажи","По месяцам"])
+        wb=load_workbook(io.BytesIO(r.content));self.assertEqual(wb.sheetnames,["Журнал","Сырьё","Готовые изделия","Рецептуры","Партии","Продажи","По месяцам","По товарам","По каналам","Расходы по статьям","Оборудование","Задачи","Работники","Тарифы каналов","Политика накладных","Юнит экономика 90 дней","План закупок","История рецептур","Исправления"])
         self.assertEqual(wb["Журнал"]["E2"].data_type,"s")
         self.assertEqual(self.client.get("/api/accounting/export/xlsx").status_code,401)
     def test_invalid_values_no_mutation(self):
@@ -383,3 +383,222 @@ class Accounting(unittest.TestCase):
         self.assertEqual(change("disable",id=src["id"]).status_code,200)
         self.assertEqual(self.call("/api/hook/order",p,{"Authorization":"Bearer "+rotated["apiKey"]}).status_code,401)
         self.assertEqual(self.client.get("/api/integration-docs").status_code,200)
+
+    def correction(self,action,operation,target="",arguments=None,expect=200,rid=None):
+        body={"action":action,"operation":operation,"target":target,"arguments":arguments or {},"reason":"Контроль"}
+        r=self.call("/api/accounting/correction/preview",{"correction":body})
+        self.assertEqual(r.status_code,expect,r.text)
+        if expect!=200:return
+        v=r.json()
+        args={"requestId":rid or uuid4().hex,"correction":v["correction"],"revision":v["revision"]}
+        r=self.call("/api/accounting/correction/commit",args)
+        self.assertEqual(r.status_code,200,r.text)
+        self.assertEqual(self.call("/api/accounting/correction/commit",args).json(),r.json())
+        return r.json()
+
+    def test_v5_historical_purchase_frozen_recipe(self):
+        x=self.seed();m=x["material_id"];p=x["product_id"]
+        purchase=self.op("purchase",material=m,quantity=100,purchase_unit="base",total="600")
+        self.op("manufacture",product=p,quantity=3)
+        self.op("recipe_line",product=p,material=m,usage=20)
+        self.op("sale",product=p,quantity=2,unit_price="300",paid_amount="600")
+        args={"material":m,"quantity":100,"purchase_unit":"base","total":"800","day":self.day}
+        r=self.correction("edit","purchase",purchase["id"],args)
+        self.assertEqual(r["id"],purchase["id"])
+        d=self.report()
+        self.assertEqual((d["materials"][0]["quantity"],d["materials"][0]["value_rub"],d["products"][0]["value_rub"]),(170,"850.00","50.00"))
+        self.assertEqual((d["summary"]["cogs"],d["summary"]["inventory_rub"],d["summary"]["cashflow"]),("100.00","900.00","-200.00"))
+        self.assertEqual(len(d["corrections"]),1)
+        self.assertEqual(d["products"][0]["recipe"][0]["usage"],20)
+        self.assertEqual(self.call("/api/accounting/correction/preview",{"correction":{"action":"edit","operation":"purchase","target":purchase["id"],"arguments":args,"reason":"Test"}},self.other).status_code,400)
+
+    def test_v5_historical_insert_delete_and_rollback(self):
+        x=self.recipe();m=x["material_id"];p=x["product_id"]
+        d1=(book.today()-timedelta(days=5)).isoformat()
+        d2=(book.today()-timedelta(days=3)).isoformat()
+        self.op("opening",material=m,quantity=10,total="20",day=d1)
+        purchase=self.op("purchase",material=m,quantity=100,purchase_unit="base",total="200",day=d2)
+        self.op("manufacture",product=p,quantity=5,day=self.day)
+        before=self.report()
+        self.correction("delete","purchase",purchase["id"],expect=409)
+        self.assertEqual(self.report(),before)
+        self.correction("insert","purchase",arguments={"material":m,"quantity":10,"purchase_unit":"base","total":"20","day":d1})
+        self.assertEqual(self.report()["materials"][0]["quantity"],70)
+        e=self.op("expense",total="50",category="Прочее")
+        self.correction("edit","expense",e["id"],{"total":"75","category":"Прочее","day":self.day})
+        self.assertEqual(self.report()["summary"]["expenses"],"75.00")
+        self.correction("delete","expense",e["id"])
+        self.assertEqual(self.report()["summary"]["expenses"],"0.00")
+
+    def test_v5_opening_and_full_writeoff(self):
+        m=self.op("material",name="Лён",unit="шт",pack=10,initial_quantity=100,initial_total="200")["id"]
+        self.op("purchase",material=m,quantity=100,purchase_unit="base",total="600")
+        self.assertEqual(Decimal(self.report()["materials"][0]["average_price_rub"]),Decimal("4"))
+        w=self.op("writeoff",material=m)
+        d=self.report()
+        self.assertEqual(d["materials"][0]["quantity"],0)
+        self.assertEqual((d["summary"]["writeoffs"],d["summary"]["cashflow"]),("800.00","-600.00"))
+        self.op("reverse",event=w["id"],reason="Контроль")
+        a=self.report()["materials"][0]
+        self.assertEqual((a["quantity"],a["value_rub"],a["initial_quantity"],a["initial_value_rub"]),(200,"800.00",100,"200.00"))
+
+    def test_v5_manual_cost_and_returns(self):
+        x=self.seed();p=x["product_id"]
+        self.prepare("manufacture",{"product":p,"quantity":2,"cost_override":"40"},expect=400)
+        b=self.op("manufacture",product=p,quantity=2,extra="10",cost_override="40",cost_reason="Уточнение")
+        self.assertEqual((b["cost_rub"],b["actual_cost_rub"],b["valuation_rub"]),("80.00","50.00","-30.00"))
+        d=self.report()["summary"]
+        self.assertEqual((d["net_profit"],d["cashflow"],d["inventory_rub"]),("30.00","-10.00","240.00"))
+        s=self.op("sale",product=p,quantity=2,unit_price="100",paid_amount="200",cost_override="50",cost_reason="Контроль")
+        self.assertEqual((s["cogs_rub"],s["physical_cogs_rub"]),("100.00","80.00"))
+        self.op("return",sale=s["id"],quantity=1,refund="100",restock=True)
+        d=self.report()
+        self.assertEqual((d["summary"]["revenue"],d["summary"]["cogs"],d["products"][0]["value_rub"]),("100.00","50.00","40.00"))
+        self.op("return",sale=s["id"],quantity=1,refund="100",restock=False)
+        self.assertEqual(self.report()["summary"]["net_profit"],"-20.00")
+
+    def test_v5_wip_and_component_cost(self):
+        x=self.seed();p=x["product_id"]
+        self.op("work_start",product=p,quantity=4,extra="40")
+        d=self.report()
+        self.assertEqual((d["summary"]["raw_inventory_rub"],d["summary"]["wip_inventory_rub"],d["summary"]["finished_inventory_rub"]),("120.00","120.00","0.00"))
+        self.prepare("sale",{"product":p,"quantity":1,"unit_price":"100"},expect=409)
+        self.op("work_finish",product=p,quantity=2,extra="20")
+        d=self.report()
+        self.assertEqual((d["summary"]["wip_inventory_rub"],d["summary"]["finished_inventory_rub"],d["summary"]["inventory_rub"],d["summary"]["cashflow"]),("60.00","80.00","260.00","-60.00"))
+        s=self.op("sale",product=p,quantity=2,unit_price="100",paid_amount="200")
+        self.assertEqual(s["cogs_rub"],"80.00")
+        self.op("work_finish",product=p,quantity=2)
+        c=self.op("material",name="Полуфабрикат",unit="шт")["id"]
+        self.op("component_transfer",product=p,material=c,quantity=2)
+        final=self.op("product",name="Готовая сборка")["id"]
+        self.op("recipe_line",product=final,material=c,usage=1)
+        s=self.op("sale",product=final,quantity=1,unit_price="100",paid_amount="100",auto_produce=True)
+        self.assertEqual(s["cogs_rub"],"30.00")
+        d=self.report()["summary"]
+        self.assertEqual((d["cogs"],d["inventory_rub"],d["cashflow"]),("110.00","150.00","240.00"))
+
+    def test_v5_actual_fees_and_distribution(self):
+        x=self.seed();s=self.op("sale",product=x["product_id"],quantity=2,unit_price="100",paid_amount="200",auto_produce=True)
+        fee=self.op("sale_fee",sale=s["id"],category="Комиссия",total="30")
+        self.op("sale_fee_refund",event=fee["id"],total="10")
+        self.prepare("sale_fee_refund",{"event":fee["id"],"total":"21"},expect=409)
+        self.prepare("reverse",{"event":fee["id"],"reason":"Контроль"},expect=409)
+        d=self.report()
+        self.assertEqual((d["summary"]["sale_fees"],d["summary"]["net_profit"],d["summary"]["cashflow"]),("20.00","140.00","180.00"))
+        self.op("return",sale=s["id"],quantity=1,refund="100",restock=True)
+        d=self.report()
+        self.assertEqual((d["summary"]["cogs"],d["summary"]["net_profit"],d["summary"]["cashflow"]),("20.00","60.00","80.00"))
+        self.assertEqual(d["sales"][0]["profit_rub"],"60.00")
+        self.assertEqual(sum(Decimal(x["amount_rub"]) for x in d["distribution"]),Decimal("100"))
+        u=next(x for x in d["unit_economics"] if x["quantity_90d"]==1)
+        self.assertEqual((u["actual_fees_per_unit_rub"],u["actual_profit_per_unit_rub"]),("20.00","60.00"))
+
+    def test_v5_depreciation_acquisition_and_disposal(self):
+        a=self.op("asset_acquire",name="Станок",total="13200",residual="1200",months=12,paid=True,day="2025-01-01")
+        d=self.report(start="2025-01-01",end="2025-01-31")["summary"]
+        expected=(Decimal("12000")*31/365).quantize(Decimal(".01"))
+        self.assertEqual(Decimal(d["depreciation"]),expected)
+        d=self.report(start="2025-01-01",end="2025-12-31")
+        self.assertEqual((d["summary"]["depreciation"],d["summary"]["cashflow"],d["summary"]["equipment_book_rub"]),("12000.00","-13200.00","1200.00"))
+        self.assertEqual(sum(Decimal(x["depreciation"]) for x in d["monthly"]),Decimal("12000"))
+        self.op("asset_retire",asset_id=a["id"],total="1500",day="2026-01-01")
+        d=self.report()["summary"]
+        self.assertEqual((d["asset_disposal"],d["net_profit"],d["cashflow"],d["equipment_book_rub"]),("-300.00","-11700.00","-11700.00","0.00"))
+
+    def test_v5_overheads_and_target_price(self):
+        x=self.recipe();p=x["product_id"]
+        self.op("product",entity_id=p,name="Браслет",minutes=30,sale_price="500")
+        root=self.client.get("/api/workshops",headers=self.h).json()["default"]
+        self.assertEqual(self.workshop("update",{"id":root,"hourly_rate":"300"}).status_code,200)
+        self.op("asset_acquire",name="Станок",total="12000",months=12,paid=False)
+        self.op("cost_policy",monthly_overhead="2000",productive_hours=100,include_depreciation=True)
+        self.op("channel_rates",channel="Витрина",commission="20",fixed_fee="10")
+        d=self.report(target_profit="200")
+        u=next(x for x in d["unit_economics"] if x["channel"]=="Витрина")
+        self.assertEqual((u["planned_material_cost_rub"],u["planned_overhead_rub"],u["planned_full_cost_rub"],u["recommended_price_rub"]),("20.00","15.00","185.00","493.75"))
+        self.assertEqual(d["summary"]["cashflow"],"0.00")
+        self.assertEqual(d["summary"]["expenses"],"0.00")
+        self.prepare("cost_policy",{"monthly_overhead":"2000","productive_hours":0},expect=400)
+
+    def test_v5_calculator_margins(self):
+        a={"name":"Контроль","items":[{"name":"A","quantity":"2","unit":"шт","price":"100"},{"name":"B","quantity":"1","unit":"шт","price":"100"}],"sale_price":"1000","minutes":"120","hourly_rate":"150"}
+        r=self.client.post("/api/calculator",json=a);self.assertEqual(r.status_code,200,r.text)
+        d=r.json()
+        self.assertEqual((d["materials_rub"],d["labor_rub"],d["profit_rub"],d["margin_percent"],d["full_margin_percent"],d["markup_percent"]),("300.00","300.00","400.00","70.00","40.00","66.67"))
+        r=self.client.post("/api/calculator",json={**a,"sale_price":"0","minutes":"0"})
+        self.assertEqual(r.status_code,200,r.text);self.assertIsNone(r.json()["margin_percent"])
+        self.assertEqual(self.client.post("/api/calculator",json={**a,"sale_price":"-1"}).status_code,400)
+
+    def test_v5_photos_and_bulk_archive(self):
+        import base64
+        from PIL import Image
+        p=self.op("product",name="Фото")["id"];q=self.op("product",name="Второе")["id"]
+        url="/api/accounting/photo/"+p
+        buf=io.BytesIO();Image.new("RGB",(12,8),"green").save(buf,"PNG")
+        r=self.call(url,{"content":base64.b64encode(buf.getvalue()).decode()})
+        self.assertEqual(r.status_code,200,r.text)
+        self.assertTrue(r.json()["has_photo"])
+        self.assertEqual(self.client.get(url,headers=self.h).headers["content-type"],"image/jpeg")
+        self.assertEqual(self.client.get(url,headers=self.other).status_code,404)
+        self.assertEqual(self.call(url,{"content":"invalid"}).status_code,400)
+        self.assertFalse(self.call(url,{"content":None}).json()["has_photo"])
+        self.op("bulk_archive",entity_kind="product",entity_ids=p+","+q,archived=True)
+        self.assertTrue(all(x["archived"] for x in self.report()["products"]))
+        self.op("bulk_archive",entity_kind="product",entity_ids=p+","+q,archived=False)
+        self.assertFalse(any(x["archived"] for x in self.report()["products"]))
+
+    def test_v5_external_catalog_fixture(self):
+        src=self.call("/api/integrations/change",{"action":"create","arguments":{"name":"Тестовый каталог","auto_produce":False}}).json()
+        h={"Authorization":"Bearer "+src["apiKey"]}
+        body={"items":[{"offer_id":"cat-1","name":"Браслет","price":"300","stock":37}]}
+        r=self.call("/api/hook/catalog",body,h);self.assertEqual(r.status_code,200,r.text)
+        self.assertFalse(r.json()["stock_effect"])
+        args={"action":"create_product","arguments":{"id":src["id"],"offer":"cat-1","name":"Браслет","category":"Бижутерия"}}
+        for i in range(2):
+            r=self.call("/api/integrations/change",args);self.assertEqual(r.status_code,200,r.text)
+        d=self.report()
+        self.assertEqual(len(d["products"]),1)
+        self.assertEqual(d["products"][0]["quantity"],0)
+        self.assertEqual(d["summary"]["revenue"],"0.00")
+
+    def test_v5_reminders_and_full_export(self):
+        import zipfile
+        due=(book.today()+timedelta(days=2)).isoformat()
+        t=self.op("task",name="Заказ",due=due,remind_days=2)
+        self.assertEqual(len(self.report()["reminders"]),1)
+        self.op("task_state",task_id=t["id"],task_status="done")
+        self.assertEqual(self.report()["reminders"],[])
+        self.op("expense",category="Прочее",total="12.34")
+        r=self.client.get("/api/accounting/export/xlsx",headers=self.h);self.assertEqual(r.status_code,200,r.text[:100])
+        wb=load_workbook(io.BytesIO(r.content));self.assertEqual(len(wb.sheetnames),19)
+        sh=wb["По месяцам"];heads=[c.value for c in sh[1]]
+        self.assertEqual(sh.cell(2,heads.index("net_profit")+1).value,-12.34)
+        r=self.client.get("/api/accounting/export/csv-zip",headers=self.h);self.assertEqual(r.status_code,200)
+        with zipfile.ZipFile(io.BytesIO(r.content)) as z:self.assertEqual(len(z.namelist()),19)
+
+    def test_v5_edit_and_delete_sale_and_manufacture(self):
+        x=self.seed();p=x["product_id"]
+        b=self.op("manufacture",product=p,quantity=3)
+        s=self.op("sale",product=p,quantity=2,unit_price="100",paid_amount="200")
+        self.correction("edit","manufacture",b["id"],{"product":p,"quantity":4,"day":self.day})
+        self.assertEqual(self.report()["products"][0]["quantity"],2)
+        self.correction("edit","sale",s["id"],{"product":p,"quantity":3,"unit_price":"120","paid_amount":"360","day":self.day,"note":"Исправлено"})
+        d=self.report()
+        self.assertEqual((d["summary"]["revenue"],d["summary"]["cogs"],d["summary"]["net_profit"],d["products"][0]["quantity"]),("360.00","60.00","300.00",1))
+        self.assertEqual(d["sales"][0]["note"],"Исправлено")
+        self.correction("delete","sale",s["id"])
+        self.correction("delete","manufacture",b["id"])
+        d=self.report()
+        self.assertEqual((d["summary"]["revenue"],d["summary"]["cogs"],d["summary"]["cashflow"],d["materials"][0]["quantity"],d["products"][0]["quantity"]),("0.00","0.00","0.00",100,0))
+
+    def test_v5_all_expense_categories_and_report_reconciliation(self):
+        for i,c in enumerate(book.CATEGORIES,1):
+            self.op("expense",category=c,total=str(i))
+        d=self.report()
+        total=sum(range(1,len(book.CATEGORIES)+1))
+        self.assertEqual(Decimal(d["summary"]["expenses"]),Decimal(total))
+        self.assertEqual(sum(Decimal(x["expenses"]) for x in d["by_expense"]),Decimal(total))
+        self.assertEqual(sum(Decimal(x["net_profit"]) for x in d["monthly"]),Decimal(-total))
+        self.assertEqual(Decimal(d["summary"]["cashflow"]),Decimal(-total))
+        self.assertTrue(all(x["percent"] is None for x in d["distribution"]))

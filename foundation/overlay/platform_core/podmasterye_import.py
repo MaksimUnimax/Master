@@ -164,6 +164,7 @@ def calculator(a):
     return {"name":name,"items":out,"sale_price":decimal2(sale),"minutes":format(minutes,"f"),"hourly_rate":decimal2(hour),
         "materials_rub":decimal2(materials),"labor_rub":decimal2(labor),"full_cost_rub":decimal2(full),"material_profit_rub":decimal2(gross),
         "profit_rub":decimal2(sale-full),"margin_percent":decimal2(gross*100/sale) if sale else None,
+        "full_margin_percent":decimal2((sale-full)*100/sale) if sale else None,"markup_percent":decimal2((sale-full)*100/full) if full else None,
         "income_per_hour_rub":decimal2(gross*60/minutes) if minutes else None}
 def save_calculator(store,token,workshop,rid,args):
     key_id(rid);c=calculator(args)

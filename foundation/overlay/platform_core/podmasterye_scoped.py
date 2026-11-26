@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
 from . import podmasterye_domain as domain, podmasterye_book as book, podmasterye_workshops as workshops, coins, turn_progress
 from .identity import _secret_digest, AuthenticationError, ChatUnavailable
-from . import podmasterye_integrations as integrations, podmasterye_import as imports
+from . import podmasterye_integrations as integrations, podmasterye_import as imports, podmasterye_corrections as corrections, podmasterye_photos as photos
 from .chat_worker import WorkerError
 from .admin_costs import present_chat
 
@@ -54,10 +54,20 @@ def routes(token_for,body):
             return JSONResponse(result)
         except domain.Conflict as e:raise HTTPException(409,str(e)) from None
         except ValueError as e:raise HTTPException(400,str(e)) from None
+    async def correction_preview(req):
+        token=token_for(req,allow_cookie=True);fields=await body(req,"correction")
+        try:return JSONResponse(await run_in_threadpool(corrections.preview,req.app.state.identity,token,req.query_params.get("workshop"),fields["correction"]))
+        except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+        except ValueError as e:raise HTTPException(400,str(e)) from None
+    async def correction_commit(req):
+        token=token_for(req,allow_cookie=True);fields=await body(req,"requestId","correction","revision")
+        try:return JSONResponse(await run_in_threadpool(corrections.commit,req.app.state.identity,token,req.query_params.get("workshop"),fields["requestId"],fields["correction"],fields["revision"]))
+        except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+        except ValueError as e:raise HTTPException(400,str(e)) from None
     async def export(req):
         token=token_for(req,allow_cookie=True);fmt=req.path_params["format"]
         data,media=await run_in_threadpool(book.export,req.app.state.identity,token,fmt,req.query_params.get("workshop"))
-        return Response(data,media_type=media,headers={"Content-Disposition":"attachment; filename=podmasterye-accounting."+fmt,"Cache-Control":"no-store"})
+        return Response(data,media_type=media,headers={"Content-Disposition":"attachment; filename=podmasterye-accounting."+("zip" if fmt=="csv-zip" else fmt),"Cache-Control":"no-store"})
     async def workshop_list(req):
         return JSONResponse(await run_in_threadpool(workshops.list_for_user,req.app.state.identity,token_for(req,allow_cookie=True)))
     async def workshop_change(req):
@@ -82,6 +92,20 @@ def routes(token_for,body):
         except PermissionError:raise HTTPException(401,"Недействительный ключ.") from None
         except domain.Conflict as e:raise HTTPException(409,str(e)) from None
         except ValueError as e:raise HTTPException(400,str(e)) from None
+    async def hook_catalog(req):
+        fields=await body(req,"items",limit=256*1024)
+        try:return JSONResponse(await run_in_threadpool(integrations.receive_catalog,req.app.state.identity,req.headers.get("authorization"),fields))
+        except PermissionError:raise HTTPException(401,"Недействительный ключ.") from None
+        except ValueError as e:raise HTTPException(400,str(e)) from None
+    async def photo(req):
+        token=token_for(req,allow_cookie=True);pid=req.path_params["product"]
+        if req.method=="GET":
+            try:raw=await run_in_threadpool(photos.get,req.app.state.identity,token,req.query_params.get("workshop"),pid)
+            except ValueError as e:raise HTTPException(404,str(e)) from None
+            return Response(raw,media_type="image/jpeg",headers={"Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff"})
+        fields=await body(req,"content",limit=800*1024)
+        try:return JSONResponse(await run_in_threadpool(photos.set_photo,req.app.state.identity,token,req.query_params.get("workshop"),pid,fields["content"]))
+        except ValueError as e:raise HTTPException(400,str(e)) from None
     async def hook_event(req):
         fields=await body(req,"event_id","order_ref","line","kind","date","quantity","refund","restock")
         try:return JSONResponse(await run_in_threadpool(integrations.event,req.app.state.identity,req.headers.get("authorization"),fields))
@@ -89,7 +113,7 @@ def routes(token_for,body):
         except domain.Conflict as e:raise HTTPException(409,str(e)) from None
         except ValueError as e:raise HTTPException(400,str(e)) from None
     async def integration_docs(req):
-        return JSONResponse({"authorization":"Bearer <ключ источника>","order":{"method":"POST","path":"/api/hook/order","body":{"order_ref":"order-1","date":"2026-11-26","shop_name":"Магазин","items":[{"offer_id":"sku-1","name":"Изделие","qty":1,"price":"100.00"}]}},"return":{"method":"POST","path":"/api/hook/event","fields":["event_id","order_ref","line","kind","date","quantity","refund","restock"]},"note":"Ключ создаётся в кабинете, не передавайте его в чат. Повтор идентификатора не создаёт дубликат."})
+        return JSONResponse({"authorization":"Bearer <ключ источника>","order":{"method":"POST","path":"/api/hook/order","body":{"order_ref":"order-1","date":"2026-11-26","shop_name":"Магазин","items":[{"offer_id":"sku-1","name":"Изделие","qty":1,"price":"100.00"}]}},"return":{"method":"POST","path":"/api/hook/event","fields":["event_id","order_ref","line","kind","date","quantity","refund","restock"]},"catalog":{"method":"POST","path":"/api/hook/catalog","fields":["items[{offer_id,name,price,stock?}]"]},"note":"Ключ создаётся в кабинете, не передавайте его в чат. Повтор идентификатора не создаёт дубликат."})
     async def import_template(req):
         token_for(req,allow_cookie=True)
         return Response(imports.template(),media_type="text/csv; charset=utf-8",headers={"Content-Disposition":"attachment; filename=materials-template.csv"})
@@ -154,6 +178,8 @@ def routes(token_for,body):
         Route("/api/integration-docs",integration_docs),
         Route("/api/integrations/change",source_change,methods=["POST"]),
         Route("/api/hook/order",hook_order,methods=["POST"]),
+        Route("/api/hook/catalog",hook_catalog,methods=["POST"]),
+        Route("/api/accounting/photo/{product}",photo,methods=["GET","POST"]),
         Route("/api/hook/event",hook_event,methods=["POST"]),
         Route("/api/materials/template.csv",import_template),
         Route("/api/materials/import/preview",import_preview,methods=["POST"]),
@@ -167,6 +193,8 @@ def routes(token_for,body):
         Route("/api/accounting",accounting),
         Route("/api/accounting/preview",prepare,methods=["POST"]),
         Route("/api/accounting/commit",commit,methods=["POST"]),
+        Route("/api/accounting/correction/preview",correction_preview,methods=["POST"]),
+        Route("/api/accounting/correction/commit",correction_commit,methods=["POST"]),
         Route("/api/accounting/export/{format}",export),
         Route("/api/chats/{chat_id}/messages",partial(scoped,action="history")),
         Route("/api/chats/{chat_id}/turns",partial(scoped,action="turn"),methods=["POST"]),

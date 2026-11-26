@@ -7,7 +7,7 @@ from decimal import Decimal
 from . import podmasterye_book as book
 from .podmasterye_domain import Conflict
 
-VERSION="accounting-v2"
+VERSION="accounting-v3"
 ITEMS=json.loads(Path(__file__).with_name("podmasterye_matrix.json").read_text(encoding="utf-8"))
 def norm(t):return " ".join(t.casefold().replace("ё","е").split()).strip("?! .")
 INDEX={}
@@ -19,7 +19,7 @@ for entry in ITEMS:
     if entry["intent"]=="form" and entry["op"] not in book.FIELDS:raise RuntimeError("Unknown matrix operation")
 PERIODS=("за прошлый месяц","за этот месяц","за текущий месяц","за последние 30 дней","за сегодня","за вчера","за весь период","за месяц")
 METRICS={"net_profit":"Чистая прибыль","revenue":"Выручка","cashflow":"Денежный поток","inventory_rub":"Стоимость текущих запасов",
-         "expenses":"Расходы","purchases":"Закупки","current_receivables_rub":"Текущая задолженность покупателей","writeoffs":"Стоимость списаний"}
+         "expenses":"Расходы","purchases":"Закупки","current_receivables_rub":"Текущая задолженность покупателей","writeoffs":"Стоимость списаний","depreciation":"Амортизация","wip_inventory_rub":"Стоимость НЗП","sale_fees":"Удержания по продажам","worker_payments":"Выплаты работникам","equipment_book_rub":"Остаточная стоимость оборудования","gross_profit":"Валовая прибыль","sales_quantity":"Продано изделий","margin_percent":"Валовая маржа"}
 def dates(s):
     now=book.today();start=now.replace(day=1);end=now
     if s=="за прошлый месяц":end=start-timedelta(days=1);start=end.replace(day=1)
@@ -107,9 +107,9 @@ def route(db,w,text):
     if kind=="report":
         start,end=dates(suffix);d=book.report(db,w,start,end,view=entry["view"])
         if entry.get("metric"):
-            k=entry["metric"];out["text"]=f'{METRICS[k]}: {d["summary"][k]} ₽.'
+            k=entry["metric"];value=d["summary"][k];suffix_unit="%" if k=="margin_percent" else " шт." if k=="sales_quantity" else " ₽";out["text"]=f"{METRICS[k]}: "+(str(value)+suffix_unit if value is not None else "не определена")+". "
             ui["highlight"]=k
-            if k not in ("inventory_rub","current_receivables_rub"):
+            if k not in ("inventory_rub","current_receivables_rub","equipment_book_rub","wip_inventory_rub"):
                 ui["filters"]={"from":start,"to":end}
                 out["text"]+=f" Период: {start or 'все даты'} — {end}."
         elif entry["view"]=="planning":
@@ -147,7 +147,7 @@ def operation_schema():
             n,t=field["name"],field["type"]
             if t in ("int","int0"):s={"type":"integer","minimum":0,"maximum":book.MAX_Q}
             elif t=="bool":s={"type":"boolean"}
-            else:s={"type":"string","maxLength":240}
+            else:s={"type":"string","maxLength":2000 if t=="identifiers" else 240}
             properties[n]=s
     # Keep a single compact tool schema. Backend validates exact fields per op.
     return {"type":"object","properties":{"operation":{"type":"string","enum":list(book.FIELDS)},
@@ -155,7 +155,7 @@ def operation_schema():
             "required":["operation","arguments"],"additionalProperties":False}
 
 def report_schema():
-    return {"type":"object","properties":{"view":{"type":"string","enum":["summary","stock","sales","planning","finance","journal","tasks","workers","unit","catalog"]},
+    return {"type":"object","properties":{"view":{"type":"string","enum":["summary","stock","sales","planning","finance","journal","tasks","workers","unit","catalog","assets"]},
         "start":{"type":"string"},"end":{"type":"string"},"target_profit":{"type":"string"},"horizon":{"type":"integer","minimum":1,"maximum":365},
         "lead":{"type":"integer","minimum":0,"maximum":365},"safety":{"type":"integer","minimum":0,"maximum":365},
         "limit":{"type":"integer","minimum":1,"maximum":30}},"required":["view"],"additionalProperties":False}

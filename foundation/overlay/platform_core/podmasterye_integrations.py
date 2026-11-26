@@ -29,6 +29,8 @@ SCHEMA=(
 )
 def init(db):
     for s in SCHEMA:db.execute(s)
+    if "external_stock" not in {r[1] for r in db.execute("PRAGMA table_info(pm_external_offers)")}:
+        db.execute("ALTER TABLE pm_external_offers ADD COLUMN external_stock INTEGER")
 def source(db,w,ident):
     row=db.execute("SELECT id,name,enabled,auto_produce FROM pm_sources WHERE workspace=? AND id=?",(w,ident)).fetchone()
     if not row:raise ValueError("Источник недоступен.")
@@ -36,14 +38,14 @@ def source(db,w,ident):
 def overview(db,w):
     src=[]
     for ident,name,enabled,auto in db.execute("SELECT id,name,enabled,auto_produce FROM pm_sources WHERE workspace=? ORDER BY normalized",(w,)):
-        offers=[dict(offer_id=o,name=n,price=p,product_id=pid) for o,n,p,pid in db.execute("SELECT offer,name,price,product FROM pm_external_offers WHERE source=? ORDER BY name,offer",(ident,))]
+        offers=[dict(offer_id=o,name=n,price=p,product_id=pid,external_stock=stock) for o,n,p,pid,stock in db.execute("SELECT offer,name,price,product,external_stock FROM pm_external_offers WHERE source=? ORDER BY name,offer",(ident,))]
         orders=[dict(order_ref=r,day=d,status=s,error=e,items=len(json.loads(p)["items"])) for r,d,s,e,p in db.execute("SELECT ref,day,status,error,payload FROM pm_external_orders WHERE source=? ORDER BY day DESC,rowid DESC LIMIT 100",(ident,))]
         count=db.execute("SELECT count(*) FROM pm_external_orders WHERE source=? AND status<>'posted'",(ident,)).fetchone()[0]
         src.append(dict(id=ident,name=name,enabled=bool(enabled),auto_produce=bool(auto),offers=offers,orders=orders,pending=count))
     return {"sources":src}
 def change(store,token,workshop,action,args):
-    if action not in ("create","rotate","disable","enable","configure","map","retry") or not isinstance(args,dict):raise ValueError("Неизвестная операция.")
-    allowed={"name","auto_produce"} if action=="create" else {"id","offer","product"} if action=="map" else {"id","auto_produce"} if action=="configure" else {"id"}
+    if action not in ("create","rotate","disable","enable","configure","map","create_product","retry") or not isinstance(args,dict):raise ValueError("Неизвестная операция.")
+    allowed={"name","auto_produce"} if action=="create" else {"id","offer","product"} if action=="map" else {"id","offer","name","category"} if action=="create_product" else {"id","auto_produce"} if action=="configure" else {"id"}
     if set(args)-allowed:raise ValueError("Лишние поля.")
     with store._write() as db:
         _,account=_principal(db,token);w=workshops.resolve(db,account,workshop)
@@ -69,6 +71,18 @@ def change(store,token,workshop,action,args):
             offer=book.textval(args.get("offer"),128);product,_=book.entity(db,w,"product",args.get("product"))
             if not db.execute("UPDATE pm_external_offers SET product=? WHERE source=? AND offer=?",(product,ident,offer)).rowcount:raise ValueError("Артикул не найден.")
             # No implicit posting on an unknown/disabled source.
+            if enabled:retry(db,w,ident,name,bool(auto))
+        elif action=="create_product":
+            offer=book.textval(args.get("offer"),128)
+            row=db.execute("SELECT name,price,product FROM pm_external_offers WHERE source=? AND offer=?",(ident,offer)).fetchone()
+            if not row:raise ValueError("Артикул не найден.")
+            if not row[2]:
+                name_new=clean_name(args.get("name") or row[0]);category=book.textval(args.get("category",""))
+                if db.execute("SELECT 1 FROM pm_products WHERE workspace=? AND normalized=?",(w,name_new.casefold())).fetchone():
+                    raise Conflict("Изделие с таким названием существует. Выберите его для привязки.")
+                result=book.execute(db,w,"srcprod-"+hashlib.sha256(encode([ident,offer]).encode()).hexdigest(),"product",
+                    {"name":name_new,"category":category,"sale_price":row[1]})
+                db.execute("UPDATE pm_external_offers SET product=? WHERE source=? AND offer=?",(result["id"],ident,offer))
             if enabled:retry(db,w,ident,name,bool(auto))
         elif action=="retry":
             if not enabled:raise Conflict("Источник отключён.")
@@ -169,3 +183,23 @@ def event(store,authorization,payload):
         out={"event_id":eid,"status":"posted","return_id":result["id"]}
         db.execute("INSERT INTO pm_external_events VALUES(?,?,?,?)",(ident,eid,raw,encode(out)))
         return out
+
+
+def receive_catalog(store,authorization,payload):
+    if not isinstance(payload,dict) or set(payload)!={"items"} or not isinstance(payload["items"],list) or not 1<=len(payload["items"])<=500:
+        raise ValueError("Ожидается каталог из 1–500 позиций.")
+    items=[];seen=set()
+    for r in payload["items"]:
+        if not isinstance(r,dict) or not {"offer_id","name","price"}<=set(r)<={"offer_id","name","price","stock"}:raise ValueError("Некорректная позиция каталога.")
+        offer=book.textval(r["offer_id"],128)
+        if not offer or offer in seen:raise ValueError("Пустой или повторный артикул.")
+        seen.add(offer)
+        price=book.money(book.minor(str(r["price"])))
+        stock=book.quantity(r["stock"],True) if r.get("stock") is not None else None
+        items.append((offer,clean_name(r["name"]),price,stock))
+    with store._write() as db:
+        ident,w,_,_=authenticate(db,authorization)
+        for o,n,p,stock in items:
+            db.execute("""INSERT INTO pm_external_offers(source,offer,name,price,external_stock) VALUES(?,?,?,?,?)
+              ON CONFLICT(source,offer) DO UPDATE SET name=excluded.name,price=excluded.price,external_stock=excluded.external_stock""",(ident,o,n,p,stock))
+        return {"accepted":len(items),"stock_effect":False}
