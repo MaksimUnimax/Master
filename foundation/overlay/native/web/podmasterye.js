@@ -17,7 +17,7 @@ function row(parent,text,role='assistant',receipt){
     line.textContent='Расходы ИИ: '+(cost.rub!=null?cost.rub+' ₽':cost.usd!=null?cost.usd+' USD':'не подтверждены')+(u?' · вход '+u.input+' · кэш '+u.cache+' · выход '+u.output:'');parent.append(line);}
   parent.scrollTop=parent.scrollHeight;
 }
-function navigate(name,reveal=true){for(const el of document.querySelectorAll('[data-panel]'))el.hidden=el.dataset.panel!==name;for(const el of document.querySelectorAll('[data-page]'))el.classList.toggle('active',el.dataset.page===name);const pager=$('#event-pager');if(pager)pager.hidden=!['stock','purchases','manufacture','sales','expenses','journal','workers','assets'].includes(name);const filters=$('#accounting-filters');if(filters)filters.hidden=['admin','wallet','settings','integrations','tasks'].includes(name);window.PMExtras?.navigate(name,reveal);if(name==='admin'&&admin)refreshUsage();if(name==='integrations')refreshTelegram();}
+function navigate(name,reveal=true){for(const el of document.querySelectorAll('[data-panel]'))el.hidden=el.dataset.panel!==name;for(const el of document.querySelectorAll('[data-page]'))el.classList.toggle('active',el.dataset.page===name);const pager=$('#event-pager');if(pager)pager.hidden=!['stock','purchases','manufacture','sales','expenses','journal','workers','assets'].includes(name);const filters=$('#accounting-filters');if(filters)filters.hidden=['admin','wallet','settings','integrations','tasks'].includes(name);window.PMExtras?.navigate(name,reveal);if(name==='admin'&&admin)refreshUsage();if(name==='integrations'){refreshTelegram();window.PMMarket?.load();}if(name==='admin'&&admin)window.PMMarket?.loadConfig();}
 function table(host,cols,values){host.replaceChildren();const t=document.createElement('table'),h=t.createTHead().insertRow();for(const c of cols){const th=document.createElement('th');th.textContent=c;h.append(th);}const b=t.createTBody();for(const vals of values){const r=b.insertRow();for(const v of vals)r.insertCell().textContent=v??'Не указано';}host.append(t);}
 async function refresh(ui){return window.PMAccounting.refresh(ui);}
 async function wallet(){
@@ -86,7 +86,7 @@ function telegramState(d){
  const s=$('#pm-telegram-status');if(!s)return;
  s.textContent=d.linked?'Telegram подключён.':d.configured?'Нет подтверждённой привязки аккаунта.':'Telegram не настроен.';
  if(d.sent)s.textContent+=' Сообщение отправлено.';
- for(const b of document.querySelectorAll('[data-pm-telegram]'))b.disabled=b.dataset.pmTelegram==='disconnect'?!d.hasBinding:!d.linked;
+ for(const b of document.querySelectorAll('[data-pm-telegram]'))b.disabled=b.dataset.pmTelegram==='connect'?(!d.configured||d.hasBinding):b.dataset.pmTelegram==='disconnect'?!d.hasBinding:!d.linked;
 }
 async function refreshTelegram(){try{telegramState(await api('/api/integrations/telegram'));}catch(e){$('#pm-telegram-status').textContent=e.message;}}
 async function initMember(){
@@ -104,10 +104,19 @@ async function initMember(){
   }
   for(const b of document.querySelectorAll('[data-pm-telegram]'))b.onclick=async()=>{
    const action=b.dataset.pmTelegram;if(action==='disconnect'&&!confirm('Отключить Telegram только в Подмастерье?'))return;
-   b.disabled=true;try{telegramState(await post('/api/integrations/telegram',{action}));}catch(e){$('#pm-telegram-status').textContent=e.message;b.disabled=false;}
+   b.disabled=true;try{
+     if(action==='connect'){
+      const a=await post('/api/integrations/telegram/connect',{});
+      const u=new URL(a.url,location.origin);
+      if(u.origin!==location.origin&&u.origin!=='https://oauth.telegram.org')throw Error('Недопустимый адрес авторизации.');
+      location.href=u.href;return;
+     }
+     if(action==='disconnect'){await post('/api/integrations/telegram/disconnect',{});await refreshTelegram();}
+     else telegramState(await post('/api/integrations/telegram',{action}));
+   }catch(e){$('#pm-telegram-status').textContent=e.message;b.disabled=false;}
   };
   for(const b of document.querySelectorAll('[data-page]'))b.onclick=()=>{navigate(b.dataset.page);window.PMAccounting.navigate();};
-  const query=new URLSearchParams(location.search);const initial=query.get('account')==='wallet'?'wallet':query.get('section')==='admin'&&admin?'admin':'summary';navigate(initial,initial!=='summary'||!!sessionStorage.getItem('pm-calc-pending'));
+  const query=new URLSearchParams(location.search);const initial=query.get('account')==='wallet'?'wallet':query.get('section')==='admin'&&admin?'admin':query.get('section')==='integrations'?'integrations':'summary';navigate(initial,initial!=='summary'||!!sessionStorage.getItem('pm-calc-pending'));
   document.addEventListener('octo-wallet-refresh',()=>wallet().catch(()=>{}));
   await Promise.all([refresh(),wallet()]);
   const chat=(await post('/api/workshops/chat',{workshop:window.PMWorkshopId})).chatId;

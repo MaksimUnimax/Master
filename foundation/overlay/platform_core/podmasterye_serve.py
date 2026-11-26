@@ -11,6 +11,7 @@ async def serve(state,port):
     state.mkdir(mode=0o700,parents=True,exist_ok=True)
     database,journal=state/"stage.sqlite3",state/"usage.jsonl"
     os.environ.update(HARNESS_PROVIDER_KEYS_DIR=str(state/"provider-keys"),HARNESS_CHAT_MODEL="deepseek-flash",HARNESS_OFFLINE_MODEL="0",HARNESS_USAGE_JOURNAL=str(journal))
+    os.environ["HARNESS_TELEGRAM_CONFIG_FILE"]=str(state/"telegram.json")
     for k in ("HARNESS_PROVIDER_RELAY_URL","HARNESS_PROVIDER_RELAY_KEY_FILE","HARNESS_ACCEPTANCE_GATEWAY","HARNESS_ACCEPTANCE_KEY_FILE","HARNESS_OPENROUTER_KEY_FILE"):
         os.environ.pop(k,None)
     with RegistrationStore(database):initialize_grants(database)

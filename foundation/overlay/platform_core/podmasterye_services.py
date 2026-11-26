@@ -70,6 +70,7 @@ def routes(token_for,body):
         if action=="disconnect":
             with identity._write() as db:
                 _,current=_principal(db,token)
+                db.execute("DELETE FROM telegram_integration_consents WHERE workspace=?",(current,))
                 db.execute("DELETE FROM telegram_recipients WHERE workspace=?",(current,))
             return JSONResponse({"configured":s["configured"],"linked":False,"hasBinding":False})
         if action:

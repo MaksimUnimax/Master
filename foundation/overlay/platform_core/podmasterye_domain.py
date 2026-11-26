@@ -53,6 +53,8 @@ def init(store):
         workshops.init(db)
         from . import podmasterye_integrations as integrations
         integrations.init(db)
+        from . import podmasterye_market_links as market_links
+        market_links.init(db)
         from . import podmasterye_agent_forms as agent
         agent.init(db)
 

@@ -51,7 +51,7 @@ from .identity import AuthenticationError, ChatUnavailable
 from .guest_registration import RegistrationStore
 from .guest_web import guest_routes
 from .web_ui import web_routes
-from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, telegram_integration
+from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, telegram_integration, podmasterye_market_links, podmasterye_telegram_config
 '''+s[stop:]
     start=s.index("    router_plugin = None",s.index("def create_app("))
     stop=s.index("    async def logout(req):",start)
@@ -73,6 +73,7 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
                 app.state.admin_costs.journal=Path(shared_path).with_name("usage.jsonl")
             app.state.worker=ChatWorker(shared_path,chat_directory)
             app.state.model_router=None
+            app.state.market_links=podmasterye_market_links.Store(app.state.identity,Path(shared_path).resolve().parent)
             async with httpx.AsyncClient(timeout=10,trust_env=False,follow_redirects=False) as http:
                 app.state.http=http
                 try:
@@ -98,7 +99,8 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
         *access_web.routes(),Route("/api/logout",logout,methods=["POST"]),
         Route("/api/recover",recover,methods=["POST"]),
         Route("/api/chats",chats,methods=["GET","POST"]),
-        *podmasterye_scoped.routes(_token,_body),*podmasterye_services.routes(_token,_body),
+        *podmasterye_scoped.routes(_token,_body),*podmasterye_services.routes(_token,_body),*podmasterye_market_links.routes(_token,_body),*podmasterye_telegram_config.routes(_token,_body),
+        *[r for r in telegram_integration.routes(_body) if r.path!='/api/admin/provider-balances/telegram-connect'],
     ],exception_handlers={cls:error_response for cls in (
         AuthenticationError,ChatUnavailable,WorkerError,HTTPException,ValueError)})
 '''
@@ -139,6 +141,13 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
         s=s.replace("'https://INVALID-PODMASTER-RETURN/payment/return'","location.origin + '/payment/return'")
         s=s.replace("Октопорта","Подмастерья").replace("Октопорте","Подмастерье").replace("Октопорт","Подмастерье").replace("Octoport","Подмастерье").replace("Октопуса","Подмастерья")
         f.write_text(s)
+    # Telegram Login is registered against this product, never Octoport's callback.
+    edit("platform_core/telegram_api.py",'SITE_ORIGIN = "https://octoport.ru"','SITE_ORIGIN = "https://podmasterye.185-219-43-9.sslip.io"')
+    edit("platform_core/telegram_api.py",'        if not path:\n            return None\n        data = json.loads(Path(path).read_text())','        if not path or not Path(path).is_file():\n            return None\n        data = json.loads(Path(path).read_text())')
+    f=root/"platform_core/telegram_integration.py";s=f.read_text()
+    s=s.replace('/ui-assets/project/account.css','/assets/podmasterye.css').replace('body class="telegram-return-page"><main>','body class="pm-simple"><main class="pm-auth-main"><div class="pm-auth-wrap"><section class="pm-auth-card">').replace('Вернуться в Октопорт</a></main><script','Вернуться в Подмастерье</a></section></div></main><script').replace('href="/app/"','href="/app/?section=integrations"')
+    s=s.replace("Октопорта","Подмастерья").replace("Октопорте","Подмастерье").replace("Октопорт","Подмастерье").replace("octoport.telegram","podmasterye.telegram")
+    f.write_text(s)
     # Separate cookie names; eliminate old project's analytics.
     edit("platform_core/browser_session.py","__Host-harness_session","__Host-podmaster_session")
     edit("platform_core/browser_session.py","harness_local_session","podmaster_local_session")
