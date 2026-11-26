@@ -64,9 +64,9 @@ function metricGrid(host,keys,values){
  for(const k of keys){const card=document.createElement('div');card.className='metric';card.dataset.metric=k;const a=document.createElement('span');a.textContent=moneyLabels[k]||k;const b=document.createElement('strong');b.textContent=values[k]==null?'—':values[k]+(['sale_records','sales_quantity'].includes(k)?'':k==='margin_percent'?'%':' ₽');card.append(a,b);grid.append(card);}host.append(grid);
 }
 function setFilter(ui){
- if(ui?.entity){q('#catalog-filter').value=ui.entity;}
- if(ui?.filters){q('#period-from').value=ui.filters.from||'';q('#period-to').value=ui.filters.to||'';q('#event-offset').value='0';}
- if(ui?.highlight){qa('.metric').forEach(e=>e.classList.toggle('highlight',e.dataset.metric===ui.highlight));q('[data-metric="'+ui.highlight.replace(/[^a-z_]/g,'')+'"]')?.scrollIntoView({block:'nearest'});}
+ if(ui?.entity){q('#catalog-filter').value=ui.entity;q('#catalog-category').value='';}
+ if(ui?.filters){q('#period-from').value=ui.filters.from||'';q('#period-to').value=ui.filters.to||'';q('#event-offset').value='0';q('#period-preset').value=(!ui.filters.from&&!ui.filters.to)?'all':'custom';}
+ if(ui?.highlight){qa('.metric').forEach(e=>e.classList.toggle('highlight',e.dataset.metric===ui.highlight));q('[data-panel]:not([hidden]) [data-metric="'+ui.highlight.replace(/[^a-z_]/g,'')+'"]')?.scrollIntoView({block:'nearest'});}
 }
 function query(){
  const p=new URLSearchParams();
@@ -81,7 +81,7 @@ function render(){
  metricGrid(q('#summary'),['revenue','sale_records','sales_quantity','cogs','gross_profit','margin_percent','other_expenses','worker_payments','sale_fees','writeoffs','depreciation','net_profit','purchases','cashflow','inventory_rub','current_receivables_rub'],d.summary);
  metricGrid(q('#stock-metrics'),['raw_inventory_rub','finished_inventory_rub','wip_inventory_rub','inventory_rub'],d.summary);
  metricGrid(q('#finance-metrics'),Object.keys(moneyLabels),d.summary);
- metricGrid(q('#sales-metrics'),['revenue','cogs','gross_profit','receipts','current_receivables_rub'],d.summary);
+ metricGrid(q('#sales-metrics'),['revenue','sale_records','sales_quantity','cogs','gross_profit','sale_fees','receipts','current_receivables_rub'],d.summary);
  metricGrid(q('#purchase-metrics'),['purchases'],d.summary);
  metricGrid(q('#expense-metrics'),['expenses','worker_payments','sale_fees','writeoffs','depreciation'],d.summary);
  metricGrid(q('#assets-metrics'),['capex','depreciation','equipment_book_rub','asset_proceeds','asset_disposal'],d.summary);
@@ -126,7 +126,11 @@ function render(){
  for(const host of qa('[data-event-table]')){
   const current=groupByPage[q('nav button.active')?.dataset.page]||'all';
   if(host.dataset.eventTable!==current)continue;
-  safeTable(host,['Дата','Операция','Описание','Заметка','Статус','Действие'],d.events.map(e=>[e.day,kindLabels[e.kind]||e.kind,e.summary,e.note,e.reversed?'Сторнирована':e.kind==='reverse'?'Корректировка':'Учтена',
+  const visibleEvents=d.events.filter(e=>{
+   const items=[d.materials.find(m=>m.id===e.material_id),d.products.find(p=>p.id===e.product_id)].filter(Boolean);
+   return (!cat.value||items.some(x=>x.category===cat.value))&&(!search||[e.summary,e.note,...items.flatMap(x=>[x.name,x.category])].some(v=>(v||'').toLocaleLowerCase('ru').includes(search)));
+  });
+  safeTable(host,['Дата','Операция','Описание','Заметка','Статус','Действие'],visibleEvents.map(e=>[e.day,kindLabels[e.kind]||e.kind,e.summary,e.note,e.reversed?'Сторнирована':e.kind==='reverse'?'Корректировка':'Учтена',
    eventActions(e)]));
  }
  q('#journal-count').textContent='Показано '+d.events.length+' из '+d.event_count+' записей';
@@ -243,7 +247,7 @@ function init(){
  if(!q('#book-dialog'))return;
  for(const b of qa('[data-book-op]'))b.onclick=()=>open(b.dataset.bookOp);
  q('#period-apply').onclick=()=>{q('#event-offset').value='0';refresh().catch(e=>status(e.message));};
- q('#period-clear').onclick=()=>{q('#period-from').value=q('#period-to').value='';q('#event-offset').value='0';refresh().catch(e=>status(e.message));};
+ q('#period-clear').onclick=()=>{q('#period-from').value=q('#period-to').value='';q('#period-preset').value='all';q('#event-offset').value='0';refresh().catch(e=>status(e.message));};
  q('#catalog-filter').oninput=render;q('#sales-channel-filter').oninput=render;q('#catalog-category').onchange=render;
  for(const kind of ['product','material']){const select=q('#'+kind+'-view');select.value=localStorage.getItem('pm-'+kind+'-view')==='cards'?'cards':'list';select.onchange=()=>{localStorage.setItem('pm-'+kind+'-view',select.value);render();};}
  q('#bulk-products').onclick=()=>bulk('product');q('#bulk-materials').onclick=()=>bulk('material');

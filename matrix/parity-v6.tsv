@@ -1,0 +1,125 @@
+id	operation	status_v6	proof_or_limit
+S01.01	Открыть главную и описание	Проверено UI	test_01_public_navigation_cookie_choices: главная, FAQ, политика, оба выбора cookie, перезагрузка, 390px
+S01.02	FAQ	Проверено UI	test_01_public_navigation_cookie_choices: главная, FAQ, политика, оба выбора cookie, перезагрузка, 390px
+S01.03	Политика/согласие cookie	Проверено UI	test_01_public_navigation_cookie_choices: главная, FAQ, политика, оба выбора cookie, перезагрузка, 390px
+S01.04	Ввести изделие в калькулятор	Проверено UI	test_02_calculator_validation_live_recalculation: строки, дробные количества, автоматический пересчёт, ноль и очистка устаревшего результата
+S01.05	Добавить/удалить строку материалов	Проверено UI	test_02_calculator_validation_live_recalculation: строки, дробные количества, автоматический пересчёт, ноль и очистка устаревшего результата
+S01.06	Изменить цену продажи	Проверено UI	test_02_calculator_validation_live_recalculation: строки, дробные количества, автоматический пересчёт, ноль и очистка устаревшего результата
+S01.07	Учесть труд	Проверено UI	test_02_calculator_validation_live_recalculation: строки, дробные количества, автоматический пересчёт, ноль и очистка устаревшего результата
+S01.08	Сохранить расчёт	Проверено UI	test_03_calculator_guest_to_account_save: вход существующего пользователя, перенос, сохранение, отсутствие дубля
+S01.09	Получить код и войти	Частично проверено UI	test_04_registration_codes_logout_and_invalid_login: синтетическая почта, неверный/верный код регистрации, вход в кабинет. Повторный email-вход остановлен штатным 60-секундным ограничением; после истечения не подтверждён
+S01.10	Выйти/восстановить доступ	Частично проверено UI	test_04_registration_codes_logout_and_invalid_login: выход, запрет доступа после выхода, неверный пароль. Восстановление доступа отдельным UI не проверено
+S02.01	Список мастерских	Проверено UI	test_06_themes_colors_and_workshop_restore: создание, список, переключение, архив, восстановление, цвет
+S02.02	Открыть демо	Проверено	test_multiple_workshops_and_demo_isolation; test_unit_economics_labor_and_channel_tariff
+S02.03	Создать мастерскую	Проверено UI	test_06_themes_colors_and_workshop_restore: создание, список, переключение, архив, восстановление, цвет
+S02.04	Настройки мастерской	Проверено UI	test_06_themes_colors_and_workshop_restore: создание, список, переключение, архив, восстановление, цвет
+S02.05	Переключить мастерскую	Проверено UI	test_06_themes_colors_and_workshop_restore: создание, список, переключение, архив, восстановление, цвет
+S02.06	Удалить пример/архивировать	Проверено UI	test_06_themes_colors_and_workshop_restore: создание, список, переключение, архив, восстановление, цвет
+S02.07	Перейти по вкладкам	Проверено UI	test_05_all_tabs_empty_and_responsive: 18 вкладок, пустые состояния, активная навигация; пять разделов на 390px
+S02.08	Установить период	Проверено	test_date_period_and_no_backdated_stock
+S02.09	Сменить тему/цветовую схему	Проверено UI	test_06_themes_colors_and_workshop_restore: пять цветов, светлая/тёмная/системная темы, сохранение после перезагрузки, изменение системной темы
+S02.10	Меню ⋯	Не подтверждено у конкурента	Функциональные действия распределены по разделам; точный состав меню неизвестен
+S02.11	Первый товар из пустой сводки	Проверено UI	test_03_calculator_guest_to_account_save: вход существующего пользователя, перенос, сохранение, отсутствие дубля
+S03.01	Выручка и количество продаж	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S03.02	Себестоимость проданного	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S03.03	Валовая прибыль и маржа	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S03.04	Прочие расходы	Проверено	test_v5_all_expense_categories_and_report_reconciliation; test_v5_opening_and_full_writeoff; test_worker_payments_and_reversal
+S03.05	Списания	Проверено	test_v5_all_expense_categories_and_report_reconciliation; test_v5_opening_and_full_writeoff; test_worker_payments_and_reversal
+S03.06	Чистая прибыль	Проверено	test_v5_all_expense_categories_and_report_reconciliation; test_v5_opening_and_full_writeoff; test_worker_payments_and_reversal
+S03.07	Закупки материалов	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S03.08	Денежный поток	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S03.09	Графики по месяцам	Проверено UI	test_10_finance_charts_distribution_rank_and_periods: месячные графики, отрицательная прибыль, сумма распределения, ранжирование маржи, периоды
+S03.10	Распределение рубля выручки	Проверено UI	test_10_finance_charts_distribution_rank_and_periods: месячные графики, отрицательная прибыль, сумма распределения, ранжирование маржи, периоды
+S03.11	Маржа по товарам	Проверено UI	test_10_finance_charts_distribution_rank_and_periods: месячные графики, отрицательная прибыль, сумма распределения, ранжирование маржи, периоды
+S03.12	Деньги на складе по категориям	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S03.13	Прибыль по товарам	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S03.14	Каналы продаж	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S03.15	Юнит-экономика 90 дней	Проверено	test_v5_overheads_and_target_price; test_unit_economics_labor_and_channel_tariff; test_v5_actual_fees_and_distribution
+S03.16	Рекомендуемая цена	Проверено	test_v5_overheads_and_target_price; test_unit_economics_labor_and_channel_tariff; test_v5_actual_fees_and_distribution
+S03.17	Рекомендации закупок	Проверено	test_pack_purchase_and_forecast; прогноз по 30 дням; нет сезонности, резервов, заказов в пути
+S04.01	Новая продажа	Проверено	test_payment_and_return_good_and_damaged; test_unpaid_sale_and_partial_payment
+S04.02	Фильтр по категории	Проверено UI на контрольной выборке	test_07_category_sales_purchase_filters: категории и каналы продаж, отсутствие совпадений, фильтр выбора продукта/материала, журнал закупок; фильтр журнала действует в текущей странице, глобальная пагинация не проверена
+S04.03	Редактировать продажу	Проверено	test_v5_edit_and_delete_sale_and_manufacture; test_reversal_preserves_audit_and_dependency
+S04.04	Статус оплаты	Проверено	test_payment_and_return_good_and_damaged; test_unpaid_sale_and_partial_payment
+S04.05	Изменить себестоимость продажи	Проверено	test_v5_manual_cost_and_returns; test_v5_actual_fees_and_distribution
+S04.06	Заметка	Проверено	test_v5_edit_and_delete_sale_and_manufacture; test_reversal_preserves_audit_and_dependency
+S04.07	Удалить/отменить продажу	Проверено	test_v5_edit_and_delete_sale_and_manufacture; test_reversal_preserves_audit_and_dependency
+S04.08	Проверить продажи	Внешняя интеграция отложена	Автозагрузка Ozon/WB/Яндекс без реальных ключей не проверяется
+S04.09	Показывать сумму/прибыль строки	Проверено	test_v5_manual_cost_and_returns; test_v5_actual_fees_and_distribution
+S04.10	Возврат/частичный выкуп	Проверено	test_payment_and_return_good_and_damaged; test_unpaid_sale_and_partial_payment
+S05.01	Создать товар	Проверено	test_catalog_and_units; test_specific_material_reports_and_rename
+S05.02	Категории и представление	Проверено UI	test_08_catalog_views_and_material_autofill: список/карточки, фильтры, сохранение вида, подстановка единиц, плановой цены и фактической средней цены
+S05.03	Добавить материал к рецепту	Проверено	test_catalog_and_units; test_specific_material_reports_and_rename
+S05.04	Подстановка существующего материала	Проверено UI	test_08_catalog_views_and_material_autofill: список/карточки, фильтры, сохранение вида, подстановка единиц, плановой цены и фактической средней цены
+S05.05	Удалить/изменить строку рецепта	Проверено	test_recipe_versions_archive_and_restore; архив вместо уничтожения истории
+S05.06	Открыть/редактировать карточку	Проверено UI	test_09_product_card_photo_edit_and_archive: карточка, фото, редактирование, массовый архив, восстановление
+S05.07	Себестоимость/прибыль/маржа товара	Проверено	test_v5_overheads_and_target_price; test_unit_economics_labor_and_channel_tariff; test_v5_actual_fees_and_distribution
+S05.08	Удалить/архивировать товар	Проверено UI	test_09_product_card_photo_edit_and_archive: карточка, фото, редактирование, массовый архив, восстановление
+S05.09	Внешние товары	Проверено локально	test_v5_external_catalog_fixture; test_external_order_mapping_retry_returns_and_key_rotation; только синтетический источник
+S05.10	Привязать внешний артикул	Проверено локально	test_v5_external_catalog_fixture; test_external_order_mapping_retry_returns_and_key_rotation; только синтетический источник
+S05.11	Создать товар из внешнего	Проверено локально	test_v5_external_catalog_fixture; test_external_order_mapping_retry_returns_and_key_rotation; только синтетический источник
+S05.12	Фото и массовые операции	Проверено реализованные операции UI	test_09_product_card_photo_edit_and_archive: загрузка и удаление фото, массовый архив. Точный набор операций конкурента неизвестен
+S06.01	Новый материал	Проверено	test_v5_opening_and_full_writeoff; test_pack_purchase_and_forecast; test_reversal_preserves_audit_and_dependency
+S06.02	Редактировать материал	Проверено	test_catalog_and_units; test_specific_material_reports_and_rename
+S06.03	Архивировать	Проверено	test_recipe_versions_archive_and_restore; архив вместо уничтожения истории
+S06.04	Удалить	Проверено	test_recipe_versions_archive_and_restore; архив вместо уничтожения истории
+S06.05	Текущие цена и остаток	Проверено	test_v5_opening_and_full_writeoff; test_pack_purchase_and_forecast; test_reversal_preserves_audit_and_dependency
+S06.06	Скачать шаблон	Проверено UI	test_13_exports_and_template_downloads: браузерные загрузки CSV-шаблона, XLSX (19 листов), CSV журнала и ZIP (19 CSV)
+S06.07	Загрузить таблицу	Проверено	test_import_csv_and_xlsx_atomic_and_idempotent; шаблон и импорт
+S06.08	Закупочная упаковка	Проверено	test_pack_purchase_and_forecast; прогноз по 30 дням; нет сезонности, резервов, заказов в пути
+S07.01	Новая закупка	Проверено	test_moving_average_and_fifo_control
+S07.02	Выбрать/создать поставщика	Проверено	test_moving_average_and_fifo_control
+S07.03	Фильтр категории	Проверено UI на контрольной выборке	test_07_category_sales_purchase_filters: категории и каналы продаж, отсутствие совпадений, фильтр выбора продукта/материала, журнал закупок; фильтр журнала действует в текущей странице, глобальная пагинация не проверена
+S07.04	Редактировать закупку	Проверено	test_v5_historical_purchase_frozen_recipe; test_v5_historical_insert_delete_and_rollback
+S07.05	Удалить закупку	Проверено	test_v5_historical_purchase_frozen_recipe; test_v5_historical_insert_delete_and_rollback
+S07.06	Пересчитать среднюю цену	Проверено	test_moving_average_and_fifo_control
+S08.01	Сумма запасов	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S08.02	Изготовить партию	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S08.03	Пустая стоимость партии	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S08.04	Ручная стоимость партии	Проверено	test_v5_manual_cost_and_returns; test_v5_actual_fees_and_distribution
+S08.05	Остаток готовых изделий	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S08.06	История партий	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S08.07	Редактировать/отменить выпуск	Проверено	test_v5_edit_and_delete_sale_and_manufacture; test_reversal_preserves_audit_and_dependency
+S08.08	Продажа сверх готового	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S08.09	Несколько партий	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S08.10	Остатки материалов	Проверено на контрольных движениях	test_moving_average_and_fifo_control; test_exact_kopeck_conservation
+S08.11	Незавершёнка и полуфабрикаты	Проверено	test_v5_wip_and_component_cost; явный перенос полуфабриката
+S09.01	Списать часть	Проверено	test_v5_opening_and_full_writeoff; test_pack_purchase_and_forecast; test_reversal_preserves_audit_and_dependency
+S09.02	Списать весь остаток	Проверено	test_v5_opening_and_full_writeoff; test_pack_purchase_and_forecast; test_reversal_preserves_audit_and_dependency
+S09.03	История списаний	Проверено	test_v5_opening_and_full_writeoff; test_pack_purchase_and_forecast; test_reversal_preserves_audit_and_dependency
+S09.04	Отмена списания	Проверено	test_v5_opening_and_full_writeoff; test_pack_purchase_and_forecast; test_reversal_preserves_audit_and_dependency
+S10.01	Добавить расход	Проверено	test_v5_all_expense_categories_and_report_reconciliation; test_v5_opening_and_full_writeoff; test_worker_payments_and_reversal
+S10.02	Статьи расходов	Проверено	test_v5_all_expense_categories_and_report_reconciliation; test_v5_opening_and_full_writeoff; test_worker_payments_and_reversal
+S10.03	Редактировать расход	Проверено	test_v5_historical_purchase_frozen_recipe; test_v5_historical_insert_delete_and_rollback
+S10.04	Удалить/сторнировать расход	Проверено	test_v5_historical_purchase_frozen_recipe; test_v5_historical_insert_delete_and_rollback
+S10.05	Амортизация и накладные	Проверено	test_v5_depreciation_acquisition_and_disposal; test_v5_overheads_and_target_price
+S11.01	Создать сотрудника	Проверено	test_worker_payments_and_reversal; учёт без отдельной роли
+S11.02	Карточка и редактирование	Проверено	test_worker_payments_and_reversal; учёт без отдельной роли
+S11.03	Выплата	Проверено	test_worker_payments_and_reversal; учёт без отдельной роли
+S11.04	Код сотрудника/вход	Исключено владельцем	Нет отдельной авторизации работников
+S11.05	Права по вкладкам	Исключено владельцем	Нет отдельной авторизации работников
+S11.06	Отмена выплаты/увольнение	Проверено	test_worker_payments_and_reversal; учёт без отдельной роли
+S12.01	Таблица по месяцам	Проверено	test_v5_all_expense_categories_and_report_reconciliation; test_v5_opening_and_full_writeoff; test_worker_payments_and_reversal
+S12.02	Расходы по статьям	Проверено	test_v5_all_expense_categories_and_report_reconciliation; test_v5_opening_and_full_writeoff; test_worker_payments_and_reversal
+S12.03	XLSX всей мастерской	Проверено UI	test_13_exports_and_template_downloads: браузерные загрузки CSV-шаблона, XLSX (19 листов), CSV журнала и ZIP (19 CSV)
+S12.04	CSV всей мастерской	Проверено UI	test_13_exports_and_template_downloads: браузерные загрузки CSV-шаблона, XLSX (19 листов), CSV журнала и ZIP (19 CSV)
+S13.01	Список активных/выполненных	Проверено UI	test_11_task_filters_all_categories_reminders: восемь категорий, создание, выполнение, восстановление, архив, фильтры
+S13.02	Создать задачу	Проверено UI	test_11_task_filters_all_categories_reminders: восемь категорий, создание, выполнение, восстановление, архив, фильтры
+S13.03	Категории задач	Проверено UI	test_11_task_filters_all_categories_reminders: восемь категорий, создание, выполнение, восстановление, архив, фильтры
+S13.04	Редактировать/завершить/восстановить	Проверено UI	test_11_task_filters_all_categories_reminders: восемь категорий, создание, выполнение, восстановление, архив, фильтры
+S13.05	Удалить/напомнить	Проверено локальные напоминания и архив UI	test_11_task_filters_all_categories_reminders; уведомления внешних сервисов вне объёма
+S14.01	Подключить Ozon	Внешняя интеграция отложена	Реальные ключи, синхронизация площадок вне текущего объёма
+S14.02	Импорт Ozon	Внешняя интеграция отложена	Реальные ключи, синхронизация площадок вне текущего объёма
+S14.03	Отключить/сменить Ozon	Внешняя интеграция отложена	Реальные ключи, синхронизация площадок вне текущего объёма
+S14.04	Подключить свой магазин	Проверено UI на синтетическом источнике	test_12_local_integration_clipboard_rotation_and_mapping: копирование ключа/адреса, привязка, повтор заказа, возврат, ротация, отключение, включение
+S14.05	Копировать адрес/ключ	Проверено UI на синтетическом источнике	test_12_local_integration_clipboard_rotation_and_mapping: копирование ключа/адреса, привязка, повтор заказа, возврат, ротация, отключение, включение
+S14.06	Перевыпустить ключ	Проверено UI на синтетическом источнике	test_12_local_integration_clipboard_rotation_and_mapping: копирование ключа/адреса, привязка, повтор заказа, возврат, ротация, отключение, включение
+S14.07	Отключить внешний магазин	Проверено UI на синтетическом источнике	test_12_local_integration_clipboard_rotation_and_mapping: копирование ключа/адреса, привязка, повтор заказа, возврат, ротация, отключение, включение
+S14.08	Получить инструкцию разработчика	Проверено локально	test_v5_external_catalog_fixture; test_external_order_mapping_retry_returns_and_key_rotation; только синтетический источник
+S14.09	Принять заказ	Проверено локально	test_v5_external_catalog_fixture; test_external_order_mapping_retry_returns_and_key_rotation; только синтетический источник
+S14.10	Дедупликация до привязки	Проверено UI на синтетическом источнике	test_12_local_integration_clipboard_rotation_and_mapping: копирование ключа/адреса, привязка, повтор заказа, возврат, ротация, отключение, включение
+S14.11	Обработка после привязки	Проверено UI на синтетическом источнике	test_12_local_integration_clipboard_rotation_and_mapping: копирование ключа/адреса, привязка, повтор заказа, возврат, ротация, отключение, включение
+S14.12	Повтор после привязки и разные витрины	Проверено UI на синтетическом источнике	test_12_local_integration_clipboard_rotation_and_mapping: копирование ключа/адреса, привязка, повтор заказа, возврат, ротация, отключение, включение
+S14.13	Отмена/возврат/эквайринг внешнего заказа	Частично	Возвраты в синтетическом магазине; полный цикл внешнего эквайринга не подтверждён
+S14.14	WB и Яндекс Маркет	Внешняя интеграция отложена	Реальные ключи, синхронизация площадок вне текущего объёма
+S14.15	Цветовая схема	Проверено UI	test_06_themes_colors_and_workshop_restore: пять цветов, светлая/тёмная/системная темы, сохранение после перезагрузки, изменение системной темы

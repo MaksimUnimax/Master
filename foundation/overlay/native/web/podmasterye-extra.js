@@ -36,11 +36,11 @@ async function changeWorkshop(action,args){
  const result=await post('/api/workshops/change',{requestId:crypto.randomUUID(),action,arguments:args});
  if(action==='create'||action==='demo')switchTo(result.id);
  else if(action==='archive'&&result.id===window.PMWorkshopId)switchTo(list.default);
- else{list=await api('/api/workshops');renderWorkshopSettings();if(action==='update'){q('#workshop-caption').textContent=result.name;const o=Array.from(q('#workshop-select').options).find(x=>x.value===result.id);if(o)o.textContent=result.name+(result.demo?' · демо':'');}await window.PMAccounting.refresh();}
+ else{list=await api('/api/workshops');const select=q('#workshop-select');select.replaceChildren(...list.workshops.filter(w=>!w.archived).map(w=>new Option(w.name+(w.demo?' · демо':''),w.id)));select.value=window.PMWorkshopId;renderWorkshopSettings();if(action==='update'){q('#workshop-caption').textContent=result.name;const o=Array.from(q('#workshop-select').options).find(x=>x.value===result.id);if(o)o.textContent=result.name+(result.demo?' · демо':'');}await window.PMAccounting.refresh();}
 }
-function renderWorkshopSettings(){
+function renderWorkshopSettings(populate=true){
  const w=current();if(!w)return;
- const form=q('#workshop-settings');if(form)for(const k of ['name','description','color','hourly_rate'])form.elements[k].value=w[k]??'';
+ const form=q('#workshop-settings');if(form&&populate)for(const k of ['name','description','color','hourly_rate'])form.elements[k].value=w[k]??'';
  const host=q('#workshop-list');
  if(host)rowTable(host,['Мастерская','Выручка, ₽','Прибыль, ₽','Продано, шт.','Действия'],list.workshops.map(x=>{
   const a=el('div',null,'button-group');if(!x.archived)a.append(btn('Открыть',()=>switchTo(x.id)));
@@ -55,6 +55,7 @@ function initLayout(){
    for(const [id,value] of [['cookie-accept','acknowledged'],['cookie-decline','necessary']])q('#'+id).onclick=()=>{localStorage.setItem('pm-cookie-choice',value);consent.hidden=true;};
  }
  setTheme(localStorage.getItem('pm-theme')||'light');
+ matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(localStorage.getItem('pm-theme')==='system')setTheme('system');});
  const theme=q('#theme-select');if(theme){theme.value=localStorage.getItem('pm-theme')||'light';theme.onchange=()=>setTheme(theme.value);}
  const toggle=(kind)=>{const mobile=matchMedia('(max-width:820px)').matches;if(mobile){document.body.classList.toggle('pm-mobile-'+kind);document.body.classList.remove('pm-mobile-'+(kind==='nav'?'helper':'nav'));}else{const c='pm-'+kind+'-hidden';document.body.classList.toggle(c);localStorage.setItem(c,document.body.classList.contains(c)?'1':'0');}};
  if(q('#toggle-nav')){if(localStorage.getItem('pm-nav-hidden')==='1')document.body.classList.add('pm-nav-hidden');q('#toggle-nav').onclick=()=>toggle('nav');}
@@ -104,7 +105,7 @@ function render(d){
  charts(q('#finance-distribution'),d.distribution.map(x=>({label:({cogs:'Себестоимость',other_expenses:'Прочие расходы',worker_payments:'Выплаты',sale_fees:'Удержания',writeoffs:'Списания',valuation:'Переоценка',depreciation:'Амортизация',asset_disposal:'Выбытие',net_profit:'Прибыль'})[x.key]||x.key,value:x.amount_rub})));
  for(const link of qa('a[data-workshop-export]'))link.href=link.dataset.workshopExport+'?workshop='+encodeURIComponent(window.PMWorkshopId);
  const opts=q('#supplier-suggestions');if(opts)opts.replaceChildren(...d.suppliers.map(n=>{const x=el('option');x.value=n;return x;}));
- if(q('#workshop-settings')&&!q('[data-panel="settings"]').hidden)renderWorkshopSettings();
+ if(q('#workshop-settings')&&!q('[data-panel="settings"]').hidden)renderWorkshopSettings(false);
 }
 async function loadSources(){
  const host=q('#sources-list');if(!host)return;
@@ -151,7 +152,7 @@ function initMember(){
   if(quick.value==='all')to='';
   q('#period-from').value=from;q('#period-to').value=to;q('#event-offset').value='0';window.PMAccounting.refresh().catch(e=>textStatus('#accounting-status',e.message));
  };
- const ws=q('#workshop-settings');if(ws)ws.onsubmit=async e=>{e.preventDefault();try{await changeWorkshop('update',{id:window.PMWorkshopId,...Object.fromEntries(new FormData(ws))});textStatus('#workshop-status','Настройки сохранены.');}catch(err){textStatus('#workshop-status',err.message);}};
+ const ws=q('#workshop-settings');if(ws)ws.onsubmit=async e=>{e.preventDefault();const b=ws.querySelector('button');if(b.disabled)return;const args={id:window.PMWorkshopId,...Object.fromEntries(new FormData(ws))};b.disabled=true;textStatus('#workshop-status','Сохраняю…');try{await changeWorkshop('update',args);textStatus('#workshop-status','Настройки сохранены.');}catch(err){textStatus('#workshop-status',err.message);}finally{b.disabled=false;}};
  const create=q('#workshop-create');if(create)create.onsubmit=async e=>{e.preventDefault();try{await changeWorkshop('create',Object.fromEntries(new FormData(create)));}catch(err){textStatus('#workshop-status',err.message);}};
  q('#workshop-demo')?.addEventListener('click',async()=>{try{await changeWorkshop('demo',{});}catch(e){textStatus('#workshop-status',e.message);}});
  const source=q('#source-create');if(source)source.onsubmit=async e=>{e.preventDefault();try{const r=await post('/api/integrations/change',{action:'create',arguments:{name:source.elements.name.value,auto_produce:source.elements.auto_produce.checked}});showKey(r.apiKey);source.reset();await loadSources();}catch(err){textStatus('#source-status',err.message);}};
@@ -183,7 +184,7 @@ function initCalculator(){
   }
   line.append(btn('×',()=>{line.remove();schedule();},'secondary compact'));rows.append(line);
  }
- function invalidate(){generation++;calc=null;saveRid=null;q('#calc-save').disabled=true;clearTimeout(timer);return generation;}
+ function invalidate(){generation++;calc=null;saveRid=null;q('#calc-save').disabled=true;q('#calc-result').replaceChildren();textStatus('#calc-status','');clearTimeout(timer);return generation;}
  function schedule(){invalidate();if(rows.children.length&&form.checkValidity())timer=setTimeout(()=>calculate(),350);}
  add({name:'',quantity:'1',unit:'шт',price:''});
  q('#calc-add').onclick=()=>{if(rows.children.length<50){add();schedule();}};
