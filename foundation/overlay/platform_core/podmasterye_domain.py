@@ -1,0 +1,215 @@
+"""First production vertical slice. Same deterministic handler for UI and local assistant."""
+import json
+import re
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from time import time
+from uuid import uuid4
+from .identity import _principal, AuthenticationError, ChatUnavailable
+from .storage import _owns_chat
+
+SCHEMA = (
+    """CREATE TABLE IF NOT EXISTS pm_materials(
+       id TEXT PRIMARY KEY, workspace TEXT NOT NULL REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
+       name TEXT NOT NULL, normalized TEXT NOT NULL, pack INTEGER NOT NULL CHECK(pack>0),
+       price TEXT, UNIQUE(workspace,normalized))""",
+    """CREATE TABLE IF NOT EXISTS pm_products(
+       id TEXT PRIMARY KEY, workspace TEXT NOT NULL REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
+       name TEXT NOT NULL, normalized TEXT NOT NULL, UNIQUE(workspace,normalized))""",
+    """CREATE TABLE IF NOT EXISTS pm_recipe(
+       product TEXT NOT NULL REFERENCES pm_products(id) ON DELETE CASCADE,
+       material TEXT NOT NULL REFERENCES pm_materials(id) ON DELETE CASCADE,
+       qty INTEGER NOT NULL CHECK(qty>0), PRIMARY KEY(product,material))""",
+    """CREATE TABLE IF NOT EXISTS pm_turns(
+       workspace TEXT NOT NULL REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
+       chat TEXT NOT NULL REFERENCES chats(chat_id) ON DELETE CASCADE, rid TEXT NOT NULL,
+       text TEXT NOT NULL, route TEXT NOT NULL CHECK(route IN ('local','model')),
+       result TEXT, created INTEGER NOT NULL, PRIMARY KEY(workspace,chat,rid))""",
+    """CREATE TABLE IF NOT EXISTS pm_mutations(
+       workspace TEXT NOT NULL REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
+       rid TEXT NOT NULL, args TEXT NOT NULL, result TEXT NOT NULL, PRIMARY KEY(workspace,rid))""",
+    """CREATE TABLE IF NOT EXISTS pm_drafts(
+       workspace TEXT NOT NULL REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
+       chat TEXT NOT NULL REFERENCES chats(chat_id) ON DELETE CASCADE, rid TEXT NOT NULL,
+       args TEXT NOT NULL, result TEXT NOT NULL, PRIMARY KEY(workspace,chat,rid))""",
+)
+RECIPE_FIELDS = {"material","product","pack_quantity","usage_quantity","pack_price"}
+RECIPE_SCHEMA = {"type":"object","properties":{
+    "material":{"type":"string","minLength":1,"maxLength":120},
+    "product":{"type":"string","minLength":1,"maxLength":120},
+    "pack_quantity":{"type":"integer","minimum":1,"maximum":1000000000},
+    "usage_quantity":{"type":"integer","minimum":1,"maximum":1000000000},
+    "pack_price":{"type":["string","null"],"maxLength":22}},
+    "required":["material","product","pack_quantity","usage_quantity"],"additionalProperties":False}
+REQUEST_ID = re.compile(r"[A-Za-z0-9_-]{1,128}")
+class Conflict(ValueError):
+    pass
+
+def init(store):
+    with store._write() as db:
+        for stmt in SCHEMA: db.execute(stmt)
+
+def encode(value):
+    return json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(",",":"),allow_nan=False)
+
+def key_id(value):
+    if not isinstance(value,str) or not REQUEST_ID.fullmatch(value):
+        raise ValueError("Некорректный идентификатор запроса.")
+    return value
+
+def clean_name(value):
+    if not isinstance(value,str):
+        raise ValueError("Укажите название.")
+    result=" ".join(value.split())
+    if not 1<=len(result)<=120 or not result.isprintable():
+        raise ValueError("Название должно содержать от 1 до 120 символов.")
+    return result
+
+def recipe_args(args):
+    if not isinstance(args,dict) or not RECIPE_FIELDS-{"pack_price"}<=args.keys()<=RECIPE_FIELDS:
+        raise ValueError("Укажите изделие, материал, упаковку и расход.")
+    result={k:clean_name(args[k]) for k in ("material","product")}
+    for k in ("pack_quantity","usage_quantity"):
+        v=args[k]
+        if type(v) is not int or not 1<=v<=1000000000:
+            raise ValueError("Количество должно быть положительным целым числом.")
+        result[k]=v
+    price=args.get("pack_price")
+    if price is not None:
+        if not isinstance(price,str) or not re.fullmatch(r"[0-9]{1,12}(?:[.,][0-9]{1,6})?",price):
+            raise ValueError("Укажите цену упаковки в рублях.")
+        price=format(Decimal(price.replace(",",".")),"f")
+    result["pack_price"]=price
+    return result
+
+def preview(args):
+    v=recipe_args(args)
+    cost=None
+    if v["pack_price"] is not None:
+        cost=format((Decimal(v["pack_price"])*v["usage_quantity"]/v["pack_quantity"]).quantize(Decimal(".01"),rounding=ROUND_HALF_UP),"f")
+    return {**v,"base_unit":"шт","purchase_unit":"упаковка",
+            "products_per_pack":v["pack_quantity"]//v["usage_quantity"],
+            "material_cost_rub":cost}
+
+def assert_scope(db,token,scope):
+    actor,workspace=_principal(db,token)
+    if (actor,workspace)!=(scope.actor_id,scope.workspace_id) or not _owns_chat(db,scope):
+        raise ChatUnavailable("Chat unavailable")
+
+def _save(db,workspace,rid,args):
+    v=recipe_args(args); raw=encode(v)
+    old=db.execute("SELECT args,result FROM pm_mutations WHERE workspace=? AND rid=?",(workspace,rid)).fetchone()
+    if old:
+        if old[0]!=raw: raise Conflict("Этот идентификатор уже использован.")
+        return json.loads(old[1])
+    mat=db.execute("SELECT id,pack,price,name FROM pm_materials WHERE workspace=? AND normalized=?",(workspace,v["material"].casefold())).fetchone()
+    if mat:
+        mid,pack,price,name=mat
+        if pack!=v["pack_quantity"]:
+            raise Conflict("У материала уже другая упаковка. Изменение общей единицы требует отдельной операции.")
+        if v["pack_price"] is not None:
+            db.execute("UPDATE pm_materials SET price=? WHERE id=? AND workspace=?",(v["pack_price"],mid,workspace))
+        else:
+            v["pack_price"]=price
+        v["material"]=name
+    else:
+        mid=uuid4().hex
+        db.execute("INSERT INTO pm_materials VALUES(?,?,?,?,?,?)",(mid,workspace,v["material"],v["material"].casefold(),v["pack_quantity"],v["pack_price"]))
+    product=db.execute("SELECT id,name FROM pm_products WHERE workspace=? AND normalized=?",(workspace,v["product"].casefold())).fetchone()
+    if product:
+        pid,v["product"]=product
+    else:
+        pid=uuid4().hex
+        db.execute("INSERT INTO pm_products VALUES(?,?,?,?)",(pid,workspace,v["product"],v["product"].casefold()))
+    db.execute("INSERT INTO pm_recipe VALUES(?,?,?) ON CONFLICT(product,material) DO UPDATE SET qty=excluded.qty",(pid,mid,v["usage_quantity"]))
+    result={**preview(v),"material_id":mid,"product_id":pid}
+    db.execute("INSERT INTO pm_mutations VALUES(?,?,?,?)",(workspace,rid,raw,encode(result)))
+    return result
+
+def save_recipe(store,token,rid,args):
+    with store._write() as db:
+        _,workspace=_principal(db,token)
+        return _save(db,workspace,"manual:"+key_id(rid),args)
+
+def state(db,workspace):
+    mats=[dict(id=r[0],name=r[1],pack_quantity=r[2],pack_price=r[3],base_unit="шт",stock=None)
+          for r in db.execute("SELECT id,name,pack,price FROM pm_materials WHERE workspace=? ORDER BY normalized",(workspace,))]
+    products=[]
+    for pid,name in db.execute("SELECT id,name FROM pm_products WHERE workspace=? ORDER BY normalized",(workspace,)):
+        rows=[{**preview(dict(product=name,material=mn,pack_quantity=pack,usage_quantity=qty,pack_price=price)), "material_id":mid}
+              for mid,mn,pack,price,qty in db.execute("""SELECT m.id,m.name,m.pack,m.price,r.qty FROM pm_recipe r JOIN pm_materials m ON m.id=r.material
+                WHERE r.product=? AND m.workspace=? ORDER BY m.normalized""",(pid,workspace))]
+        complete=bool(rows) and all(x["pack_price"] is not None for x in rows)
+        total=sum((Decimal(x["pack_price"])*x["usage_quantity"]/x["pack_quantity"] for x in rows),Decimal(0)) if complete else None
+        products.append(dict(id=pid,name=name,recipe=rows,material_cost_rub=format(total.quantize(Decimal(".01"),rounding=ROUND_HALF_UP),"f") if complete else None))
+    return {"materials":mats,"products":products}
+
+def read_state(store,token):
+    with store._lock:
+        _,w=_principal(store._db,token)
+        return state(store._db,w)
+
+FAQ={
+ "как считается себестоимость":"Стоимость материала на изделие = цена упаковки × расход / количество в упаковке. Складываем стоимости всех материалов. Если цена не задана, итог неизвестен. Это материальная себестоимость; труд и другие расходы появятся в следующих разделах.",
+ "почему прибыль отличается от денежного потока":"Закупка уменьшает деньги и увеличивает запас. В прибыль входит себестоимость проданных изделий, а не вся закупка. Денежный поток и прибыль — разные показатели.",
+ "как работает помощник":"Известные команды выполняются по матрице и готовым функциям без обращения к ИИ. Свободные формулировки обрабатывает DeepSeek через Harness. Расчёты выполняет программа.",
+}
+PATTERN=re.compile(r"(?:добавь|создай|заведи) (?P<material>[^,;]+?) (?:пачками|упаковками) по (?P<pack>\d{1,9})(?: шт(?:ук(?:и|а)?)?\.?)?\s*[,;]\s*на (?P<product>[^,;]+?) (?:уходит|расходуется|нужно) (?P<usage>\d{1,9})(?: шт(?:ук(?:и|а)?)?\.?)?(?:\s*[,;]\s*(?:цена упаковки|упаковка стоит) (?P<price>\d{1,12}(?:[.,]\d{1,6})?)(?: ₽| руб(?:лей)?)?)?",re.I)
+
+def explain(r):
+    price="Цена упаковки не указана." if r["material_cost_rub"] is None else "Стоимость материала на изделие: "+r["material_cost_rub"]+" ₽."
+    return f'{r["material"]}: упаковка {r["pack_quantity"]} шт., на {r["product"]} — {r["usage_quantity"]} шт. Из упаковки — {r["products_per_pack"]} целых изделий. {price}'
+
+def decide(store,scope,token,rid,text):
+    key_id(rid)
+    with store._write() as db:
+        assert_scope(db,token,scope)
+        w,c=scope.workspace_id,scope.chat_id
+        old=db.execute("SELECT text,route,result FROM pm_turns WHERE workspace=? AND chat=? AND rid=?",(w,c,rid)).fetchone()
+        if old:
+            if old[0]!=text: raise Conflict("Этот идентификатор уже использован.")
+            return old[1],json.loads(old[2]) if old[2] else None
+        normalized=" ".join(text.strip().casefold().replace("ё","е").split()).strip("?! .")
+        result=None
+        if normalized in FAQ:
+            result={"text":FAQ[normalized]}
+        elif normalized in ("открой материалы","покажи материалы","покажи остатки материалов"):
+            result={"text":"Открываю материалы. Фактические остатки пока не ведутся.","ui":{"page":"materials"}}
+        elif normalized in ("открой товары","покажи товары","покажи изделия"):
+            result={"text":"Открываю изделия и рецептуры.","ui":{"page":"products"}}
+        elif m:=PATTERN.fullmatch(text.strip().rstrip("!.")):
+            a=dict(material=m["material"],product=m["product"],pack_quantity=int(m["pack"]),usage_quantity=int(m["usage"]),pack_price=m["price"])
+            saved=_save(db,w,"assistant:"+c+":"+rid,a)
+            result={"text":"Сохранено. "+explain(saved),"ui":{"page":"products"},"recipe":saved}
+        route="local" if result else "model"
+        if result: result.update(role="assistant",requestId=rid,route=route)
+        db.execute("INSERT INTO pm_turns VALUES(?,?,?,?,?,?,?)",(w,c,rid,text,route,encode(result) if result else None,int(time()*1000)))
+        return route,result
+
+def complete(store,scope,token,rid,result):
+    with store._write() as db:
+        assert_scope(db,token,scope)
+        d=db.execute("SELECT result FROM pm_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,rid)).fetchone()
+        result={**result,"route":"model"}
+        if d:
+            result["draft"]=json.loads(d[0])
+            result["text"]="Подготовил форму рецептуры. "+explain(result["draft"])+" Проверьте данные и нажмите «Сохранить»."
+            result["ui"]={"page":"products"}
+        db.execute("UPDATE pm_turns SET result=? WHERE workspace=? AND chat=? AND rid=? AND route='model'",
+                   (encode(result),scope.workspace_id,scope.chat_id,rid))
+        return result
+
+def history(store,token,scope,limit):
+    with store._lock:
+        db=store._db; assert_scope(db,token,scope)
+        rows=db.execute("SELECT rid,text,result FROM pm_turns WHERE workspace=? AND chat=? AND result IS NOT NULL ORDER BY rowid DESC LIMIT ?",
+                       (scope.workspace_id,scope.chat_id,limit)).fetchall()
+        guest_rows=db.execute("""SELECT t.request_id,t.text,t.answer FROM guest_turns t
+            JOIN guest_chats g ON g.chat_id=t.chat_id
+            WHERE t.chat_id=? AND g.claimed_actor=? ORDER BY t.rowid DESC LIMIT ?""",
+            (scope.chat_id,scope.actor_id,max(0,limit-len(rows)))).fetchall()
+        out=[]
+        for rid,text,answer in reversed(guest_rows):
+            out.extend([{"role":"user","text":text,"requestId":rid},{"role":"assistant","text":answer,"requestId":rid}])
+        for rid,text,result in reversed(rows):
+            out.extend([{"role":"user","text":text,"requestId":rid},json.loads(result)])
+        return out
