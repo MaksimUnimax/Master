@@ -7,7 +7,7 @@ from decimal import Decimal
 from . import podmasterye_book as book
 from .podmasterye_domain import Conflict
 
-VERSION="accounting-v1"
+VERSION="accounting-v2"
 ITEMS=json.loads(Path(__file__).with_name("podmasterye_matrix.json").read_text(encoding="utf-8"))
 def norm(t):return " ".join(t.casefold().replace("ё","е").split()).strip("?! .")
 INDEX={}
@@ -135,7 +135,7 @@ def route(db,w,text):
             if field in args:
                 try:args[field]=book.entity(db,w,field,args[field])[0]
                 except ValueError:pass
-    args=args or {}
+    args={**entry.get("defaults",{}),**(args or {})}
     out["accountingDraft"]={"operation":op,"arguments":args}
     out["text"]="Подготовил форму «"+book.FIELDS[op][0]+"». Проверьте данные, выполните предварительный расчёт и подтвердите запись."
     return out
@@ -155,8 +155,8 @@ def operation_schema():
             "required":["operation","arguments"],"additionalProperties":False}
 
 def report_schema():
-    return {"type":"object","properties":{"view":{"type":"string","enum":["summary","stock","sales","planning","finance","journal"]},
-        "start":{"type":"string"},"end":{"type":"string"},"horizon":{"type":"integer","minimum":1,"maximum":365},
+    return {"type":"object","properties":{"view":{"type":"string","enum":["summary","stock","sales","planning","finance","journal","tasks","workers","unit","catalog"]},
+        "start":{"type":"string"},"end":{"type":"string"},"target_profit":{"type":"string"},"horizon":{"type":"integer","minimum":1,"maximum":365},
         "lead":{"type":"integer","minimum":0,"maximum":365},"safety":{"type":"integer","minimum":0,"maximum":365},
         "limit":{"type":"integer","minimum":1,"maximum":30}},"required":["view"],"additionalProperties":False}
 

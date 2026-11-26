@@ -5,8 +5,9 @@ from starlette.concurrency import run_in_threadpool
 from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
-from . import podmasterye_domain as domain, podmasterye_book as book, coins, turn_progress
+from . import podmasterye_domain as domain, podmasterye_book as book, podmasterye_workshops as workshops, coins, turn_progress
 from .identity import _secret_digest, AuthenticationError, ChatUnavailable
+from . import podmasterye_integrations as integrations, podmasterye_import as imports
 from .chat_worker import WorkerError
 from .admin_costs import present_chat
 
@@ -22,41 +23,95 @@ def render(identity,costs,token,scope,action,result):
 
 def routes(token_for,body):
     async def data(req):
-        return JSONResponse(await run_in_threadpool(domain.read_state,req.app.state.identity,token_for(req,allow_cookie=True)))
+        return JSONResponse(await run_in_threadpool(domain.read_state,req.app.state.identity,token_for(req,allow_cookie=True),req.query_params.get('workshop')))
     async def save(req):
         token=token_for(req,allow_cookie=True)
         fields=await body(req,"requestId","recipe")
-        try: result=await run_in_threadpool(domain.save_recipe,req.app.state.identity,token,fields["requestId"],fields["recipe"])
+        try: result=await run_in_threadpool(domain.save_recipe,req.app.state.identity,token,fields["requestId"],fields["recipe"],req.query_params.get("workshop"))
         except domain.Conflict as e: raise HTTPException(409,str(e)) from None
         return JSONResponse(result)
     async def accounting(req):
         token=token_for(req,allow_cookie=True)
         q=req.query_params
         try:
-            opts={k:q[k] for k in ("start","end","event_group") if q.get(k)}
+            opts={k:q[k] for k in ("start","end","event_group","target_profit") if q.get(k)}
             for k in ("horizon","lead","safety","offset","limit"):
                 if k in q:opts[k]=int(q[k])
-            return JSONResponse(await run_in_threadpool(book.read,req.app.state.identity,token,**opts))
+            return JSONResponse(await run_in_threadpool(book.read,req.app.state.identity,token,req.query_params.get('workshop'),**opts))
         except domain.Conflict as e:raise HTTPException(409,str(e)) from None
     async def prepare(req):
         token=token_for(req,allow_cookie=True)
         fields=await body(req,"operation","arguments")
         try:
-            return JSONResponse(await run_in_threadpool(book.preview_for_user,req.app.state.identity,token,fields["operation"],fields["arguments"]))
+            return JSONResponse(await run_in_threadpool(book.preview_for_user,req.app.state.identity,token,fields["operation"],fields["arguments"],req.query_params.get("workshop")))
         except domain.Conflict as e:raise HTTPException(409,str(e)) from None
         except ValueError as e:raise HTTPException(400,str(e)) from None
     async def commit(req):
         token=token_for(req,allow_cookie=True)
         fields=await body(req,"requestId","operation","arguments","revision")
         try:
-            result=await run_in_threadpool(book.mutate,req.app.state.identity,token,fields["requestId"],fields["operation"],fields["arguments"],fields["revision"])
+            result=await run_in_threadpool(book.mutate,req.app.state.identity,token,fields["requestId"],fields["operation"],fields["arguments"],fields["revision"],req.query_params.get("workshop"))
             return JSONResponse(result)
         except domain.Conflict as e:raise HTTPException(409,str(e)) from None
         except ValueError as e:raise HTTPException(400,str(e)) from None
     async def export(req):
         token=token_for(req,allow_cookie=True);fmt=req.path_params["format"]
-        data,media=await run_in_threadpool(book.export,req.app.state.identity,token,fmt)
+        data,media=await run_in_threadpool(book.export,req.app.state.identity,token,fmt,req.query_params.get("workshop"))
         return Response(data,media_type=media,headers={"Content-Disposition":"attachment; filename=podmasterye-accounting."+fmt,"Cache-Control":"no-store"})
+    async def workshop_list(req):
+        return JSONResponse(await run_in_threadpool(workshops.list_for_user,req.app.state.identity,token_for(req,allow_cookie=True)))
+    async def workshop_change(req):
+        token=token_for(req,allow_cookie=True);fields=await body(req,"requestId","action","arguments")
+        try:return JSONResponse(await run_in_threadpool(workshops.change,req.app.state.identity,token,fields["requestId"],fields["action"],fields["arguments"]))
+        except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+    async def workshop_chat(req):
+        token=token_for(req,allow_cookie=True);fields=await body(req,"workshop")
+        try:return JSONResponse(await run_in_threadpool(workshops.choose_chat,req.app.state.identity,token,fields["workshop"]))
+        except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+    async def sources(req):
+        token=token_for(req,allow_cookie=True)
+        return JSONResponse(await run_in_threadpool(integrations.own_overview,req.app.state.identity,token,req.query_params.get("workshop")))
+    async def source_change(req):
+        token=token_for(req,allow_cookie=True);fields=await body(req,"action","arguments")
+        try:return JSONResponse(await run_in_threadpool(integrations.change,req.app.state.identity,token,req.query_params.get("workshop"),fields["action"],fields["arguments"]))
+        except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+        except ValueError as e:raise HTTPException(400,str(e)) from None
+    async def hook_order(req):
+        fields=await body(req,"order_ref","date","shop_name","items")
+        try:return JSONResponse(await run_in_threadpool(integrations.receive,req.app.state.identity,req.headers.get("authorization"),fields))
+        except PermissionError:raise HTTPException(401,"Недействительный ключ.") from None
+        except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+        except ValueError as e:raise HTTPException(400,str(e)) from None
+    async def hook_event(req):
+        fields=await body(req,"event_id","order_ref","line","kind","date","quantity","refund","restock")
+        try:return JSONResponse(await run_in_threadpool(integrations.event,req.app.state.identity,req.headers.get("authorization"),fields))
+        except PermissionError:raise HTTPException(401,"Недействительный ключ.") from None
+        except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+        except ValueError as e:raise HTTPException(400,str(e)) from None
+    async def integration_docs(req):
+        return JSONResponse({"authorization":"Bearer <ключ источника>","order":{"method":"POST","path":"/api/hook/order","body":{"order_ref":"order-1","date":"2026-11-26","shop_name":"Магазин","items":[{"offer_id":"sku-1","name":"Изделие","qty":1,"price":"100.00"}]}},"return":{"method":"POST","path":"/api/hook/event","fields":["event_id","order_ref","line","kind","date","quantity","refund","restock"]},"note":"Ключ создаётся в кабинете, не передавайте его в чат. Повтор идентификатора не создаёт дубликат."})
+    async def import_template(req):
+        token_for(req,allow_cookie=True)
+        return Response(imports.template(),media_type="text/csv; charset=utf-8",headers={"Content-Disposition":"attachment; filename=materials-template.csv"})
+    async def import_preview(req):
+        token=token_for(req,allow_cookie=True);fields=await body(req,"filename","content",limit=800*1024)
+        try:return JSONResponse(await run_in_threadpool(imports.preview_import,req.app.state.identity,token,req.query_params.get("workshop"),fields["filename"],fields["content"]))
+        except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+        except ValueError as e:raise HTTPException(400,str(e)) from None
+    async def import_commit(req):
+        token=token_for(req,allow_cookie=True);fields=await body(req,"requestId","rows","revision",limit=800*1024)
+        try:return JSONResponse(await run_in_threadpool(imports.commit_import,req.app.state.identity,token,req.query_params.get("workshop"),fields["requestId"],fields["rows"],fields["revision"]))
+        except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+        except ValueError as e:raise HTTPException(400,str(e)) from None
+    async def calculator(req):
+        fields=await body(req,"name","items","sale_price","minutes","hourly_rate")
+        try:return JSONResponse(await run_in_threadpool(imports.calculator,fields))
+        except ValueError as e:raise HTTPException(400,str(e)) from None
+    async def calculator_save(req):
+        token=token_for(req,allow_cookie=True);fields=await body(req,"requestId","calculation")
+        try:return JSONResponse(await run_in_threadpool(imports.save_calculator,req.app.state.identity,token,req.query_params.get("workshop"),fields["requestId"],fields["calculation"]))
+        except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+        except ValueError as e:raise HTTPException(400,str(e)) from None
     async def scoped(req,action):
         token=token_for(req,allow_cookie=True); app=req.app.state; identity=app.identity
         if action=="turn":
@@ -94,6 +149,19 @@ def routes(token_for,body):
                 if owner: app.progress.finish(scope,rid,live)
         return await work()
     return [
+        Route("/api/workshops",workshop_list),
+        Route("/api/integrations",sources),
+        Route("/api/integration-docs",integration_docs),
+        Route("/api/integrations/change",source_change,methods=["POST"]),
+        Route("/api/hook/order",hook_order,methods=["POST"]),
+        Route("/api/hook/event",hook_event,methods=["POST"]),
+        Route("/api/materials/template.csv",import_template),
+        Route("/api/materials/import/preview",import_preview,methods=["POST"]),
+        Route("/api/materials/import/commit",import_commit,methods=["POST"]),
+        Route("/api/calculator",calculator,methods=["POST"]),
+        Route("/api/calculator/save",calculator_save,methods=["POST"]),
+        Route("/api/workshops/change",workshop_change,methods=["POST"]),
+        Route("/api/workshops/chat",workshop_chat,methods=["POST"]),
         Route("/api/production",data),
         Route("/api/production/recipe",save,methods=["POST"]),
         Route("/api/accounting",accounting),

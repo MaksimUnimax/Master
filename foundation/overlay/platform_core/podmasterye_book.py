@@ -15,6 +15,7 @@ from uuid import uuid4
 from zoneinfo import ZoneInfo
 from .identity import _principal
 from .podmasterye_domain import clean_name, key_id, encode, Conflict
+from . import podmasterye_extra as extra
 
 ZONE=ZoneInfo("Asia/Yekaterinburg")
 MAX_Q=10**12
@@ -47,6 +48,7 @@ def init(db):
     column("pm_products","category","TEXT NOT NULL DEFAULT ''")
     column("pm_products","sale_price","TEXT")
     column("pm_products","minutes","INTEGER")
+    extra.init(db)
     db.execute("""CREATE TABLE IF NOT EXISTS pm_accounting_drafts(
         workspace TEXT NOT NULL REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
         chat TEXT NOT NULL REFERENCES chats(chat_id) ON DELETE CASCADE,
@@ -81,11 +83,11 @@ def prorate(value,take,total):
 def bounded(q,v):
     if not 0<=q<=MAX_Q or not 0<=v<=MAX_M or (q==0 and v!=0):
         raise ValueError("Недопустимый остаток или стоимость.")
-def entity(db,w,kind,ref):
+def entity(db,w,kind,ref,include_archived=False):
     if not isinstance(ref,str) or len(ref)>120: raise ValueError("Укажите материал или изделие.")
     tab="pm_materials" if kind=="material" else "pm_products"
     # Exact stable ID or exact normalized name. Do not infer declensions or cross-workspace IDs.
-    rows=db.execute("SELECT id,name FROM "+tab+" WHERE workspace=? AND (id=? OR normalized=?)",
+    rows=db.execute("SELECT id,name FROM "+tab+" WHERE workspace=? AND (id=? OR normalized=?)"+("" if include_archived else " AND archived=0"),
                     (w,ref," ".join(ref.split()).casefold())).fetchall()
     if len(rows)!=1: raise ValueError("Не найден однозначный объект: "+ref)
     return rows[0]
@@ -95,10 +97,10 @@ def entity(db,w,kind,ref):
 FIELDS={
  "material":("Материал",[
    ("entity_id","material","Существующий материал (пусто — новый)",False,""),("name","text","Название",True,None),("unit","unit","Базовая единица",True,"шт"),("pack","int","Единиц в упаковке",True,1),
-   ("pack_price","money","Плановая цена упаковки, ₽",False,None),("category","text","Категория",False,"")]),
+   ("pack_price","money","Плановая цена упаковки, ₽",False,None),("category","text","Категория",False,""),("catalog_note","text","Заметка",False,"")]),
  "product":("Изделие",[
    ("entity_id","product","Существующее изделие (пусто — новое)",False,""),("name","text","Название",True,None),("category","text","Категория",False,""),
-   ("sale_price","money","Плановая цена продажи, ₽",False,None),("minutes","int0","Время изготовления, мин",False,None)]),
+   ("sale_price","money","Плановая цена продажи, ₽",False,None),("minutes","int0","Время изготовления, мин",False,None),("catalog_note","text","Заметка",False,"")]),
  "opening":("Начальный остаток",[
    ("material","material","Материал",True,None),("quantity","int","Количество (базовые единицы)",True,None),("total","money","Стоимость всего остатка, ₽",True,None)]),
  "purchase":("Закупка",[
@@ -118,16 +120,20 @@ FIELDS={
    ("refund","money","Возвращено денег, ₽",True,"0"),("restock","bool","Фактически возвращено и пригодно для продажи",True,False)]),
  "expense":("Расход",[
    ("category","category","Статья расхода",True,"Прочее"),("total","positive_money","Сумма, ₽",True,None)]),
+ "worker_payment":("Выплата работнику",[("worker_id","worker","Работник",True,None),("total","positive_money","Сумма, ₽",True,None)]),
  "writeoff":("Списание материала",[
    ("material","material","Материал",True,None),("quantity","int","Количество (базовые единицы)",True,None)]),
  "reverse":("Сторно операции",[
    ("event","event","Операция",True,None),("reason","text","Причина",True,None)]),
 }
+FIELDS.update(extra.FIELDS)
 CATALOG=("material","product")
+METADATA=tuple(extra.FIELDS)
 PAGES={"material":"materials","product":"products","opening":"stock","purchase":"purchases","manufacture":"manufacture","sale":"sales","payment":"sales","return":"sales","expense":"expenses","writeoff":"stock","reverse":"journal"}
+PAGES.update(extra.PAGES);PAGES["worker_payment"]="workers"
 def forms():
     return {op:{"title":label,"page":PAGES[op],"fields":[{"name":n,"type":t,"label":l,"required":r,"default":v} for n,t,l,r,v in fs]+
-               ([] if op in CATALOG else [{"name":"day","type":"date","label":"Дата","required":True,"default":today().isoformat()},{"name":"note","type":"text","label":"Заметка","required":False,"default":""}])}
+               ([] if op in CATALOG+METADATA else [{"name":"day","type":"date","label":"Дата","required":True,"default":today().isoformat()},{"name":"note","type":"text","label":"Заметка","required":False,"default":""}])}
             for op,(label,fs) in FIELDS.items()}
 
 def validate(op,args):
@@ -147,6 +153,13 @@ def validate(op,args):
             if type(v) is not bool: raise ValueError("Укажите да или нет.")
             out[n]=v
         elif t=="date": out[n]=dayval(v)
+        elif t=="future_date":
+            if not isinstance(v,str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}",v):raise ValueError("Укажите дату.")
+            date.fromisoformat(v);out[n]=v
+        elif t=="percent":
+            value=minor(v)
+            if value>=10000:raise ValueError("Процентные удержания должны быть меньше 100%.")
+            out[n]=money(value)
         elif t=="unit":
             if v not in UNITS: raise ValueError("Неизвестная единица.")
             out[n]=v
@@ -156,7 +169,7 @@ def validate(op,args):
         elif t.startswith("choice:"):
             if v not in t[7:].split(","): raise ValueError("Неизвестная единица закупки.")
             out[n]=v
-        elif t in ("material","product","sale","event"): out[n]=textval(v,120)
+        elif t in ("material","product","sale","event","task","worker"): out[n]=textval(v,120)
         elif n=="name": out[n]=clean_name(v)
         else: out[n]=textval(v)
     return out
@@ -257,27 +270,27 @@ def catalog_write(db,w,rid,op,a):
                 used=db.execute("SELECT 1 FROM pm_recipe WHERE material=?",(mid,)).fetchone()
                 movement=db.execute("SELECT 1 FROM pm_book_rows WHERE workspace=? AND type='raw' AND key=?",(w,mid)).fetchone()
                 if used or movement:raise Conflict("Единицу или упаковку связанного материала менять нельзя.")
-            db.execute("UPDATE pm_materials SET name=?,normalized=?,pack=?,price=?,unit=?,category=? WHERE id=? AND workspace=?",(name,norm,a["pack"],a["pack_price"],a["unit"],a["category"],mid,w))
+            db.execute("UPDATE pm_materials SET name=?,normalized=?,pack=?,price=?,unit=?,category=?,note=? WHERE id=? AND workspace=?",(name,norm,a["pack"],a["pack_price"],a["unit"],a["category"],a["catalog_note"],mid,w))
         else:
             mid=uuid4().hex
-            db.execute("INSERT INTO pm_materials(id,workspace,name,normalized,pack,price,unit,category) VALUES(?,?,?,?,?,?,?,?)",(mid,w,name,norm,a["pack"],a["pack_price"],a["unit"],a["category"]))
+            db.execute("INSERT INTO pm_materials(id,workspace,name,normalized,pack,price,unit,category,note) VALUES(?,?,?,?,?,?,?,?,?)",(mid,w,name,norm,a["pack"],a["pack_price"],a["unit"],a["category"],a["catalog_note"]))
         ident=mid
     else:
         duplicate=db.execute("SELECT id FROM pm_products WHERE workspace=? AND normalized=?",(w,norm)).fetchone()
         old=entity(db,w,"product",a["entity_id"]) if a["entity_id"] else None
         if duplicate and (not old or duplicate[0]!=old[0]):raise Conflict("Изделие с таким названием уже существует. Выберите его для изменения.")
         ident=old[0] if old else uuid4().hex
-        if old:db.execute("UPDATE pm_products SET name=?,normalized=?,category=?,sale_price=?,minutes=? WHERE id=? AND workspace=?",(name,norm,a["category"],a["sale_price"],a["minutes"],ident,w))
-        else:db.execute("INSERT INTO pm_products(id,workspace,name,normalized,category,sale_price,minutes) VALUES(?,?,?,?,?,?,?)",(ident,w,name,norm,a["category"],a["sale_price"],a["minutes"]))
+        if old:db.execute("UPDATE pm_products SET name=?,normalized=?,category=?,sale_price=?,minutes=?,note=? WHERE id=? AND workspace=?",(name,norm,a["category"],a["sale_price"],a["minutes"],a["catalog_note"],ident,w))
+        else:db.execute("INSERT INTO pm_products(id,workspace,name,normalized,category,sale_price,minutes,note) VALUES(?,?,?,?,?,?,?,?)",(ident,w,name,norm,a["category"],a["sale_price"],a["minutes"],a["catalog_note"]))
     result={"id":ident,"kind":op,"summary":"Сохранено: "+name,"arguments":a}
     db.execute("INSERT INTO pm_mutations VALUES(?,?,?,?)",(w,"book:"+rid,raw,encode(result)))
     return result
 
 def execute(db,w,rid,op,args):
     key_id(rid);a=validate(op,args)
-    if op in CATALOG:
+    if op in CATALOG+METADATA:
         if db.execute("SELECT 1 FROM pm_book_events WHERE workspace=? AND rid=?",(w,rid)).fetchone(): raise Conflict("Идентификатор уже использован.")
-        return catalog_write(db,w,rid,op,a)
+        return catalog_write(db,w,rid,op,a) if op in CATALOG else extra.metadata_write(db,w,rid,op,a)
     if db.execute("SELECT 1 FROM pm_mutations WHERE workspace=? AND rid=?",(w,"book:"+rid)).fetchone(): raise Conflict("Идентификатор уже использован.")
     raw=encode(a)
     old=db.execute("SELECT kind,args,result FROM pm_book_events WHERE workspace=? AND rid=?",(w,rid)).fetchone()
@@ -300,8 +313,8 @@ def execute(db,w,rid,op,args):
         res.update(material_id=mid,material=name,quantity=qty,unit=unit,value_rub=money(value),supplier=a.get("supplier",""))
         summary=FIELDS[op][0]+": "+name+" · "+str(qty)+" "+unit+" · "+money(value)+" ₽"
     elif op=="manufacture":
-        pid,name=entity(db,w,"product",a["product"]);qty=a["quantity"];extra=minor(a["extra"])
-        lid,cost,used=rows.produce(pid,name,qty,extra,seq);f["production_cash"]=extra
+        pid,name=entity(db,w,"product",a["product"]);qty=a["quantity"];extra_cost=minor(a["extra"])
+        lid,cost,used=rows.produce(pid,name,qty,extra_cost,seq);f["production_cash"]=extra_cost
         res.update(product_id=pid,product=name,quantity=qty,lot_id=lid,cost_rub=money(cost),materials=used)
         summary=f"Выпуск: {name} · {qty} шт. · себестоимость партии {money(cost)} ₽"
     elif op=="sale":
@@ -354,9 +367,15 @@ def execute(db,w,rid,op,args):
         res.update(sale_id=sid,product_id=sale["product_id"],product=sale["product"],channel=sale["channel"],quantity=qty,
                    sales_quantity=-qty,consumption=usage,restocked=a["restock"],refund_rub=money(refund),restored_cost_rub=money(restored))
         summary=f"Возврат: {qty} шт. · возвращено денег {money(refund)} ₽"
-    elif op=="expense":
+    elif op in ("expense","worker_payment"):
         value=minor(a["total"],False);f["expenses"]=value
-        res.update(category=a["category"],value_rub=money(value));summary=f"Расход: {a['category']} · {money(value)} ₽"
+        category=a.get("category","Оплата труда")
+        if op=="worker_payment":
+            ident=extra.find(db,w,"pm_workers",a["worker_id"])
+            worker=db.execute("SELECT name,archived FROM pm_workers WHERE workspace=? AND id=?",(w,ident)).fetchone()
+            if worker[1]:raise Conflict("Работник в архиве.")
+            res.update(worker_id=ident,worker=worker[0])
+        res.update(category=category,value_rub=money(value));summary=f"Расход: {category} · {money(value)} ₽"
     elif op=="reverse":
         reverse_of=a["event"]
         row=db.execute("SELECT kind,day,result,changes,finance FROM pm_book_events WHERE workspace=? AND id=?",(w,reverse_of)).fetchone()
@@ -370,7 +389,7 @@ def execute(db,w,rid,op,args):
         for c in reversed(changes):rows.put(c["type"],c["key"],c["before"],restore=True)
         f={k:-v for k,v in json.loads(row[4]).items()}
         original=json.loads(row[2])
-        res.update({k:original[k] for k in ("product_id","product","material_id","material","channel","category","sale_id") if k in original})
+        res.update({k:original[k] for k in ("product_id","product","material_id","material","channel","category","sale_id","worker_id","worker") if k in original})
         res.update(sales_quantity=-original.get("sales_quantity",0),
                    consumption=[{**u,"quantity":-u["quantity"]} for u in original.get("consumption",[])],
                    original_kind=row[0],reverse_of=reverse_of,reason=a["reason"])
@@ -387,11 +406,11 @@ def execute(db,w,rid,op,args):
     return res
 
 def revision(db,w,op,args):
-    catalog=[list(r) for r in db.execute("SELECT id,name,pack,price,unit,category FROM pm_materials WHERE workspace=? ORDER BY id",(w,))]
-    products=[list(r) for r in db.execute("SELECT id,name,category,sale_price,minutes FROM pm_products WHERE workspace=? ORDER BY id",(w,))]
+    catalog=[list(r) for r in db.execute("SELECT id,name,pack,price,unit,category,archived,note FROM pm_materials WHERE workspace=? ORDER BY id",(w,))]
+    products=[list(r) for r in db.execute("SELECT id,name,category,sale_price,minutes,archived,note FROM pm_products WHERE workspace=? ORDER BY id",(w,))]
     recipe=[list(r) for r in db.execute("SELECT r.product,r.material,r.qty FROM pm_recipe r JOIN pm_products p ON p.id=r.product WHERE p.workspace=? ORDER BY r.product,r.material",(w,))]
     last=db.execute("SELECT COALESCE(MAX(seq),0) FROM pm_book_events WHERE workspace=?",(w,)).fetchone()[0]
-    return hashlib.sha256(encode([w,op,args,last,catalog,products,recipe]).encode()).hexdigest()
+    return hashlib.sha256(encode([w,op,args,last,catalog,products,recipe,extra.settings_revision(db,w)]).encode()).hexdigest()
 
 def preview_action(db,w,op,args):
     a=validate(op,args);rev=revision(db,w,op,a)
@@ -402,16 +421,18 @@ def preview_action(db,w,op,args):
     finally:
         db.execute("ROLLBACK TO pm_preview")
         db.execute("RELEASE pm_preview")
-    return {"operation":op,"arguments":a,"revision":rev,"preview":preview}
+    return {"operation":op,"arguments":a,"revision":rev,"preview":preview,"workshop":w}
 
-def preview_for_user(store,token,op,args):
+def preview_for_user(store,token,op,args,workshop_id=None):
+    from . import podmasterye_workshops as workshops
     with store._write() as db:
-        _,w=_principal(db,token)
+        _,a=_principal(db,token);w=workshops.resolve(db,a,workshop_id)
         return preview_action(db,w,op,args)
 
-def mutate(store,token,rid,op,args,expected):
+def mutate(store,token,rid,op,args,expected,workshop_id=None):
+    from . import podmasterye_workshops as workshops
     with store._write() as db:
-        _,w=_principal(db,token)
+        _,account=_principal(db,token);w=workshops.resolve(db,account,workshop_id)
         key_id(rid);a=validate(op,args)
         prior=db.execute("SELECT 1 FROM pm_book_events WHERE workspace=? AND rid=?",(w,rid)).fetchone() or db.execute("SELECT 1 FROM pm_mutations WHERE workspace=? AND rid=?",(w,"book:"+rid)).fetchone()
         if not prior and (not isinstance(expected,str) or revision(db,w,op,a)!=expected):
@@ -453,7 +474,7 @@ def event_rows(db,w,start,end):
         r=json.loads(s);r["reversed"]=rid in reverse;out.append((r,json.loads(f)))
     return out
 
-def report(db,w,start=None,end=None,horizon=30,lead=7,safety=3,view="all",limit=100,offset=0,event_group="all"):
+def report(db,w,start=None,end=None,horizon=30,lead=7,safety=3,view="all",limit=100,offset=0,event_group="all",target_profit="200"):
     start,end=period(start,end)
     for v in (horizon,lead,safety):
         if type(v) is not int or not 0<=v<=365:raise ValueError("Некорректный горизонт закупки.")
@@ -461,13 +482,13 @@ def report(db,w,start=None,end=None,horizon=30,lead=7,safety=3,view="all",limit=
     if type(limit) is not int or not 1<=limit<=500 or type(offset) is not int or not 0<=offset<=10**7:raise ValueError("Некорректная страница.")
     rows=Rows(db,w,"read")
     mats=[]
-    for mid,name,pack,price,unit,cat in db.execute("SELECT id,name,pack,price,unit,category FROM pm_materials WHERE workspace=? ORDER BY normalized",(w,)):
+    for mid,name,pack,price,unit,cat,archived,note in db.execute("SELECT id,name,pack,price,unit,category,archived,note FROM pm_materials WHERE workspace=? ORDER BY normalized",(w,)):
         r=rows.get("raw",mid);qty=r["quantity"] if r else 0;value=r["value"] if r else 0
         avg=Decimal(value)/100/qty if qty else None
         mats.append(dict(id=mid,name=name,pack=pack,planned_pack_price=price,unit=unit,category=cat,quantity=qty,valued=r is not None,
-                         value_rub=money(value),average_price_rub=format(avg.quantize(Decimal(".000001"),rounding=ROUND_HALF_UP),"f") if avg is not None else None))
+                         archived=bool(archived),note=note,value_rub=money(value),average_price_rub=format(avg.quantize(Decimal(".000001"),rounding=ROUND_HALF_UP),"f") if avg is not None else None))
     bymid={m["id"]:m for m in mats};products=[];byprod={}
-    for pid,name,cat,price,minutes in db.execute("SELECT id,name,category,sale_price,minutes FROM pm_products WHERE workspace=? ORDER BY normalized",(w,)):
+    for pid,name,cat,price,minutes,archived,note in db.execute("SELECT id,name,category,sale_price,minutes,archived,note FROM pm_products WHERE workspace=? ORDER BY normalized",(w,)):
         lots=rows.lots(pid);qty=sum(v["quantity"] for _,v in lots);value=sum(v["value"] for _,v in lots)
         recipe=[];cost=Decimal(0);known=True
         for mid,per in db.execute("SELECT material,qty FROM pm_recipe WHERE product=? ORDER BY material",(pid,)):
@@ -480,7 +501,7 @@ def report(db,w,start=None,end=None,horizon=30,lead=7,safety=3,view="all",limit=
             if unitcost is None:known=False
             else:cost+=unitcost*per
             recipe.append({"material_id":mid,"material":m["name"],"unit":m["unit"],"usage":per})
-        v=dict(id=pid,name=name,category=cat,sale_price=price,minutes=minutes,quantity=qty,value_rub=money(value),recipe=recipe,
+        v=dict(id=pid,name=name,category=cat,sale_price=price,minutes=minutes,archived=bool(archived),note=note,quantity=qty,value_rub=money(value),recipe=recipe,
                estimated_material_cost_rub=format(cost.quantize(Decimal(".01"),rounding=ROUND_HALF_UP),"f") if known and recipe else None)
         products.append(v);byprod[pid]=v
     events=event_rows(db,w,start,end)
@@ -528,6 +549,7 @@ def report(db,w,start=None,end=None,horizon=30,lead=7,safety=3,view="all",limit=
         for pid,n in demand.items():
             if n<=0 or pid not in byprod:continue
             p=byprod[pid]
+            if p.get("archived") or m.get("archived"):continue
             per=next((r["usage"] for r in p["recipe"] if r["material_id"]==mid),0)
             if not per:continue
             rate=Decimal(n)/30;daily+=rate*per
@@ -549,7 +571,7 @@ def report(db,w,start=None,end=None,horizon=30,lead=7,safety=3,view="all",limit=
                      "buy_packs":packs,"order_now":trigger,"order_day":order_day,"history_from":history_start,"history_to":today().isoformat(),
                      "buy_quantity":packs*m["pack"]})
     # Explicit current stock vs period financial flows. Pagination never truncates aggregates.
-    groups={"all":None,"stock":{"opening","writeoff"},"purchases":{"purchase"},"manufacture":{"manufacture"},"sales":{"sale","payment","return"},"expenses":{"expense"}}
+    groups={"all":None,"stock":{"opening","writeoff"},"purchases":{"purchase"},"manufacture":{"manufacture"},"sales":{"sale","payment","return"},"expenses":{"expense","worker_payment"},"workers":{"worker_payment"}}
     if event_group not in groups:raise ValueError("Неизвестный раздел журнала.")
     kinds=groups[event_group]
     allrows=[r for r,f in reversed(events) if kinds is None or r.get("original_kind",r["kind"]) in kinds]
@@ -560,21 +582,26 @@ def report(db,w,start=None,end=None,horizon=30,lead=7,safety=3,view="all",limit=
           "planning":plans,"planning_settings":{"horizon":horizon,"lead":lead,"safety":safety},
           "forms":forms(),"units":UNITS,"expense_categories":CATEGORIES,"today":today().isoformat(),
           "assumptions":"Склад на текущий момент; финансовые показатели за выбранный период. Прогноз по чистым продажам за 30 календарных дней, текущим нормам и готовому остатку; нет резервов и поставок в пути. Налоги и комиссии — только введённые расходы."}
+    data.update(extra.additional_data(db,w,products,mats,events,target_profit))
     if view=="all":return data
     allowed={"summary":("summary","period","assumptions"),"stock":("materials","products","batches","summary","assumptions"),
              "sales":("sales","by_product","by_channel","period"),"planning":("planning","planning_settings","consumption","period","assumptions"),
              "finance":("summary","monthly","by_product","by_channel","by_expense","period","assumptions"),
-             "journal":("events","event_count","offset","limit","period")}
+             "journal":("events","event_count","offset","limit","period"),
+             "tasks":("tasks","workshop"),"workers":("workers","period"),"unit":("unit_economics","target_profit","unit_period","channel_rates"),
+             "catalog":("materials","products","workshop","stock_categories")}
     if view not in allowed:raise ValueError("Неизвестный отчёт.")
     return {k:data[k] for k in allowed[view]}
 
-def read(store,token,**opts):
+def read(store,token,workshop_id=None,**opts):
+    from . import podmasterye_workshops as workshops
     with store._lock:
-        _,w=_principal(store._db,token)
+        _,a=_principal(store._db,token);w=workshops.resolve(store._db,a,workshop_id)
         return report(store._db,w,**opts)
-def export(store,token,fmt):
+def export(store,token,fmt,workshop_id=None):
+    from . import podmasterye_workshops as workshops
     with store._lock:
-        _,w=_principal(store._db,token)
+        _,a=_principal(store._db,token);w=workshops.resolve(store._db,a,workshop_id)
         records=event_rows(store._db,w,"0001-01-01",today().isoformat())
         d=report(store._db,w)
     headings=["Дата","Операция","ID","Описание","Заметка","Выручка","COGS","Расходы","Списания","Закупки","Поступления","Прямые затраты выпуска"]
@@ -589,8 +616,8 @@ def export(store,token,fmt):
         from openpyxl import Workbook
         wb=Workbook();ws=wb.active;ws.title="Журнал";ws.append(headings)
         for line in body:ws.append(line)
-        for title,items,keys in (("Сырьё",d["materials"],["id","name","category","unit","pack","planned_pack_price","quantity","value_rub","average_price_rub"]),
-                                 ("Готовые изделия",d["products"],["id","name","category","sale_price","minutes","quantity","value_rub","estimated_material_cost_rub"]),
+        for title,items,keys in (("Сырьё",d["materials"],["id","name","category","unit","pack","planned_pack_price","quantity","value_rub","average_price_rub","archived","note"]),
+                                 ("Готовые изделия",d["products"],["id","name","category","sale_price","minutes","quantity","value_rub","estimated_material_cost_rub","planned_full_cost_rub","archived","note"]),
                                  ("Рецептуры",[{**r,"product":p["name"],"product_id":p["id"]} for p in d["products"] for r in p["recipe"]],["product_id","product","material_id","material","unit","usage"]),
                                  ("Партии",d["batches"],["id","day","product_id","product","initial_quantity","initial_value_rub","quantity","value_rub"]),
                                  ("Продажи",d["sales"],["id","day","product_id","product","channel","quantity","returned","gross_rub","paid_rub","due_rub"]),

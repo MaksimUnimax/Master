@@ -2,6 +2,7 @@
 const $=s=>document.querySelector(s);
 const member=document.body.dataset.mode==='member',admin=document.body.dataset.admin==='1';
 async function api(url,options={}){
+  if(window.PMWorkshopId&&/^\/api\/(accounting|production|integrations|materials|calculator\/save)(?:[/?]|$)/.test(url)){const u=new URL(url,location.origin);u.searchParams.set('workshop',window.PMWorkshopId);url=u.pathname+u.search;}
   const r=await fetch(url,{cache:'no-store',credentials:'same-origin',...options});
   const d=await r.json().catch(()=>({}));
   if(!r.ok)throw new Error(r.status===402?'Для запроса к ИИ пополните баланс.':d.error||d.detail||'Не удалось выполнить запрос.');
@@ -16,7 +17,7 @@ function row(parent,text,role='assistant',receipt){
     line.textContent='Расходы ИИ: '+(cost.rub!=null?cost.rub+' ₽':cost.usd!=null?cost.usd+' USD':'не подтверждены')+(u?' · вход '+u.input+' · кэш '+u.cache+' · выход '+u.output:'');parent.append(line);}
   parent.scrollTop=parent.scrollHeight;
 }
-function navigate(name){for(const el of document.querySelectorAll('[data-panel]'))el.hidden=el.dataset.panel!==name;for(const el of document.querySelectorAll('[data-page]'))el.classList.toggle('active',el.dataset.page===name);const pager=$('#event-pager');if(pager)pager.hidden=!['stock','purchases','manufacture','sales','expenses','journal'].includes(name);const filters=$('#accounting-filters');if(filters)filters.hidden=['admin','wallet'].includes(name);}
+function navigate(name){for(const el of document.querySelectorAll('[data-panel]'))el.hidden=el.dataset.panel!==name;for(const el of document.querySelectorAll('[data-page]'))el.classList.toggle('active',el.dataset.page===name);const pager=$('#event-pager');if(pager)pager.hidden=!['stock','purchases','manufacture','sales','expenses','journal','workers'].includes(name);const filters=$('#accounting-filters');if(filters)filters.hidden=['admin','wallet','settings','integrations','tasks'].includes(name);window.PMExtras?.navigate(name);}
 function table(host,cols,values){host.replaceChildren();const t=document.createElement('table'),h=t.createTHead().insertRow();for(const c of cols){const th=document.createElement('th');th.textContent=c;h.append(th);}const b=t.createTBody();for(const vals of values){const r=b.insertRow();for(const v of vals)r.insertCell().textContent=v??'Не указано';}host.append(t);}
 async function refresh(ui){return window.PMAccounting.refresh(ui);}
 async function wallet(){
@@ -27,19 +28,19 @@ async function wallet(){
 }
 function formRecipe(d){const f=$('#recipe-form');for(const key of ['product','material','pack_quantity','usage_quantity','pack_price','unit'])f.elements[key].value=d[key]??(key==='unit'?d.base_unit||'шт':'');navigate('products');$('#recipe-status').textContent='Проверьте данные и сохраните форму.';}
 async function initMember(){
+  await window.PMExtras.initWorkshops();
   window.PMAccounting.init();
+  window.PMExtras.initMember();
   for(const b of document.querySelectorAll('[data-page]'))b.onclick=()=>{navigate(b.dataset.page);window.PMAccounting.navigate();};
   const query=new URLSearchParams(location.search);navigate(query.get('account')==='wallet'?'wallet':query.get('section')==='admin'&&admin?'admin':'summary');
   document.addEventListener('octo-wallet-refresh',()=>wallet().catch(()=>{}));
   await Promise.all([refresh(),wallet()]);
-  const chats=await api('/api/chats');
-  const routeChat=location.pathname.match(/^\/app\/chats\/([^/]+)$/)?.[1];
-  const chat=(routeChat&&chats.includes(routeChat)?routeChat:chats[0])|| (await post('/api/chats',{})).chatId;
+  const chat=(await post('/api/workshops/chat',{workshop:window.PMWorkshopId})).chatId;
   const messages=$('#messages');
   const h=await api('/api/chats/'+encodeURIComponent(chat)+'/messages');for(const m of h)row(messages,m.text,m.role,m);
   const f=$('#assistant-form');let pending=null;
   f.onsubmit=async e=>{e.preventDefault();const input=f.elements.text,txt=input.value.trim();if(!txt)return;const b=f.querySelector('button');b.disabled=true;if(!pending||pending.text!==txt){pending={requestId:crypto.randomUUID(),text:txt};row(messages,txt,'user');}input.value='';$('#assistant-status').textContent='Обрабатываю…';
-    try{const m=await post('/api/chats/'+encodeURIComponent(chat)+'/turns',pending);pending=null;row(messages,m.text,m.role,m);if(m.ui?.page)navigate(m.ui.page);await Promise.all([refresh(m.ui),wallet()]);if(m.draft)formRecipe(m.draft);if(m.accountingDraft){const d=m.accountingDraft;window.PMAccounting.open(d.operation,d.arguments,d);}$('#assistant-status').textContent='';}
+    try{const m=await post('/api/chats/'+encodeURIComponent(chat)+'/turns',pending);pending=null;if(m.workshop&&m.workshop!==window.PMWorkshopId)throw new Error('Ответ относится к другой мастерской.');row(messages,m.text,m.role,m);if(m.ui?.page)navigate(m.ui.page);await Promise.all([refresh(m.ui),wallet()]);if(m.draft)formRecipe(m.draft);if(m.accountingDraft){const d=m.accountingDraft;window.PMAccounting.open(d.operation,d.arguments,d);}$('#assistant-status').textContent='';}
     catch(err){if(pending)input.value=txt;$('#assistant-status').textContent=err.message;}finally{b.disabled=false;}};
   f.querySelector('button').disabled=false;
   $('#recipe-form').onsubmit=async e=>{e.preventDefault();const f=e.target,o=Object.fromEntries(new FormData(f));o.pack_quantity=Number(o.pack_quantity);o.usage_quantity=Number(o.usage_quantity);o.pack_price=o.pack_price.trim()||null;

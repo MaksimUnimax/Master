@@ -228,3 +228,158 @@ class Accounting(unittest.TestCase):
         self.prepare("material",{"name":"Бусины","unit":"шт","pack":400},expect=409)
         self.op("material",entity_id=m,name="Бусины белые",unit="шт",pack=400,pack_price="800",category="Фурнитура")
         d=self.report();self.assertEqual(len(d["materials"]),1);self.assertEqual(d["materials"][0]["name"],"Бусины белые");self.assertEqual(d["materials"][0]["quantity"],400)
+
+
+    def workshop(self,action,args,h=None,rid=None):
+        return self.call("/api/workshops/change",{"requestId":rid or uuid4().hex,"action":action,"arguments":args},h)
+
+    def test_multiple_workshops_and_demo_isolation(self):
+        self.seed()
+        root=self.client.get("/api/workshops",headers=self.h).json()["default"]
+        r=self.workshop("create",{"name":"Вторая","hourly_rate":"450"},rid="new-workshop")
+        self.assertEqual(r.status_code,200,r.text);w=r.json()["id"]
+        self.assertEqual(self.workshop("create",{"name":"Вторая","hourly_rate":"450"},rid="new-workshop").json()["id"],w)
+        self.assertEqual(self.report(workshop=w)["materials"],[])
+        self.assertEqual(len(self.report(workshop=root)["materials"]),1)
+        self.assertEqual(self.client.get("/api/accounting",headers=self.other,params={"workshop":w}).status_code,400)
+        ch=self.call("/api/workshops/chat",{"workshop":w}).json()["chatId"]
+        turn=self.call("/api/chats/"+ch+"/turns",{"requestId":"w-recipe","text":"На изделие Свеча уходит 2 шт материала Нить, упаковка 10 шт стоит 100 рублей"})
+        # Explicit recipe API is the deterministic fallback for an unmatched phrase.
+        r=self.call("/api/production/recipe?workshop="+w,{"requestId":"w-manual","recipe":{"material":"Нить","product":"Свеча","pack_quantity":10,"usage_quantity":2,"pack_price":"100","unit":"шт"}})
+        self.assertEqual(r.status_code,200,r.text)
+        r=self.call("/api/chats/"+ch+"/turns",{"requestId":"w-report","text":"сколько нити осталось"})
+        self.assertEqual(r.status_code,200,r.text);self.assertEqual(r.json()["workshop"],w)
+        self.assertEqual(self.report(workshop=w)["materials"][0]["name"],"Нить")
+        self.assertEqual(self.report()["materials"][0]["name"],"Бусины")
+        self.assertEqual(self.client.get("/api/wallet/balance",headers=self.h).json()["available"],"10")
+        self.assertEqual(self.workshop("archive",{"id":w},self.other).status_code,400)
+        self.assertEqual(self.workshop("archive",{"id":w}).status_code,200)
+        self.assertEqual(self.client.get("/api/accounting",headers=self.h,params={"workshop":w}).status_code,409)
+        self.assertEqual(self.workshop("restore",{"id":w}).status_code,200)
+        self.assertEqual(len(self.report(workshop=w)["materials"]),1)
+        demo=self.workshop("demo",{});self.assertEqual(demo.status_code,200,demo.text)
+        data=self.report(workshop=demo.json()["id"])
+        self.assertEqual(data["summary"]["revenue"],"1500.00")
+        self.assertEqual(data["summary"]["net_profit"],"1000.00")
+        self.assertEqual(self.report()["summary"]["revenue"],"0.00")
+
+    def test_tasks_create_edit_complete_archive(self):
+        t=self.op("task",name="Купить воск",description="Склад",due=self.day,priority="Высокая",task_category="Закупка")
+        self.assertEqual(self.report()["tasks"][0]["status"],"active")
+        self.op("task",task_id=t["id"],name="Купить воск и фитили",priority="Обычная",task_category="Закупка")
+        self.assertEqual(self.report()["tasks"][0]["name"],"Купить воск и фитили")
+        self.op("task_state",task_id=t["id"],task_status="done")
+        self.assertEqual(self.report()["tasks"][0]["status"],"done")
+        self.op("task_state",task_id=t["id"],task_status="archived")
+        self.assertEqual(self.report()["tasks"][0]["status"],"archived")
+        self.prepare("task_state",{"task_id":t["id"],"task_status":"done"},self.other,expect=400)
+
+    def test_worker_payments_and_reversal(self):
+        w=self.op("worker",name="Мастер",position="Сборка")
+        p=self.op("worker_payment",worker_id=w["id"],total="250.25")
+        d=self.report()
+        self.assertEqual(d["workers"][0]["payments_rub"],"250.25")
+        self.assertEqual(d["summary"]["net_profit"],"-250.25")
+        self.assertEqual(d["summary"]["cashflow"],"-250.25")
+        self.op("reverse",event=p["id"],reason="Ошибка")
+        self.assertEqual(self.report()["workers"][0]["payments_rub"],"0.00")
+        self.op("worker",worker_id=w["id"],name="Мастер",archived=True)
+        self.prepare("worker_payment",{"worker_id":w["id"],"total":"1"},expect=409)
+
+    def test_recipe_versions_archive_and_restore(self):
+        ids=self.recipe();m=ids["material_id"];p=ids["product_id"]
+        self.prepare("material_archive",{"material":m,"archived":True},expect=409)
+        self.op("recipe_line",product=p,material=m,usage=12)
+        with sqlite3.connect(self.db) as db:
+            snapshots=[json.loads(x[0]) for x in db.execute("SELECT snapshot FROM pm_recipe_versions WHERE product=? ORDER BY seq",(p,))]
+        self.assertEqual(snapshots[-1][0]["usage"],12)
+        self.assertEqual(snapshots[-2][0]["usage"],10)
+        self.op("product_archive",product=p,archived=True)
+        self.op("material_archive",material=m,archived=True)
+        self.prepare("product_archive",{"product":p,"archived":False},expect=409)
+        self.op("material_archive",material=m,archived=False)
+        self.op("product_archive",product=p,archived=False)
+        self.op("recipe_line",product=p,material=m,usage=0)
+        self.assertFalse(self.report()["products"][0]["recipe"])
+
+    def test_unit_economics_labor_and_channel_tariff(self):
+        m=self.op("material",name="Нить",unit="шт",pack=10,pack_price="100")
+        p=self.op("product",name="Сумка",sale_price="1000",minutes=30)
+        self.op("recipe_line",product=p["id"],material=m["id"],usage=5)
+        root=self.client.get("/api/workshops",headers=self.h).json()["default"]
+        r=self.workshop("update",{"id":root,"hourly_rate":"300"});self.assertEqual(r.status_code,200,r.text)
+        self.op("channel_rates",channel="Витрина",commission="20",fixed_fee="100")
+        self.op("opening",material=m["id"],quantity=100,total="1000")
+        self.op("sale",product=p["id"],quantity=1,unit_price="1000",paid_amount="1000",channel="Витрина",auto_produce=True)
+        d=self.report(target_profit="200")
+        row=next(r for r in d["unit_economics"] if r["channel"]=="Витрина")
+        self.assertEqual(row["quantity_90d"],1)
+        self.assertEqual(row["planned_material_cost_rub"],"50.00")
+        self.assertEqual(row["planned_full_cost_rub"],"200.00")
+        self.assertEqual(row["recommended_price_rub"],"625.00")
+        self.assertEqual(row["planned_profit_rub"],"500.00")
+
+    def test_import_csv_and_xlsx_atomic_and_idempotent(self):
+        import base64
+        from openpyxl import Workbook
+        csv="name;unit;pack;pack_price;initial_quantity;initial_total\nВоск;г;1000;500;1000;500\n"
+        def b64(x):return base64.b64encode(x).decode()
+        def preview(name,data):
+            return self.call("/api/materials/import/preview",{"filename":name,"content":b64(data)})
+        r=preview("materials.csv",csv.encode());self.assertEqual(r.status_code,200,r.text);d=r.json()
+        self.assertEqual(self.report()["materials"],[])
+        args={"requestId":"import-csv","rows":d["rows"],"revision":d["revision"]}
+        r=self.call("/api/materials/import/commit",args);self.assertEqual(r.status_code,200,r.text)
+        self.assertEqual(self.call("/api/materials/import/commit",args).json(),r.json())
+        self.assertEqual(self.report()["materials"][0]["quantity"],1000)
+        self.assertEqual(preview("same.csv",csv.encode()).status_code,409)
+        wb=Workbook();ws=wb.active;ws.append(["name","unit","pack","pack_price"]);ws.append(["Нить","шт",100,"250"]);buf=io.BytesIO();wb.save(buf)
+        r=preview("materials.xlsx",buf.getvalue());self.assertEqual(r.status_code,200,r.text);d=r.json()
+        self.op("expense",category="Прочее",total="1")
+        self.assertEqual(self.call("/api/materials/import/commit",{"requestId":"stale-import","rows":d["rows"],"revision":d["revision"]}).status_code,409)
+        r=preview("materials.xlsx",buf.getvalue());d=r.json()
+        self.assertEqual(self.call("/api/materials/import/commit",{"requestId":"fresh-import","rows":d["rows"],"revision":d["revision"]}).status_code,200)
+        self.assertEqual(len(self.report()["materials"]),2)
+        ws["D2"]="=1+1";buf=io.BytesIO();wb.save(buf)
+        self.assertEqual(preview("bad.xlsx",buf.getvalue()).status_code,400)
+
+    def test_public_calculator_and_save(self):
+        a={"name":"Свеча","items":[{"name":"Воск","quantity":"0.25","unit":"кг","price":"500"}],"sale_price":"400","minutes":"30","hourly_rate":"200"}
+        r=self.client.post("/api/calculator",json=a);self.assertEqual(r.status_code,200,r.text)
+        d=r.json();self.assertEqual((d["materials_rub"],d["labor_rub"],d["profit_rub"]),("125.00","100.00","175.00"))
+        args={"requestId":"calc-save","calculation":a}
+        r=self.call("/api/calculator/save",args);self.assertEqual(r.status_code,200,r.text)
+        self.assertEqual(self.call("/api/calculator/save",args).json(),r.json())
+        d=self.report();self.assertEqual(d["products"][0]["estimated_material_cost_rub"],"125.00")
+        self.assertEqual(d["materials"][0]["quantity"],0)
+
+    def test_external_order_mapping_retry_returns_and_key_rotation(self):
+        ids=self.seed(qty=100,value="200")
+        def change(action,**args):return self.call("/api/integrations/change",{"action":action,"arguments":args})
+        s=change("create",name="Магазин 1",auto_produce=True)
+        self.assertEqual(s.status_code,200,s.text);src=s.json();h={"Authorization":"Bearer "+src["apiKey"]}
+        p={"order_ref":"order-1","date":self.day,"shop_name":"Shop","items":[{"offer_id":"sku","name":"Браслет","qty":2,"price":"100"}]}
+        r=self.call("/api/hook/order",p,h);self.assertEqual(r.status_code,200,r.text)
+        self.assertEqual(r.json()["status"],"pending_mapping")
+        self.assertEqual(self.report()["summary"]["revenue"],"0.00")
+        r=change("map",id=src["id"],offer="sku",product=ids["product_id"]);self.assertEqual(r.status_code,200,r.text)
+        self.assertEqual(self.report()["summary"]["revenue"],"200.00")
+        r=self.call("/api/hook/order",p,h);self.assertEqual(r.json()["status"],"posted")
+        self.assertEqual(self.report()["summary"]["revenue"],"200.00")
+        self.assertEqual(self.call("/api/hook/order",{**p,"shop_name":"changed"},h).status_code,409)
+        event={"event_id":"ret-1","order_ref":"order-1","line":0,"kind":"return","date":self.day,"quantity":1,"refund":"100","restock":True}
+        r=self.call("/api/hook/event",event,h);self.assertEqual(r.status_code,200,r.text)
+        self.assertEqual(self.call("/api/hook/event",event,h).json(),r.json())
+        self.assertEqual(self.report()["summary"]["revenue"],"100.00")
+        self.assertEqual(self.report()["materials"][0]["quantity"],80)
+        s2=change("create",name="Магазин 2",auto_produce=True).json();h2={"Authorization":"Bearer "+s2["apiKey"]}
+        self.assertEqual(self.call("/api/hook/order",p,h2).json()["status"],"pending_mapping")
+        self.assertEqual(change("map",id=s2["id"],offer="sku",product=ids["product_id"]).status_code,200)
+        self.assertEqual(self.report()["summary"]["revenue"],"300.00")
+        rotated=change("rotate",id=src["id"]).json()
+        self.assertEqual(self.call("/api/hook/order",p,h).status_code,401)
+        self.assertEqual(self.call("/api/hook/order",p,{"Authorization":"Bearer "+rotated["apiKey"]}).status_code,200)
+        self.assertEqual(self.call("/api/integrations/change",{"action":"disable","arguments":{"id":src["id"]}},self.other).status_code,400)
+        self.assertEqual(change("disable",id=src["id"]).status_code,200)
+        self.assertEqual(self.call("/api/hook/order",p,{"Authorization":"Bearer "+rotated["apiKey"]}).status_code,401)
+        self.assertEqual(self.client.get("/api/integration-docs").status_code,200)

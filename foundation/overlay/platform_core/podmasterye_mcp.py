@@ -8,7 +8,7 @@ from .catalog import Capability
 from .dispatch import UnavailableTool, InvalidToolInput, ToolExecutionFailed
 from .mcp_server import serve_stdio
 from .storage import Scope, Store, _owns_chat
-from . import podmasterye_domain as domain, podmasterye_book as book, podmasterye_matrix as matrix
+from . import podmasterye_domain as domain, podmasterye_book as book, podmasterye_matrix as matrix, podmasterye_workshops as workshops
 
 class ProductionTools:
     def __init__(self,store,scope,request,grant):
@@ -48,11 +48,11 @@ class ProductionTools:
     def snapshot(self,scope,args):
         with self.store._lock:
             self.authorize(self.store._db)
-            return domain.state(self.store._db,scope.workspace_id)
+            return domain.state(self.store._db,workshops.chat_workspace(self.store._db,scope))
     def accounting_report(self,scope,args):
         with self.store._lock:
             self.authorize(self.store._db)
-            result=book.report(self.store._db,scope.workspace_id,**args)
+            result=book.report(self.store._db,workshops.chat_workspace(self.store._db,scope),**args)
             # Keep model responses bounded. Complete detail remains available in the browser.
             for k,v in list(result.items()):
                 if isinstance(v,list) and len(v)>30:
@@ -70,7 +70,7 @@ class ProductionTools:
             if row:
                 if row[0]!=raw:raise ValueError("One draft per request")
                 return {"draft":json.loads(row[1]),"saved":False}
-            draft=book.preview_action(db,scope.workspace_id,operation,a)
+            draft=book.preview_action(db,workshops.chat_workspace(db,scope),operation,a)
             db.execute("INSERT INTO pm_accounting_drafts VALUES(?,?,?,?,?)",(scope.workspace_id,scope.chat_id,self.request,raw,domain.encode(draft)))
             return {"draft":draft,"saved":False}
     def prepare(self,scope,args):
@@ -78,6 +78,7 @@ class ProductionTools:
         raw=domain.encode(domain.recipe_args(args))
         with self.store._write() as db:
             self.authorize(db)
+            workshops.chat_workspace(db,scope)
             if db.execute("SELECT 1 FROM pm_accounting_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,self.request)).fetchone():raise ValueError("One draft per request")
             row=db.execute("SELECT args,result FROM pm_drafts WHERE workspace=? AND chat=? AND rid=?",
                            (scope.workspace_id,scope.chat_id,self.request)).fetchone()

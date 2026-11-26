@@ -2,11 +2,11 @@
 (function(){
 const q=s=>document.querySelector(s),qa=s=>Array.from(document.querySelectorAll(s));
 let data=null, generation=0, confirmed=null, requestId=null, busy=false, activeOp=null, formGeneration=0;
-const groupByPage={stock:'stock',purchases:'purchases',manufacture:'manufacture',sales:'sales',expenses:'expenses',journal:'all'};
+const groupByPage={stock:'stock',purchases:'purchases',manufacture:'manufacture',sales:'sales',expenses:'expenses',journal:'all',workers:'workers'};
 const moneyLabels={revenue:'Выручка',cogs:'Себестоимость проданного',gross_profit:'Валовая прибыль',net_profit:'Чистая прибыль',
  expenses:'Прочие расходы',writeoffs:'Списания сырья',purchases:'Закупки',receipts:'Получено оплат',production_cash:'Прямые затраты выпуска',cashflow:'Денежный поток',
  raw_inventory_rub:'Сырьё на складе',finished_inventory_rub:'Готовые изделия',inventory_rub:'Стоимость запасов',current_receivables_rub:'Долги покупателей'};
-const kindLabels={opening:'Начальный остаток',purchase:'Закупка',manufacture:'Выпуск',sale:'Продажа',payment:'Оплата',return:'Возврат',expense:'Расход',writeoff:'Списание',reverse:'Сторно'};
+const kindLabels={opening:'Начальный остаток',purchase:'Закупка',manufacture:'Выпуск',sale:'Продажа',payment:'Оплата',return:'Возврат',expense:'Расход',worker_payment:'Выплата',writeoff:'Списание',reverse:'Сторно'};
 function safeTable(host,cols,rows){
  if(!host)return;
  host.replaceChildren();
@@ -28,7 +28,7 @@ function setFilter(ui){
 }
 function query(){
  const p=new URLSearchParams();
- for(const [key,id] of [['start','period-from'],['end','period-to'],['horizon','plan-horizon'],['lead','plan-lead'],['safety','plan-safety'],['offset','event-offset']]){
+ for(const [key,id] of [['start','period-from'],['end','period-to'],['horizon','plan-horizon'],['lead','plan-lead'],['safety','plan-safety'],['offset','event-offset'],['target_profit','unit-target']]){
   const v=q('#'+id)?.value;if(v)p.set(key,v);
  }
  p.set('event_group',groupByPage[q('nav button.active')?.dataset.page]||'all');
@@ -45,11 +45,9 @@ function render(){
  q('#finance-period').textContent='Период: '+(d.period.from==='0001-01-01'?'весь учёт':d.period.from)+' — '+d.period.to+' · валовая маржа '+(d.summary.margin_percent??'—')+'%';
  q('#accounting-assumptions').textContent=d.assumptions;
  const search=(q('#catalog-filter')?.value||'').trim().toLocaleLowerCase('ru');
- const match=x=>!search||[x.name,x.category].some(v=>(v||'').toLocaleLowerCase('ru').includes(search));
- safeTable(q('#materials'),['Материал','Категория','Упаковка','План. цена упаковки, ₽','Действие'],d.materials.filter(match).map(m=>[m.name,m.category,m.pack+' '+m.unit,m.planned_pack_price,
-  action('Изменить','material',{entity_id:m.id,name:m.name,unit:m.unit,pack:m.pack,pack_price:m.planned_pack_price,category:m.category})]));
- safeTable(q('#products'),['Изделие','Категория','Рецептура','Текущая стоимость сырья, ₽','Цена продажи, ₽','Действие'],d.products.filter(match).map(p=>[p.name,p.category,p.recipe.map(r=>r.material+' × '+r.usage+' '+r.unit).join('; '),p.estimated_material_cost_rub,p.sale_price,
-  action('Изменить','product',{entity_id:p.id,name:p.name,category:p.category,sale_price:p.sale_price,minutes:p.minutes})]));
+ const match=x=>(q('#show-archived')?.checked||!x.archived)&&(!search||[x.name,x.category].some(v=>(v||'').toLocaleLowerCase('ru').includes(search)));
+ safeTable(q('#materials'),['Материал','Категория','Упаковка','План. цена упаковки, ₽','Заметка','Действия'],d.materials.filter(match).map(m=>{const a=document.createElement('div');a.className='button-group';if(!m.archived)a.append(action('Изменить','material',{entity_id:m.id,name:m.name,unit:m.unit,pack:m.pack,pack_price:m.planned_pack_price,category:m.category,catalog_note:m.note}));a.append(action(m.archived?'Восстановить':'В архив','material_archive',{material:m.id,archived:!m.archived}));return [m.name+(m.archived?' · архив':''),m.category,m.pack+' '+m.unit,m.planned_pack_price,m.note,a];}));
+ safeTable(q('#products'),['Изделие','Категория','Рецептура','Сырьё, ₽','С трудом, ₽','Цена продажи, ₽','План. прибыль, ₽','Действия'],d.products.filter(match).map(p=>{const a=document.createElement('div');a.className='button-group';if(!p.archived)a.append(action('Изменить','product',{entity_id:p.id,name:p.name,category:p.category,sale_price:p.sale_price,minutes:p.minutes,catalog_note:p.note}),action('Состав','recipe_line',{product:p.id}));a.append(action(p.archived?'Восстановить':'В архив','product_archive',{product:p.id,archived:!p.archived}));return [p.name+(p.archived?' · архив':''),p.category,p.recipe.map(r=>r.material+' × '+r.usage+' '+r.unit).join('; '),p.estimated_material_cost_rub,p.planned_full_cost_rub,p.sale_price,p.planned_full_profit_rub??p.material_profit_rub,a];}));
  safeTable(q('#stock-raw'),['Материал','Категория','Остаток','Средняя цена ед., ₽','Стоимость, ₽','Действие'],d.materials.filter(match).map(m=>[m.name,m.category,(m.valued?m.quantity+' '+m.unit:'Нет учётных движений'),m.average_price_rub,m.value_rub,
   action('Списать','writeoff',{material:m.id})]));
  safeTable(q('#stock-finished'),['Изделие','Категория','Готово, шт.','Стоимость, ₽'],d.products.filter(match).map(p=>[p.name,p.category,p.quantity,p.value_rub]));
@@ -74,6 +72,7 @@ function render(){
  safeTable(q('#finance-channels'),['Канал','Чистые продажи, шт.','Выручка','COGS','Валовая прибыль','Оплаты'],d.by_channel.map(v=>[v.name,v.quantity,v.revenue,v.cogs,v.gross_profit,v.receipts]));
  safeTable(q('#finance-expenses'),['Статья','Расходы, ₽'],d.by_expense.map(v=>[v.name,v.expenses]));
  safeTable(q('#planning'),['Материал','Эквивалент продаж за 30 дней','Средний расход в день','Дней сырья','Купить упаковок','Дата заказа'],d.planning.filter(p=>!search||p.material.toLocaleLowerCase('ru').includes(search)).map(p=>[p.material,p.sold_equivalent_units+' '+p.unit+' / '+p.sold_equivalent_packs+' уп.',p.daily_forecast+' '+p.unit,p.raw_days??'Нет спроса',p.buy_packs,p.order_day??'—']));
+ window.PMExtras?.render(d);
 }
 async function refresh(ui){
  if(!q('#period-from'))return;
@@ -90,12 +89,14 @@ function navigateBook(){
 }
 function status(text){const s=q('#accounting-status');if(s)s.textContent=text||'';}
 function choices(t){
- if(t==='material')return data.materials.map(x=>[x.id,x.name+' ('+x.unit+')']);
- if(t==='product')return data.products.map(x=>[x.id,x.name]);
+ if(t==='material')return data.materials.filter(x=>!x.archived||['material_archive','recipe_line'].includes(activeOp)).map(x=>[x.id,x.name+' ('+x.unit+')'+(x.archived?' · архив':'')]);
+ if(t==='product')return data.products.filter(x=>!x.archived||activeOp==='product_archive').map(x=>[x.id,x.name+(x.archived?' · архив':'')]);
+ if(t==='task')return data.tasks.map(x=>[x.id,x.name]);
+ if(t==='worker')return data.workers.filter(x=>!x.archived||activeOp==='worker').map(x=>[x.id,x.name]);
  if(t==='sale')return data.sales.map(x=>[x.id,x.day+' · '+x.product+' · '+x.channel+' · '+x.gross_rub+' ₽']);
  if(t==='unit')return data.units.map(x=>[x,x]);
  if(t==='category')return data.expense_categories.map(x=>[x,x]);
- if(t.startsWith('choice:'))return t.slice(7).split(',').map(x=>[x,x==='base'?'Базовые единицы':'Упаковки']);
+ if(t.startsWith('choice:'))return t.slice(7).split(',').map(x=>[x,({base:'Базовые единицы',pack:'Упаковки',active:'Активна',done:'Выполнена',archived:'Архив'})[x]||x]);
  return null;
 }
 function field(f,value){
@@ -112,12 +113,12 @@ function field(f,value){
   }
  }else{
   el=document.createElement('input');
-  if(f.type==='date')el.type='date';
+  if(f.type==='date'||f.type==='future_date')el.type='date';
   else if(f.type==='bool'){el.type='checkbox';label.classList.add('check');}
   else if(f.type==='int'||f.type==='int0'){el.type='number';el.min=f.type==='int0'?'0':'1';el.max='1000000000000';el.step='1';}
   else{el.type='text';el.maxLength=f.type==='event'?128:240;if(f.type.includes('money'))el.inputMode='decimal';}
  }
- el.name=f.name;el.dataset.fieldType=f.type;
+ el.name=f.name;el.dataset.fieldType=f.type;if(f.name==='supplier')el.setAttribute('list','supplier-suggestions');
  if(f.type==='bool')el.checked=value===true;else{el.required=f.required;el.value=value??'';}
  label.append(el);return label;
 }
@@ -127,6 +128,7 @@ function showPreview(p){
 }
 function open(op,args={},preview=null){
  if(!data||!data.forms[op]||busy)return;
+ if(preview?.workshop&&preview.workshop!==window.PMWorkshopId){status('Черновик относится к другой мастерской.');return;}
  const form=q('#book-form'),dialog=q('#book-dialog');activeOp=op;confirmed=null;requestId=null;formGeneration++;
  q('#book-title').textContent=data.forms[op].title;
  q('#book-fields').replaceChildren(...data.forms[op].fields.map(f=>field(f,Object.hasOwn(args,f.name)?args[f.name]:f.default)));
@@ -137,9 +139,17 @@ function open(op,args={},preview=null){
   if(!choice.value)return;
   const list=op==='material'?data.materials:data.products;const item=list.find(x=>x.id===choice.value);
   if(!item)return;
-  const values=op==='material'?{name:item.name,unit:item.unit,pack:item.pack,pack_price:item.planned_pack_price,category:item.category}:{name:item.name,category:item.category,sale_price:item.sale_price,minutes:item.minutes};
+  const values=op==='material'?{name:item.name,unit:item.unit,pack:item.pack,pack_price:item.planned_pack_price,category:item.category,catalog_note:item.note}:{name:item.name,category:item.category,sale_price:item.sale_price,minutes:item.minutes,catalog_note:item.note};
   for(const [key,value] of Object.entries(values))form.elements[key].value=value??'';
  });
+ for(const [key,items,fields] of [['task_id',data.tasks,['name','description','due','priority']],['worker_id',data.workers,['name','position','archived']]]){
+  const select=q('#book-fields [name="'+key+'"]');
+  if(select&&((op==='task'&&key==='task_id')||(op==='worker'&&key==='worker_id')))select.addEventListener('change',()=>{
+   const item=items.find(x=>x.id===select.value);if(!item)return;
+   for(const field of fields){const e=form.elements[field];if(!e)continue;if(e.type==='checkbox')e.checked=!!item[field];else e.value=item[field]??'';}
+   if(op==='task')form.elements.task_category.value=item.category;
+  });
+ }
  if(!dialog.open)dialog.showModal();
 }
 function formArgs(){
@@ -180,5 +190,5 @@ function init(){
   finally{inputs.forEach(e=>e.disabled=false);busy=false;q('#book-check').disabled=false;}
  };
 }
-window.PMAccounting={init,refresh,navigate:navigateBook,open,setFilter};
+window.PMAccounting={init,refresh,navigate:navigateBook,open,setFilter,render};
 })();

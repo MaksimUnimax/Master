@@ -49,6 +49,10 @@ def init(store):
         for stmt in SCHEMA: db.execute(stmt)
         from . import podmasterye_book as book
         book.init(db)
+        from . import podmasterye_workshops as workshops
+        workshops.init(db)
+        from . import podmasterye_integrations as integrations
+        integrations.init(db)
 
 def encode(value):
     return json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(",",":"),allow_nan=False)
@@ -107,9 +111,10 @@ def _save(db,workspace,rid,args):
     if old:
         if old[0]!=raw: raise Conflict("Этот идентификатор уже использован.")
         return json.loads(old[1])
-    mat=db.execute("SELECT id,pack,price,name,unit FROM pm_materials WHERE workspace=? AND normalized=?",(workspace,v["material"].casefold())).fetchone()
+    mat=db.execute("SELECT id,pack,price,name,unit,archived FROM pm_materials WHERE workspace=? AND normalized=?",(workspace,v["material"].casefold())).fetchone()
     if mat:
-        mid,pack,price,name,unit=mat
+        mid,pack,price,name,unit,archived=mat
+        if archived:raise Conflict("Материал в архиве.")
         if v.get("unit",unit)!=unit:raise Conflict("Единица материала не совпадает со справочником.")
         v["unit"]=unit
         if pack!=v["pack_quantity"]:
@@ -123,20 +128,25 @@ def _save(db,workspace,rid,args):
         mid=uuid4().hex
         v["unit"]=v.get("unit","шт")
         db.execute("INSERT INTO pm_materials(id,workspace,name,normalized,pack,price,unit) VALUES(?,?,?,?,?,?,?)",(mid,workspace,v["material"],v["material"].casefold(),v["pack_quantity"],v["pack_price"],v["unit"]))
-    product=db.execute("SELECT id,name FROM pm_products WHERE workspace=? AND normalized=?",(workspace,v["product"].casefold())).fetchone()
+    product=db.execute("SELECT id,name,archived FROM pm_products WHERE workspace=? AND normalized=?",(workspace,v["product"].casefold())).fetchone()
     if product:
-        pid,v["product"]=product
+        pid,v["product"],archived=product
+        if archived:raise Conflict("Изделие в архиве.")
     else:
         pid=uuid4().hex
         db.execute("INSERT INTO pm_products(id,workspace,name,normalized) VALUES(?,?,?,?)",(pid,workspace,v["product"],v["product"].casefold()))
+    from . import podmasterye_extra as extra
+    extra.freeze_recipe(db,workspace,pid)
     db.execute("INSERT INTO pm_recipe VALUES(?,?,?) ON CONFLICT(product,material) DO UPDATE SET qty=excluded.qty",(pid,mid,v["usage_quantity"]))
+    extra.freeze_recipe(db,workspace,pid)
     result={**preview(v),"material_id":mid,"product_id":pid}
     db.execute("INSERT INTO pm_mutations VALUES(?,?,?,?)",(workspace,rid,raw,encode(result)))
     return result
 
-def save_recipe(store,token,rid,args):
+def save_recipe(store,token,rid,args,workshop_id=None):
     with store._write() as db:
-        _,workspace=_principal(db,token)
+        from . import podmasterye_workshops as workshops
+        _,account=_principal(db,token);workspace=workshops.resolve(db,account,workshop_id)
         return _save(db,workspace,"manual:"+key_id(rid),args)
 
 def state(db,workspace):
@@ -152,9 +162,10 @@ def state(db,workspace):
         products.append(dict(id=pid,name=name,recipe=rows,material_cost_rub=format(total.quantize(Decimal(".01"),rounding=ROUND_HALF_UP),"f") if complete else None))
     return {"materials":mats,"products":products}
 
-def read_state(store,token):
+def read_state(store,token,workshop_id=None):
+    from . import podmasterye_workshops as workshops
     with store._lock:
-        _,w=_principal(store._db,token)
+        _,a=_principal(store._db,token);w=workshops.resolve(store._db,a,workshop_id)
         return state(store._db,w)
 
 FAQ={
@@ -172,19 +183,21 @@ def decide(store,scope,token,rid,text):
     key_id(rid)
     with store._write() as db:
         assert_scope(db,token,scope)
+        from . import podmasterye_workshops as workshops
         w,c=scope.workspace_id,scope.chat_id
+        data_scope=workshops.chat_workspace(db,scope)
         old=db.execute("SELECT text,route,result FROM pm_turns WHERE workspace=? AND chat=? AND rid=?",(w,c,rid)).fetchone()
         if old:
             if old[0]!=text: raise Conflict("Этот идентификатор уже использован.")
             return old[1],json.loads(old[2]) if old[2] else None
         from . import podmasterye_matrix as matrix
-        result=matrix.route(db,w,text)
+        result=matrix.route(db,data_scope,text)
         if result is None and (m:=PATTERN.fullmatch(text.strip().rstrip("!."))):
             a=dict(material=m["material"],product=m["product"],pack_quantity=int(m["pack"]),usage_quantity=int(m["usage"]),pack_price=m["price"])
-            saved=_save(db,w,"assistant:"+c+":"+rid,a)
+            saved=_save(db,data_scope,"assistant:"+c+":"+rid,a)
             result={"text":"Сохранено. "+explain(saved),"ui":{"page":"products"},"recipe":saved}
         route="local" if result else "model"
-        if result: result.update(role="assistant",requestId=rid,route=route)
+        if result: result.update(role="assistant",requestId=rid,route=route,workshop=data_scope)
         db.execute("INSERT INTO pm_turns VALUES(?,?,?,?,?,?,?)",(w,c,rid,text,route,encode(result) if result else None,int(time()*1000)))
         return route,result
 
@@ -192,7 +205,8 @@ def complete(store,scope,token,rid,result):
     with store._write() as db:
         assert_scope(db,token,scope)
         d=db.execute("SELECT result FROM pm_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,rid)).fetchone()
-        result={**result,"route":"model"}
+        from . import podmasterye_workshops as workshops
+        result={**result,"route":"model","workshop":workshops.chat_workspace(db,scope)}
         a=db.execute("SELECT result FROM pm_accounting_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,rid)).fetchone()
         if a:
             from . import podmasterye_book as book
