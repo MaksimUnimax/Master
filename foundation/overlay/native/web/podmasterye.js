@@ -52,6 +52,13 @@ async function initMember(){
   }
 }
 async function initGuest(){
+  const registration=document.querySelector('form[action="/register"]');
+  if(registration){
+    const status=$('#registration-status');
+    try{await api('/guest/session',{method:'POST'});registration.querySelector('button').disabled=false;status.textContent='';}
+    catch(err){status.textContent='Не удалось подготовить регистрацию. Обновите страницу. '+err.message;}
+    return;
+  }
   const f=$('#guest-form');if(!f)return;
   const g=await api('/guest/session',{method:'POST'});
   f.onsubmit=async e=>{e.preventDefault();const txt=f.elements.text.value.trim(),b=f.querySelector('button');if(!txt)return;b.disabled=true;row($('#guest-messages'),txt,'user');f.elements.text.value='';

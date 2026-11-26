@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Статистика · Подмастерье</title>
+<script src="/assets/podmasterye-theme.js"></script>
+<link rel="stylesheet" href="/assets/podmasterye.css">
+<script defer src="/ui-assets/project/presence.js"></script>
+</head>
+<body class="pm-simple octo-admin" data-mode="standalone">
+<header class="top"><a class="pm-brand" href="/app/"><span class="brand-mark" aria-hidden="true">П</span>Подмастерье</a><span class="spacer"></span><button type="button" class="icon-btn" data-pm-theme aria-label="Сменить тему">◐</button></header>
+<main class="pm-admin-main">
+<nav aria-label="Администрирование"><a href="/admin">Администрирование</a><a href="/app/">Мастерская</a></nav>
+<h1>Статистика</h1>
+<section aria-labelledby="stats-users">
+  <h2 id="stats-users">Пользователи</h2>
+  <p class="hint">$count</p>
+  <p class="stats-message" role="$message_role">$message</p>
+  <form class="stats-search" method="get" action="/admin/statistics" role="search">
+    <label>Поиск по логину<input type="search" name="q" value="$query" maxlength="254"></label>
+    <label class="stats-page-size">Строк на странице<select name="limit">$page_options</select></label>
+    <input type="hidden" name="sort" value="$sort"><input type="hidden" name="dir" value="$direction">
+    <button type="submit">Показать</button>
+  </form>
+  <div class="stats-table" tabindex="0" aria-label="Статистика по пользователям">
+    <table><thead><tr>$headers</tr></thead><tbody>$rows</tbody></table>
+  </div>
+  $pagination
+  <p class="stats-hint">Активное время учитывается с запуска статистики. Фоновые вкладки и простой свыше минуты не учитываются.</p>
+</section>
+<section id="guest-filter" aria-labelledby="guest-filter-title">
+  <h2 id="guest-filter-title">Расходы гостевого фильтра DeepSeek</h2>
+  <div class="stats-table" tabindex="0" aria-label="Расходы гостевого фильтра"><table>
+    <thead><tr><th>Период</th><th>Попытки</th><th>Вход без кэша</th><th>Вход из кэша</th><th>Выход</th><th>Расход, ₽</th><th>Расход, USD</th><th>Без квитанции</th><th>Отклонены</th></tr></thead>
+    <tbody>$guest_rows</tbody></table></div>
+  <p class="stats-hint">Стоимость рассчитана по подтверждённым токенам, тарифу и курсу на момент запроса, без наценки. День начинается в 00:00 по времени Кызылорды.</p>
+  <form class="stats-search" method="post" action="/admin/statistics/guest-filter-limit">
+    <label>Вызовы фильтра в сутки на весь сайт<input type="number" name="limit" min="0" max="1000000" step="1" value="$guest_limit" required></label>
+    <button type="submit">Сохранить лимит</button></form>
+  <p class="stats-hint">При достижении лимита продолжает работать локальная справка. Ноль отключает платные вызовы.</p>
+</section>
+<section aria-labelledby="stats-bonus">
+  <h2 id="stats-bonus">Бесплатные монеты при регистрации</h2>
+  <form class="stats-search" method="post" action="$dashboard">
+    <label>Монеты для нового аккаунта<input required type="number" name="amount" min="0" max="$max_bonus" step="0.000000000001" value="$bonus" inputmode="decimal"></label>
+    <button type="submit">Сохранить</button>
+  </form>
+  <p class="stats-hint">Новая сумма действует для следующих регистраций. Ноль отключает начисление.</p>
+</section>
+</main></body></html>

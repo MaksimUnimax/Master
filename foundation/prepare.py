@@ -173,6 +173,33 @@ from . import podmasterye_domain, podmasterye_scoped
                 raise HTTPException(400,"Подтвердите электронную почту перед оплатой.")
             return row[0]
     customer_email = await run_in_threadpool(verified_contact)""")
+    # Replace presentation only, retaining challenge cookies, verification and limits.
+    f=root/"platform_core/access_web.py";s=f.read_text()
+    a=s.index("def step_page(");b=s.index("\n\nasync def verify",a)
+    s=s[:a]+(HERE/"presentation/auth_step.py.inc").read_text().rstrip()+s[b:]
+    f.write_text(s)
+    # Administration is read-only for account removal in this product; remove inert controls.
+    f=root/"platform_core/admin_statistics.py";s=f.read_text()
+    s=s.replace('f\'<tr><td class="stats-check">{selected}</td><th scope="row">{login}{role}</th>\'','f\'<tr><th scope="row">{login}{role}</th>\'')
+    s=s.replace('<td>{remove}</td></tr>','</tr>')
+    a=s.index("    cells = [",s.index("def headers("));b=s.index("    for name,",a)
+    s=s[:a]+"    cells = []\n"+s[b:]
+    s=s.replace('return "".join(cells) + \'<th scope="col">Действия</th>\'','return "".join(cells)')
+    s=s.replace("len(COLUMNS)+2","len(COLUMNS)")
+    # Template now uses the common green shell. Existing sorting/settings remain.
+    f.write_text(s)
+    # HTML navigation failures use a styled error page; API status/JSON stay unchanged.
+    f=root/"platform_core/chat_api.py";s=f.read_text()
+    a="    def error_response(_req, exc):"
+    assert s.count(a)==1
+    s=s.replace(a,a+"""
+        if _req.method in ("GET","HEAD") and "text/html" in _req.headers.get("accept","") and not _req.url.path.startswith(("/api/","/assets/","/ui-assets/")):
+            from .web_ui import auth_document
+            status=401 if isinstance(exc,AuthenticationError) else 404 if isinstance(exc,ChatUnavailable) else getattr(exc,"status_code",400)
+            title={401:"Требуется вход",403:"Доступ ограничен",404:"Страница не найдена"}.get(status,"Не удалось открыть страницу")
+            return auth_document(title,'<p class="auth-desc">Проверьте адрес или вернитесь в мастерскую.</p><a class="pm-auth-back" href="/login">Перейти ко входу</a><a class="pm-auth-back" href="/app/">Моя мастерская</a>',status=status)
+""")
+    f.write_text(s)
     # No product-specific cost/receipt logic is reimplemented.
     shutil.copytree(HERE/"overlay",root,dirs_exist_ok=True)
     (dest/"PODMASTERYE_SOURCE").write_text(PIN+"\n")
