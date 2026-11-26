@@ -35,8 +35,8 @@ W008	sales	write	Продал два браслета по 1500	sales.create	pro
 W009	stock	write	Спиши 20 бусин	stock.write_off	material;qty;reason	required	show_confirmation	0 LLM if matched	draft
 W010	stock	write	Отмени списание	stock.reverse	movement_id	required	show_confirmation	0 LLM if matched	draft
 W011	expense	write	Потратил 1500 на рекламу	expense.create	category;amount;date	policy	open_form;fill_form	0 LLM if matched	draft
-W012	employee	write	Добавь сотрудника	employee.create	name;role	policy	open_form;fill_form	0 LLM if matched	draft
-W013	employee	write	Запиши выплату сотруднику	employee.payment	employee;amount;date	required	show_confirmation	0 LLM if matched	draft
+W012	employee	write	Добавь сотрудника	employee.create	name;position	policy	open_form;fill_form	0 LLM if matched	deferred_staff_accounting_no_login
+W013	employee	write	Запиши выплату сотруднику	employee.payment	employee;amount;date	required	show_confirmation	0 LLM if matched	deferred_staff_accounting_no_login
 W014	tasks	write	Напомни купить бусины	task.create	title;due_date;category	policy	open_form;fill_form	0 LLM if matched	draft
 W015	tasks	write	Отметь задачу выполненной	task.complete	task_id	policy	navigate	0 LLM if matched	draft
 W016	integration	write	Свяжи артикул с браслетом	integration.map_offer	source;offer_id;product	policy	open_form;fill_form	0 LLM if matched	draft
