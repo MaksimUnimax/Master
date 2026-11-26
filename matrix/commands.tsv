@@ -1,0 +1,46 @@
+ID	section	intent	example	handler_or_faq	required_parameters	confirmation	ui_actions	route	status
+F001	global	faq	Как устроен учёт производства?	faq.production_overview	—	no	navigate	0 LLM	draft
+F002	summary	faq	Почему прибыль и остаток денег отличаются?	faq.profit_vs_cash	—	no	highlight_metric	0 LLM	draft
+F003	stock	faq	Почему закупки не вычитаются целиком из прибыли?	faq.inventory_cashflow	—	no	highlight_metric	0 LLM	draft
+F004	stock	faq	Как считается средняя цена материала?	faq.inventory_valuation	method_version	no	navigate	0 LLM	draft
+F005	production	faq	Почему сырьё не списывается при продаже готового?	faq.production_sale	—	no	navigate	0 LLM	draft
+F006	sales	faq	Как считается себестоимость после подорожания материалов?	faq.historical_cost	—	no	navigate	0 LLM	draft
+F007	integration	faq	Как подключить мой магазин через API?	faq.external_api	—	no	open_form	0 LLM	draft
+F008	integration	faq	Как обрабатываются повторные заказы и возвраты?	faq.idempotency_returns	—	no	navigate	0 LLM	draft
+F009	planning	faq	Как рассчитывается сколько пачек нужно закупить?	faq.reorder	—	no	render_report	0 LLM	draft
+F010	summary	faq	Чем маржа отличается от наценки?	faq.margin_markup	—	no	highlight_metric	0 LLM	draft
+U001	global	ui	Открой продажи	ui.navigate	page	no	navigate	0 LLM	draft
+U002	global	ui	Покажи прошлый месяц	ui.set_filter	period	no	set_filter	0 LLM	draft
+U003	global	ui	Открой браслет	ui.select_entity	entity_id	no	select_entity	0 LLM	draft
+U004	global	ui	Заполни форму закупки	ui.fill_form	form_id;fields	no	open_form;fill_form	0 LLM	draft
+U005	summary	ui	Выдели чистую прибыль	ui.highlight_metric	metric_id	no	highlight_metric	0 LLM	draft
+R001	summary	read	Сколько заработал за месяц?	report.profit	period;workshop	no	render_report	0 LLM	draft
+R002	summary	read	Покажи денежный поток	report.cashflow	period	no	render_report	0 LLM	draft
+R003	summary	read	Какие товары убыточные?	report.product_profit	period	no	render_report;set_filter	0 LLM	draft
+R004	summary	read	Какую цену поставить для прибыли 200 рублей?	report.target_price	product;channel;profit	no	render_report	0 LLM	draft
+R005	stock	read	Сколько бусин осталось?	stock.balance	material	no	navigate;highlight_metric	0 LLM	draft
+R006	stock	read	Сколько денег лежит на складе?	stock.valuation	workshop	no	render_report	0 LLM	draft
+R007	planning	read	Сколько пачек продано за месяц?	report.consumption_equivalent	material;period	no	render_report	0 LLM	draft
+R008	planning	read	Что и когда нужно купить?	plan.reorder	horizon;workshop	no	render_report	0 LLM	draft
+R009	sales	read	Покажи продажи по Ozon за вчера	sales.list	channel;period	no	navigate;set_filter	0 LLM	draft
+R010	report	read	Скачай отчёт по мастерской	export.accounting	format;permission	no	render_report	0 LLM	draft
+W001	product	write	Добавь браслет	product.create	name;category	policy	open_form;fill_form	0 LLM if matched	draft
+W002	material	write	Добавь бусины	material.create	name;base_unit	policy	open_form;fill_form	0 LLM if matched	draft
+W003	material	write	Пачка по 400 штук	material.purchase_unit	material;unit;factor	policy	open_form;fill_form	0 LLM if matched	draft
+W004	recipe	write	На браслет уходит 40 бусин	recipe.set_line	product;material;quantity;unit	policy	open_form;fill_form	0 LLM if matched	draft
+W005	recipe	write	Добавь бусины пачками по 400 и расход 40	recipe.add_material_pack	product;material;base_unit;pack_qty;usage	policy	open_form;fill_form	0 LLM if matched	draft
+W006	purchase	write	Купил 2 пачки за 1600	purchase.create	material;qty;unit;total;date	policy	open_form;fill_form	0 LLM if matched	draft
+W007	production	write	Изготовил 10 браслетов	production.create_batch	product;qty;date	policy	open_form;fill_form	0 LLM if matched	draft
+W008	sales	write	Продал два браслета по 1500	sales.create	product;qty;price;channel;date	policy	open_form;fill_form	0 LLM if matched	draft
+W009	stock	write	Спиши 20 бусин	stock.write_off	material;qty;reason	required	show_confirmation	0 LLM if matched	draft
+W010	stock	write	Отмени списание	stock.reverse	movement_id	required	show_confirmation	0 LLM if matched	draft
+W011	expense	write	Потратил 1500 на рекламу	expense.create	category;amount;date	policy	open_form;fill_form	0 LLM if matched	draft
+W012	employee	write	Добавь сотрудника	employee.create	name;role	policy	open_form;fill_form	0 LLM if matched	draft
+W013	employee	write	Запиши выплату сотруднику	employee.payment	employee;amount;date	required	show_confirmation	0 LLM if matched	draft
+W014	tasks	write	Напомни купить бусины	task.create	title;due_date;category	policy	open_form;fill_form	0 LLM if matched	draft
+W015	tasks	write	Отметь задачу выполненной	task.complete	task_id	policy	navigate	0 LLM if matched	draft
+W016	integration	write	Свяжи артикул с браслетом	integration.map_offer	source;offer_id;product	policy	open_form;fill_form	0 LLM if matched	draft
+W017	integration	write	Подключи новый магазин	integration.create_source	name;scope	required	open_form;show_confirmation	0 LLM if matched	draft
+W018	integration	write	Перевыпусти ключ магазина	integration.rotate_key	source_id	required	show_confirmation	0 LLM if matched	draft
+A001	summary	analysis	Почему упала прибыль?	report.profit_decomposition	period;comparison	no	render_report	script then LLM only if needed	draft
+A002	production	analysis	Как оптимизировать производство?	report.production_analysis	scope;period	no	render_report	script then LLM only if needed	draft
