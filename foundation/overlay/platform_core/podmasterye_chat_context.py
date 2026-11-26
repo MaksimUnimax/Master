@@ -22,6 +22,14 @@ class ChatContext:
             lock=asyncio.Lock();self._locks[key]=lock
         return lock
 
+    def has_published_turn(self,scope,rid):
+        journal=self.state.worker.journal
+        if not journal.is_file():return False
+        with closing(sqlite3.connect(journal.as_uri()+"?mode=ro",uri=True)) as db:
+            if not db.execute("SELECT 1 FROM sqlite_schema WHERE name='native_batches'").fetchone():return False
+            return bool(db.execute("SELECT 1 FROM native_batches WHERE scope_key=? AND request_id=? AND action='turn'",
+                                   (chat_attachments.scope_key(scope),rid)).fetchone())
+
     def has_files(self,scope):
         journal=self.state.worker.journal
         if not journal.is_file():return False

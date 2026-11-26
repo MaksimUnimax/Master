@@ -224,6 +224,29 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
         s=s.replace("event.data.source?.kind !== 'runtime-context'","!['runtime-context','compact-checkpoint'].includes(event.data.source?.kind)")
         s=s.replace("message.source?.kind === 'runtime-context'","['runtime-context','compact-checkpoint'].includes(message.source?.kind)")
         f.write_text(s)
+    # Recover a closed native marker only after the accounting database proves
+    # no model attempt was ever admitted and all previous grants are inactive.
+    edit("native/model-dispatch-store.mjs","export function modelDispatchStore(db, fail, checkParked) {",
+         "export function modelDispatchStore(db, fail, checkParked, canRetryUndispatched = () => false) {")
+    edit("native/model-dispatch-store.mjs","  function atomic(fn) {",
+         """  const discardUndispatched = db.prepare('DELETE FROM native_model_dispatch WHERE scope_key=? AND request_id=? AND operation_id=? AND active_until=0');
+  function atomic(fn) {""")
+    edit("native/model-dispatch-store.mjs","    if (row) fail(row.active_until > now ? 'busy' : 'turn_unconfirmed');",
+         """    if (row?.active_until === 0 && req.action === 'turn' && req.grant?.operationId === row.operation_id &&
+        canRetryUndispatched(row, req)) {
+      discardUndispatched.run(key, req.requestId, row.operation_id);
+    } else if (row) fail(row.active_until > now ? 'busy' : 'turn_unconfirmed');""")
+    edit("native/chat-worker.mjs","  const dispatch = modelDispatchStore(db, fail, checkParked);",
+         """  const undispatched = platform?.prepare(`SELECT 1 FROM usage_operations o
+    JOIN usage_grants g USING(operation_id)
+    WHERE o.operation_id=? AND o.actor_id=? AND o.workspace_id=? AND o.chat_id=? AND o.run_key=?
+      AND o.source='chat.turn' AND g.token_hash=? AND g.expires_at>unixepoch()
+      AND NOT EXISTS(SELECT 1 FROM coin_attempts a WHERE a.operation_id=o.operation_id)
+      AND NOT EXISTS(SELECT 1 FROM usage_grants old WHERE old.operation_id=o.operation_id
+        AND old.token_hash<>g.token_hash AND old.expires_at>unixepoch())`);
+  const dispatch = modelDispatchStore(db, fail, checkParked, (row,req) =>
+    Boolean(undispatched?.get(row.operation_id, req.scope.actorId, req.scope.workspaceId, req.scope.chatId,
+      req.requestId, createHash('sha256').update(req.grant.token).digest('hex'))));""")
     # Native worker: static product MCP only; no marketplace composition.
     f=root/"native/chat-worker.mjs";s=f.read_text()
     s=s.replace("import { mountPlatformMcp } from './platform-mcp.mjs';","import { mountProductionMcp, registerProductionContext } from './podmasterye-mcp.mjs';")

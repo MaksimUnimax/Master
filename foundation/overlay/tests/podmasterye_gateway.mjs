@@ -2,7 +2,7 @@
 import http from 'node:http';
 import {once} from 'node:events';
 import {join,dirname} from 'node:path';
-import {appendFileSync} from 'node:fs';
+import {appendFileSync,existsSync} from 'node:fs';
 import {journalVision} from '../native/verified-vision.mjs';
 import {createGateway} from '../../../integrations/harness-native-lab/gateway/server.mjs';
 import {openOperationResolver} from '../../../integrations/harness-native-lab/gateway/operation-resolver.mjs';
@@ -82,6 +82,7 @@ const upstream=http.createServer(async(req,res)=>{
 async function listen(s){s.listen(0,'127.0.0.1');await once(s,'listening');return 'http://127.0.0.1:'+s.address().port;}
 const resolver=openOperationResolver(db);
 const vision=journalVision(join(dirname(db),'chats','native-chats.sqlite3'),resolver.resolve);
-const gateway=createGateway({attachVision:vision.attach,resolveAttribution:resolver.resolve,billing:resolver.billing,upstreamBase:await listen(upstream),now:()=>Date.UTC(2026,10,20,7),realKey:'local-fixture',logFile:journal,fx:80});
+const upstreamBase=await listen(upstream);
+const gateway=createGateway({attachVision:vision.attach,resolveAttribution:resolver.resolve,billing:resolver.billing,resolveUpstream:()=>existsSync(journal+'.unconfigured')?null:{realKey:'local-fixture',upstreamBase},now:()=>Date.UTC(2026,10,20,7),logFile:journal,fx:80});
 console.log(await listen(gateway.server));process.stdin.resume();
 process.stdin.on('end',()=>{gateway.server.close();upstream.close();gateway.server.closeAllConnections();upstream.closeAllConnections();vision.close();resolver.close();});

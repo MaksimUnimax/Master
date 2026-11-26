@@ -10,7 +10,7 @@ from .identity import _secret_digest, AuthenticationError, ChatUnavailable
 from . import podmasterye_integrations as integrations, podmasterye_import as imports, podmasterye_corrections as corrections, podmasterye_photos as photos
 from .chat_worker import WorkerError
 from .admin_costs import present_chat
-from . import chat_attachments
+from . import chat_attachments,provider_keys
 
 def render(identity,costs,token,scope,action,result):
     result=present_chat(identity,costs,token,scope,action,result)
@@ -168,6 +168,14 @@ def routes(token_for,body):
             if not app.worker.gateway:
                 await run_in_threadpool(failed,"gateway_unavailable")
                 raise HTTPException(503,"ИИ пока не подключён. Известные команды и ручной учёт работают.")
+            # The local credential store is the configured transport for the
+            # deployed service. External test/operator gateways own their keys.
+            if provider_keys.directory() is not None and not await run_in_threadpool(provider_keys.read,"deepseek"):
+                # A published turn may still need recovery after an interrupted
+                # HTTP response; native replay does not contact the provider.
+                if not await run_in_threadpool(app.pm_chat_context.has_published_turn,scope,rid):
+                    await run_in_threadpool(failed,"provider_key")
+                    raise WorkerError("provider_key")
             fields["session_digest"]=_secret_digest(token)
             if await run_in_threadpool(identity.has_claimed_guest_turns,scope): fields["claimedGuest"]=True
             live,owner=app.progress.begin(scope,rid)

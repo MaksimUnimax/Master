@@ -5,7 +5,18 @@ async function api(url,options={}){
   if(window.PMWorkshopId&&/^\/api\/(accounting|production|integrations|materials|calculator\/save)(?:[/?]|$)/.test(url)){const u=new URL(url,location.origin);u.searchParams.set('workshop',window.PMWorkshopId);url=u.pathname+u.search;}
   const r=await fetch(url,{cache:'no-store',credentials:'same-origin',...options});
   const d=await r.json().catch(()=>({}));
-  if(!r.ok){const e=new Error(r.status===402?'Для запроса к ИИ пополните баланс.':d.error||d.detail||'Не удалось выполнить запрос.');e.status=r.status;throw e;}
+  if(!r.ok){
+    const messages={
+      provider_key:admin?'DeepSeek не подключён. Добавьте API-ключ в администрировании → API-ключи.':'DeepSeek не подключён. Обратитесь к администратору сервиса.',
+      provider_connection:'Шлюз DeepSeek недоступен. Попробуйте позже.',
+      provider_access:'DeepSeek отклонил доступ. Администратору нужно проверить API-ключ.',
+      provider_balance:'Недостаточно средств на аккаунте провайдера DeepSeek.',
+      turn_unconfirmed:'Результат запроса не подтверждён. Повтор автоматически заблокирован до сверки.',
+      model_wait_cancelled:'Ожидание запроса отменено.',
+    };
+    const e=new Error(r.status===402?'Для запроса к ИИ пополните баланс.':messages[d.error]||d.error||d.detail||'Не удалось выполнить запрос.');
+    e.status=r.status;e.code=d.error;throw e;
+  }
   return d;
 }
 const post=(url,data)=>api(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
