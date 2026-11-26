@@ -18,8 +18,12 @@ def init(db):
             chat TEXT NOT NULL REFERENCES chats(chat_id) ON DELETE CASCADE,
             rid TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY(workspace,chat,rid))""")
 
-def catalog():
-    return {"accounting":book.forms(),"other":{k:{"page":page,"fields":fields} for k,(page,fields) in EXTRA.items()},"pages":sorted(PAGES)}
+def catalog(forms=None):
+    full={"accounting":book.forms(),"other":{k:{"page":page,"fields":fields} for k,(page,fields) in EXTRA.items()},"pages":sorted(PAGES)}
+    if forms is not None:
+        full["accounting"]={k:v for k,v in full["accounting"].items() if "book."+k in forms}
+        full["other"]={k:v for k,v in full["other"].items() if k in forms}
+    return full
 
 def _fields(name):
     if name.startswith("book.") and name[5:] in book.FIELDS:
@@ -74,9 +78,9 @@ def normalize(db,w,name,args):
     if name=="filters" and out.get("start","")>out.get("end","9999"):raise ValueError("Invalid period")
     return out
 
-def schema():
+def schema(forms=None):
     return {"type":"object","properties":{
-        "form":{"type":"string","enum":[*("book."+op for op in book.FIELDS),*EXTRA]},
+        "form":{"type":"string","enum":forms if forms is not None else [*("book."+op for op in book.FIELDS),*EXTRA]},
         "arguments":{"type":"object","additionalProperties":{"type":["string","integer","boolean","null"]}},
         "page":{"type":"string","enum":sorted(PAGES)}
     },"required":["form","arguments"],"additionalProperties":False}

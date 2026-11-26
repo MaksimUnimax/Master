@@ -51,7 +51,7 @@ from .identity import AuthenticationError, ChatUnavailable
 from .guest_registration import RegistrationStore
 from .guest_web import guest_routes
 from .web_ui import web_routes
-from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, telegram_integration, podmasterye_market_links, podmasterye_telegram_config
+from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, telegram_integration, podmasterye_market_links, podmasterye_telegram_config, podmasterye_matrix_admin
 '''+s[stop:]
     start=s.index("    router_plugin = None",s.index("def create_app("))
     stop=s.index("    async def logout(req):",start)
@@ -99,7 +99,7 @@ from . import podmasterye_domain, podmasterye_scoped, podmasterye_services, tele
         *access_web.routes(),Route("/api/logout",logout,methods=["POST"]),
         Route("/api/recover",recover,methods=["POST"]),
         Route("/api/chats",chats,methods=["GET","POST"]),
-        *podmasterye_scoped.routes(_token,_body),*podmasterye_services.routes(_token,_body),*podmasterye_market_links.routes(_token,_body),*podmasterye_telegram_config.routes(_token,_body),
+        *podmasterye_scoped.routes(_token,_body),*podmasterye_services.routes(_token,_body),*podmasterye_market_links.routes(_token,_body),*podmasterye_telegram_config.routes(_token,_body),*podmasterye_matrix_admin.routes(_token,_body),
         *[r for r in telegram_integration.routes(_body) if r.path!='/api/admin/provider-balances/telegram-connect'],
     ],exception_handlers={cls:error_response for cls in (
         AuthenticationError,ChatUnavailable,WorkerError,HTTPException,ValueError)})

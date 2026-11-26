@@ -139,7 +139,7 @@ def routes(token_for,body):
     async def scoped(req,action):
         token=token_for(req,allow_cookie=True); app=req.app.state; identity=app.identity
         if action=="turn":
-            fields=await body(req,"requestId","text",optional=("maxCoins","formContext"))
+            fields=await body(req,"requestId","text",optional=("maxCoins","formContext","viewContext"))
             rid,text=fields["requestId"],fields["text"]
             domain.key_id(rid)
             if not isinstance(text,str) or not text.strip() or len(text.encode())>8192:
@@ -149,11 +149,16 @@ def routes(token_for,body):
         if action=="history":
             result=await run_in_threadpool(domain.history,identity,token,scope,50)
             return JSONResponse(await run_in_threadpool(render,identity,app.admin_costs,token,scope,"history",result))
-        try: route,cached=await run_in_threadpool(domain.decide,identity,scope,token,rid,text,fields.pop('formContext',None))
+        try: route,cached=await run_in_threadpool(domain.decide,identity,scope,token,rid,text,fields.pop('formContext',None),fields.pop('viewContext',None))
         except domain.Conflict as e: raise HTTPException(409,str(e)) from None
         if cached is not None:
             return JSONResponse(await run_in_threadpool(render,identity,app.admin_costs,token,scope,"turn",cached))
+        def failed(code):
+            with identity._write() as db:
+                domain.assert_scope(db,token,scope)
+                db.execute("UPDATE pm_route_decisions SET outcome=?,finished=unixepoch()*1000 WHERE workspace=? AND chat=? AND rid=? AND outcome!='complete'",(code,scope.workspace_id,scope.chat_id,rid))
         if not app.worker.gateway:
+            await run_in_threadpool(failed,"gateway_unavailable")
             raise HTTPException(503,"ИИ пока не подключён. Известные команды и ручной учёт работают.")
         fields["session_digest"]=_secret_digest(token)
         if await run_in_threadpool(identity.has_claimed_guest_turns,scope): fields["claimedGuest"]=True
@@ -165,9 +170,13 @@ def routes(token_for,body):
                 result=await run_in_threadpool(domain.complete,identity,scope,token,rid,result)
                 return JSONResponse(await run_in_threadpool(render,identity,app.admin_costs,token,scope,"turn",result))
             except WorkerError as e:
+                await run_in_threadpool(failed,e.code)
                 if e.code=="turn_unconfirmed":
                     result={"error":e.code,"operationId":e.operation_id}
                     return JSONResponse(await run_in_threadpool(present_chat,identity,app.admin_costs,token,scope,"turn",result),status_code=409)
+                raise
+            except Exception:
+                await run_in_threadpool(failed,"failed")
                 raise
             finally:
                 if owner: app.progress.finish(scope,rid,live)

@@ -83,6 +83,7 @@ class AccountingBrowser(unittest.TestCase):
                 return got.value.json()
             answer=ask("Добавь бусины пачками по 400 штук, на браслет уходит 40 штук, упаковка стоит 800 рублей")
             self.assertEqual(answer["route"],"local")
+            page.locator("#recipe-form").get_by_role("button",name="Сохранить",exact=True).click()
             expect(page.locator("#products")).to_contain_text("браслет")
             write("purchases","purchase",{"material":"__first__","quantity":2,"total":"1600","supplier":"Тест"},"1600.00")
             write("manufacture","manufacture",{"product":"__first__","quantity":3},"240.00")

@@ -57,6 +57,8 @@ def init(store):
         market_links.init(db)
         from . import podmasterye_agent_forms as agent
         agent.init(db)
+        from . import podmasterye_router as router
+        router.init(db)
 
 def encode(value):
     return json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(",",":"),allow_nan=False)
@@ -183,7 +185,7 @@ def explain(r):
     price="Цена упаковки не указана." if r["material_cost_rub"] is None else "Стоимость материала на изделие: "+r["material_cost_rub"]+" ₽."
     return f'{r["material"]}: упаковка {r["pack_quantity"]} {r.get("base_unit","шт")}, на {r["product"]} — {r["usage_quantity"]} {r.get("base_unit","шт")}. Из упаковки — {r["products_per_pack"]} целых изделий. {price}'
 
-def decide(store,scope,token,rid,text,form_context=None):
+def decide(store,scope,token,rid,text,form_context=None,view_context=None):
     key_id(rid)
     with store._write() as db:
         assert_scope(db,token,scope)
@@ -192,20 +194,19 @@ def decide(store,scope,token,rid,text,form_context=None):
         data_scope=workshops.chat_workspace(db,scope)
         from . import podmasterye_agent_forms as agent
         ctx=agent.context(db,scope,rid,form_context)
+        from . import podmasterye_router as router
+        view=router.validate_view(view_context)
         old=db.execute("SELECT text,route,result FROM pm_turns WHERE workspace=? AND chat=? AND rid=?",(w,c,rid)).fetchone()
         if old:
-            if old[0]!=text or agent.current(db,scope,rid)!=ctx: raise Conflict("Этот идентификатор уже использован.")
+            if old[0]!=text or agent.current(db,scope,rid)!=ctx or router.previous_view(db,scope,rid)!=view: raise Conflict("Этот идентификатор уже использован.")
             return old[1],json.loads(old[2]) if old[2] else None
-        from . import podmasterye_matrix as matrix
+        started=int(time()*1000)
         if ctx is not None:db.execute('INSERT INTO pm_agent_context VALUES(?,?,?,?)',(w,c,rid,encode(ctx)))
-        result=matrix.route(db,data_scope,text) if ctx is None else None
-        if ctx is None and result is None and (m:=PATTERN.fullmatch(text.strip().rstrip("!."))):
-            a=dict(material=m["material"],product=m["product"],pack_quantity=int(m["pack"]),usage_quantity=int(m["usage"]),pack_price=m["price"])
-            saved=_save(db,data_scope,"assistant:"+c+":"+rid,a)
-            result={"text":"Сохранено. "+explain(saved),"ui":{"page":"products"},"recipe":saved}
+        result,selected=router.choose(db,scope,rid,data_scope,text,ctx,view)
         route="local" if result else "model"
-        if result: result.update(role="assistant",requestId=rid,route=route,workshop=data_scope)
-        db.execute("INSERT INTO pm_turns VALUES(?,?,?,?,?,?,?)",(w,c,rid,text,route,encode(result) if result else None,int(time()*1000)))
+        if result:result.update(role="assistant",requestId=rid,route=route,workshop=data_scope)
+        db.execute("INSERT INTO pm_turns VALUES(?,?,?,?,?,?,?)",(w,c,rid,text,route,encode(result) if result else None,started))
+        router.record(db,scope,rid,result,selected,started,view)
         return route,result
 
 def complete(store,scope,token,rid,result):
@@ -235,6 +236,7 @@ def complete(store,scope,token,rid,result):
                 result["text"]+=" "+prepared["accountingDraft"]["validationError"]
         db.execute("UPDATE pm_turns SET result=? WHERE workspace=? AND chat=? AND rid=? AND route='model'",
                    (encode(result),scope.workspace_id,scope.chat_id,rid))
+        db.execute("UPDATE pm_route_decisions SET finished=?,outcome='complete' WHERE workspace=? AND chat=? AND rid=?",(int(time()*1000),scope.workspace_id,scope.chat_id,rid))
         return result
 
 def history(store,token,scope,limit):

@@ -43,14 +43,21 @@ class Foundation(unittest.TestCase):
     def turn(self,h,chat,rid,text):
         return self.c.post(f"/api/chats/{chat}/turns",headers=h,json={"requestId":rid,"text":text})
     def wallet(self,h):return self.c.get("/api/wallet",headers=h).json()
+    def confirm_recipe(self,h,draft,rid="seed-confirm"):
+        a={k:draft[k] for k in ("product","material","pack_quantity","usage_quantity","pack_price")}
+        r=self.c.post("/api/production/recipe",headers=h,json={"requestId":rid,"recipe":a})
+        self.assertEqual(r.status_code,200,r.text)
+
     def test_local_create_replay_and_isolation(self):
         h,c=self.actor("buyer");other,oc=self.actor("other")
         for _ in range(2):
             r=self.turn(h,c,"same",EXAMPLE);self.assertEqual(r.status_code,200,r.text)
-            self.assertEqual(r.json()["recipe"]["material_cost_rub"],"80.00");self.assertNotIn("modelCost",r.json())
+            self.assertEqual(r.json()["draft"]["material_cost_rub"],"80.00");self.assertNotIn("modelCost",r.json())
         self.assertEqual(self.turn(h,c,"same","другой текст").status_code,409)
         self.assertEqual(self.turn(other,c,"foreign",EXAMPLE).status_code,404)
         self.assertEqual(self.c.get("/api/production",headers=other).json()["materials"],[])
+        d=self.c.get("/api/production",headers=h).json();self.assertEqual((len(d["materials"]),len(d["products"])),(0,0))
+        self.confirm_recipe(h,r.json()["draft"],"confirmed-recipe")
         d=self.c.get("/api/production",headers=h).json();self.assertEqual((len(d["materials"]),len(d["products"])),(1,1))
         self.assertEqual(self.wallet(h)["available"],"10");self.assertFalse(self.journal.exists())
         self.assertEqual(len(self.c.get(f"/api/chats/{c}/messages",headers=h).json()),2)
@@ -82,9 +89,9 @@ class Foundation(unittest.TestCase):
         h,c=self.actor("admin");u,uc=self.actor("unpaid")
         r=self.turn(h,c,"local","как считается себестоимость")
         self.assertEqual(r.status_code,200,r.text);self.assertEqual(r.json()["modelCost"]["rub"],"0")
-        r=self.turn(h,c,"model","Ответьте свободным текстом.")
+        r=self.turn(h,c,"model","Сравните экономику разных способов изготовления.")
         self.assertEqual(r.status_code,200,r.text);self.assertEqual(r.json()["modelCost"]["rub"],"0.00072")
-        self.assertEqual(self.turn(u,uc,"unpaid","Ответьте свободным текстом.").status_code,402)
+        self.assertEqual(self.turn(u,uc,"unpaid","Сравните экономику разных способов изготовления.").status_code,402)
         self.assertEqual(self.turn(u,uc,"free","как считается себестоимость").status_code,200)
         self.assertEqual(self.wallet(u)["available"],"10")
         self.assertEqual(self.c.get("/api/admin/accounts/admin/wallet",headers=u).status_code,403)
@@ -126,7 +133,7 @@ class Foundation(unittest.TestCase):
     def test_uncertain_provider_attempt_is_not_replayed(self):
         h,c=self.actor("buyer")
         for _ in range(2):
-            r=self.turn(h,c,"unknown","uncertain fixture");self.assertEqual(r.status_code,409,r.text)
+            r=self.turn(h,c,"unknown","uncertain fixture: проанализируй прибыль");self.assertEqual(r.status_code,409,r.text)
         self.assertGreater(Decimal(self.wallet(h)["reserved"]),0)
         with sqlite3.connect(self.db) as db:self.assertEqual(db.execute("SELECT COUNT(*) FROM coin_attempts").fetchone()[0],1)
 
@@ -134,6 +141,7 @@ class Foundation(unittest.TestCase):
         h,c=self.actor("buyer")
         r=self.turn(h,c,"seed",EXAMPLE)
         self.assertEqual(r.status_code,200,r.text)
+        self.confirm_recipe(h,r.json()["draft"])
         r=self.turn(h,c,"purchase","Тест свободной закупки: оформите покупку материала.")
         self.assertEqual(r.status_code,200,r.text)
         draft=r.json()["accountingDraft"]
@@ -156,8 +164,9 @@ class Foundation(unittest.TestCase):
 
     def test_agent_partial_fill_context_and_separate_meter(self):
         h,c=self.actor("admin")
-        self.assertEqual(self.turn(h,c,"seed",EXAMPLE).status_code,200)
-        r=self.turn(h,c,"partial","Тест частичной закупки")
+        r=self.turn(h,c,"seed",EXAMPLE);self.assertEqual(r.status_code,200,r.text)
+        self.confirm_recipe(h,r.json()["draft"])
+        r=self.turn(h,c,"partial","Тест частичной закупки: подготовь форму")
         self.assertEqual(r.status_code,200,r.text)
         draft=r.json()["accountingDraft"]
         self.assertIn("Общая сумма, ₽",draft["missing"])
@@ -191,7 +200,8 @@ class Foundation(unittest.TestCase):
 
     def test_agent_rejects_non_business_and_foreign_fields(self):
         h,c=self.actor("buyer");other,oc=self.actor("other")
-        self.assertEqual(self.turn(other,oc,"seed",EXAMPLE).status_code,200)
+        r=self.turn(other,oc,"seed",EXAMPLE);self.assertEqual(r.status_code,200,r.text)
+        self.confirm_recipe(other,r.json()["draft"])
         material=self.c.get("/api/production",headers=other).json()["materials"][0]["id"]
         for context in [
             {"form":"login","arguments":{"password":"fixture"}},

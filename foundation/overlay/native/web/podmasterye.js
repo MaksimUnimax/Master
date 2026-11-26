@@ -17,7 +17,7 @@ function row(parent,text,role='assistant',receipt){
     line.textContent='Расходы ИИ: '+(cost.rub!=null?cost.rub+' ₽':cost.usd!=null?cost.usd+' USD':'не подтверждены')+(u?' · вход '+u.input+' · кэш '+u.cache+' · выход '+u.output:'');parent.append(line);}
   parent.scrollTop=parent.scrollHeight;
 }
-function navigate(name,reveal=true){for(const el of document.querySelectorAll('[data-panel]'))el.hidden=el.dataset.panel!==name;for(const el of document.querySelectorAll('[data-page]'))el.classList.toggle('active',el.dataset.page===name);const pager=$('#event-pager');if(pager)pager.hidden=!['stock','purchases','manufacture','sales','expenses','journal','workers','assets'].includes(name);const filters=$('#accounting-filters');if(filters)filters.hidden=['admin','wallet','settings','integrations','tasks'].includes(name);window.PMExtras?.navigate(name,reveal);if(name==='admin'&&admin)refreshUsage();if(name==='integrations'){refreshTelegram();window.PMMarket?.load();}if(name==='admin'&&admin)window.PMMarket?.loadConfig();}
+function navigate(name,reveal=true){for(const el of document.querySelectorAll('[data-panel]'))el.hidden=el.dataset.panel!==name;for(const el of document.querySelectorAll('[data-page]'))el.classList.toggle('active',el.dataset.page===name);const pager=$('#event-pager');if(pager)pager.hidden=!['stock','purchases','manufacture','sales','expenses','journal','workers','assets'].includes(name);const filters=$('#accounting-filters');if(filters)filters.hidden=['admin','wallet','settings','integrations','tasks'].includes(name);window.PMExtras?.navigate(name,reveal);if(name==='admin'&&admin)refreshUsage();if(name==='integrations'){refreshTelegram();window.PMMarket?.load();}if(name==='admin'&&admin)window.PMMarket?.loadConfig();if(name==='admin'&&admin)window.PMMatrix?.load();}
 function table(host,cols,values){host.replaceChildren();const t=document.createElement('table'),h=t.createTHead().insertRow();for(const c of cols){const th=document.createElement('th');th.textContent=c;h.append(th);}const b=t.createTBody();for(const vals of values){const r=b.insertRow();for(const v of vals)r.insertCell().textContent=v??'Не указано';}host.append(t);}
 async function refresh(ui){return window.PMAccounting.refresh(ui);}
 async function wallet(){
@@ -122,8 +122,20 @@ async function initMember(){
   const chat=(await post('/api/workshops/chat',{workshop:window.PMWorkshopId})).chatId;
   const messages=$('#messages');
   const h=await api('/api/chats/'+encodeURIComponent(chat)+'/messages');for(const m of h)row(messages,m.text,m.role,m);
+  function viewContext(){
+   const page=$('nav button.active')?.dataset.page;
+   if(!['summary','materials','products','stock','purchases','manufacture','sales','expenses','finance','journal','planning','workers','assets','unit','tasks','settings','integrations'].includes(page))return undefined;
+   const out={page};
+   const panel=document.querySelector('[data-panel="'+page+'"]');
+   const metric=panel?.querySelector('.metric.highlight')?.dataset.metric;
+   if(metric)out.metric=metric;
+   for(const [k,id] of [['start','period-from'],['end','period-to'],['search','catalog-filter'],['category','catalog-category'],['channel','sales-channel-filter']]){
+    const e=$('#'+id);if(e?.value&&e.getClientRects().length)out[k]=e.value;
+   }
+   return out;
+  }
   const f=$('#assistant-form');let pending=null;
-  f.onsubmit=async e=>{e.preventDefault();const input=f.elements.text,txt=input.value.trim();if(!txt)return;const b=f.querySelector('button');b.disabled=true;if(!pending||pending.text!==txt||agentContext){pending={requestId:crypto.randomUUID(),text:txt,...(agentContext?{formContext:agentContext}:{})};agentContext=null;row(messages,txt,'user');}input.value='';$('#assistant-status').textContent='Обрабатываю…';
+  f.onsubmit=async e=>{e.preventDefault();const input=f.elements.text,txt=input.value.trim();if(!txt)return;const b=f.querySelector('button');b.disabled=true;if(!pending||pending.text!==txt||agentContext){pending={requestId:crypto.randomUUID(),text:txt,viewContext:viewContext(),...(agentContext?{formContext:agentContext}:{})};agentContext=null;row(messages,txt,'user');}input.value='';$('#assistant-status').textContent='Обрабатываю…';
     try{const m=await post('/api/chats/'+encodeURIComponent(chat)+'/turns',pending);pending=null;if(m.workshop&&m.workshop!==window.PMWorkshopId)throw new Error('Ответ относится к другой мастерской.');row(messages,m.text,m.role,m);if(m.ui?.page)navigate(m.ui.page);await Promise.all([refresh(m.ui),wallet()]);if(m.formDraft)await applyAgentDraft(m.formDraft);if(m.draft)formRecipe(m.draft);if(m.accountingDraft){const d=m.accountingDraft;window.PMAccounting.open(d.operation,d.arguments,d);}$('#assistant-status').textContent='';}
     catch(err){if(pending)input.value=txt;$('#assistant-status').textContent=err.message;}finally{b.disabled=false;}};
   f.querySelector('button').disabled=false;

@@ -11,7 +11,7 @@ const upstream=http.createServer(async(req,res)=>{
   const last=q.messages.findLast(x=>x.role==='user').content;
   const result=last.find(x=>x.type==='tool_result');
   const text=last.find(x=>x.type==='text')?.text||'';
-  if(text==='uncertain fixture'){res.writeHead(503,{'content-type':'application/json'});res.end('{"error":{"type":"api_error","message":"fixture"}}');return;}
+  if(text.startsWith('uncertain fixture:')){res.writeHead(503,{'content-type':'application/json'});res.end('{"error":{"type":"api_error","message":"fixture"}}');return;}
   const partial=text.includes('Тест частичной закупки');
   const continuation=text.includes('Тест дополнения закупки');
   const settings=text.includes('Тест заполнения мастерской');
@@ -19,6 +19,11 @@ const upstream=http.createServer(async(req,res)=>{
   const report=text.includes('Тест свободного отчёта');
   const tool=q.tools?.find(t=>t.name==='mcp__platform__'+(settings?'prepare_form':accounting?'prepare_accounting':report?'accounting_report':'prepare_recipe'));
   const draft=!result&&(text.includes('Свободная формулировка')||accounting||report||settings);
+  if(!result&&accounting){
+    const ops=tool?.input_schema?.properties?.operation?.enum;
+    if(!ops||ops.length!==1||ops[0]!=='purchase'||q.tools.some(t=>t.name==='mcp__platform__prepare_recipe')){res.writeHead(422);res.end('oversized operation schema');return;}
+  }
+  if(!result&&report&&q.tools.some(t=>t.name.startsWith('mcp__platform__prepare_'))){res.writeHead(422);res.end('write tools in read request');return;}
   if(draft&&!tool){res.writeHead(422);res.end('missing built-in tool');return;}
   if(result&&(result.is_error||!['80.00','800.00','1600.00','inventory_rub','missing','workshop_create'].some(x=>JSON.stringify(result.content).includes(x)))){res.writeHead(422);res.end('invalid draft or report');return;}
   const event=(type,fields={})=>res.write('event: '+type+'\ndata: '+JSON.stringify({type,...fields})+'\n\n');

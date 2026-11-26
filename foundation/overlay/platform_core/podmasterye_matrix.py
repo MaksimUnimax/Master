@@ -140,26 +140,27 @@ def route(db,w,text):
     out["text"]="Подготовил форму «"+book.FIELDS[op][0]+"». Проверьте данные, выполните предварительный расчёт и подтвердите запись."
     return out
 
-def operation_schema():
+def operation_schema(ops=None):
+    ops=list(book.FIELDS) if ops is None else list(ops)
     properties={}
-    for f in book.forms().values():
-        for field in f["fields"]:
+    for op in ops:
+        for field in book.forms()[op]["fields"]:
             n,t=field["name"],field["type"]
             if t in ("int","int0"):s={"type":"integer","minimum":0,"maximum":book.MAX_Q}
             elif t=="bool":s={"type":"boolean"}
             else:s={"type":"string","maxLength":2000 if t=="identifiers" else 240}
             properties[n]=s
     # Keep a single compact tool schema. Backend validates exact fields per op.
-    return {"type":"object","properties":{"operation":{"type":"string","enum":list(book.FIELDS)},
+    return {"type":"object","properties":{"operation":{"type":"string","enum":ops},
             "arguments":{"type":"object","properties":properties,"additionalProperties":False}},
             "required":["operation","arguments"],"additionalProperties":False}
 
-def report_schema():
-    return {"type":"object","properties":{"view":{"type":"string","enum":["summary","stock","sales","planning","finance","journal","tasks","workers","unit","catalog","assets"]},
+def report_schema(views=None):
+    return {"type":"object","properties":{"view":{"type":"string","enum":views or ["summary","stock","sales","planning","finance","journal","tasks","workers","unit","catalog","assets"]},
         "start":{"type":"string"},"end":{"type":"string"},"target_profit":{"type":"string"},"horizon":{"type":"integer","minimum":1,"maximum":365},
         "lead":{"type":"integer","minimum":0,"maximum":365},"safety":{"type":"integer","minimum":0,"maximum":365},
         "limit":{"type":"integer","minimum":1,"maximum":30}},"required":["view"],"additionalProperties":False}
 
-def operation_description():
+def operation_description(ops=None):
     return "Подготовить черновик операции, не записывает склад или деньги. Используй точные ID или названия; суммы строками в рублях, количества целыми базовыми единицами. Поля: "+ "; ".join(
-        k+"("+",".join(f["name"]+("!" if f["required"] and f["default"] is None else "") for f in v["fields"])+")" for k,v in book.forms().items())+". Для отсутствующих обязательных параметров спроси пользователя. Подтверждение только в кабинете."
+        k+"("+",".join(f["name"]+("!" if f["required"] and f["default"] is None else "") for f in v["fields"])+")" for k,v in book.forms().items() if ops is None or k in ops)+". Для отсутствующих обязательных параметров спроси пользователя. Подтверждение только в кабинете."

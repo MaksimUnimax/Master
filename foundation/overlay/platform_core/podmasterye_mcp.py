@@ -14,15 +14,24 @@ class ProductionTools:
     def __init__(self,store,scope,request,grant):
         self.store,self.scope,self.request=store,scope,domain.key_id(request)
         self.digest=hashlib.sha256(grant.encode()).hexdigest() if grant else ""
+        from . import podmasterye_router as router
+        with self.store._lock:
+            self.authorize(self.store._db)
+            self.selection=router.selection(self.store._db,self.scope,self.request)
+        forms=None if self.selection is None else self.selection["forms"]
+        ops=None if forms is None else [f[5:] for f in forms if f.startswith("book.")]
+        views=None if self.selection is None else self.selection["views"]
+        self.forms=forms
         self.tools={
             "production_state":Capability("production_state","Получить текущие материалы, изделия и материальную себестоимость из БД.",{"type":"object","properties":{},"additionalProperties":False},self.snapshot),
-            "accounting_report":Capability("accounting_report","Получить рассчитанный сервером отчёт: summary, stock, sales, planning, finance, journal. Укажите даты периода; ограничьте детализацию.",matrix.report_schema(),self.accounting_report),
-            "prepare_accounting":Capability("prepare_accounting",matrix.operation_description(),matrix.operation_schema(),self.prepare_accounting,effect="edit"),
+            "accounting_report":Capability("accounting_report","Получить рассчитанный сервером отчёт: summary, stock, sales, planning, finance, journal. Укажите даты периода; ограничьте детализацию.",matrix.report_schema(views),self.accounting_report),
+            "prepare_accounting":Capability("prepare_accounting",matrix.operation_description(ops),matrix.operation_schema(ops),self.prepare_accounting,effect="edit"),
             "form_catalog":Capability("form_catalog","Каталог всех поддерживаемых полей и форм.",agent.empty_schema(),self.form_catalog),
             "current_form":Capability("current_form","Получить текущий пользовательский черновик формы для дополнения.",agent.empty_schema(),self.current_form),
-            "prepare_form":Capability("prepare_form","Заполнить известные поля формы, включая неполные данные. Не сохраняет запись. Имена полей см. form_catalog.",agent.schema(),self.prepare_form,effect="edit"),
+            "prepare_form":Capability("prepare_form","Заполнить известные поля формы, включая неполные данные. Не сохраняет запись. Имена полей см. form_catalog.",agent.schema(forms),self.prepare_form,effect="edit"),
             "prepare_recipe":Capability("prepare_recipe","Подготовить форму материала и рецептуры. Не сохраняет изделие без подтверждения пользователя. Количество в упаковке и расход на изделие — штуки, цена всей упаковки необязательна.",domain.RECIPE_SCHEMA,self.prepare),
         }
+        if self.selection is not None:self.tools={k:v for k,v in self.tools.items() if k in self.selection['tools']}
     def authorize(self,db):
         s=self.scope
         if not _owns_chat(db,s):
@@ -51,7 +60,10 @@ class ProductionTools:
     def snapshot(self,scope,args):
         with self.store._lock:
             self.authorize(self.store._db)
-            return domain.state(self.store._db,workshops.chat_workspace(self.store._db,scope))
+            d=domain.state(self.store._db,workshops.chat_workspace(self.store._db,scope))
+            for k,v in list(d.items()):
+                if isinstance(v,list) and len(v)>30:d[k]=v[:30];d[k+"_truncated"]=len(v)-30
+            return d
     def accounting_report(self,scope,args):
         with self.store._lock:
             self.authorize(self.store._db)
@@ -64,7 +76,7 @@ class ProductionTools:
     def form_catalog(self,scope,args):
         with self.store._lock:
             self.authorize(self.store._db)
-            return agent.catalog()
+            return agent.catalog(self.forms)
     def current_form(self,scope,args):
         with self.store._lock:
             self.authorize(self.store._db)
