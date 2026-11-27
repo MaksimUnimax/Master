@@ -6,6 +6,7 @@ from starlette.exceptions import HTTPException
 from starlette.responses import HTMLResponse
 from starlette.routing import Route
 from .browser_session import browser_token,_PRIVATE_HEADERS
+from .web_ui import version_asset_urls
 
 UI=Path(__file__).resolve().parents[1]/"native/web"
 PAGES=(("","Обзор"),("keys","API-ключи"),("models","Модели"),("telegram","Telegram"),("coins","Монеты"),("usage","Расходы ИИ"),("matrix","Матрица и фильтры"),("statistics","Пользователи"),("visits","Посещения"))
@@ -22,10 +23,10 @@ def nav(active):
 def shell(active,title,body,*,status=200,scripts=()):
     tags=''.join(f'<script defer src="/assets/{name}"></script>' for name in scripts)
     wide=' pm-admin-wide' if active in ('usage','matrix','statistics','visits') else ''
-    return HTMLResponse(f'''<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    return HTMLResponse(version_asset_urls(f'''<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{escape(title)} · Подмастерье</title><script src="/assets/podmasterye-theme.js"></script><link rel="stylesheet" href="/assets/appearance.css"><link rel="stylesheet" href="/assets/admin.css"><link rel="stylesheet" href="/assets/podmasterye-admin.css">
 <script defer src="/assets/presence.js"></script>{tags}</head>
-<body class="octo-admin pm-admin"><div class="pm-admin-layout">{nav(active)}<main class="pm-admin-main{wide}"><h1>{escape(title)}</h1>{body}<p id="admin-problem" role="alert"></p></main></div></body></html>''',status_code=status,headers=HEADERS)
+<body class="octo-admin pm-admin"><div class="pm-admin-layout">{nav(active)}<main class="pm-admin-main{wide}"><h1>{escape(title)}</h1>{body}<p id="admin-problem" role="alert"></p></main></div></body></html>'''),status_code=status,headers=HEADERS)
 
 async def check(request):
     token=browser_token(request)

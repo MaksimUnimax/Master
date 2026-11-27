@@ -110,6 +110,7 @@ async function initMember(){
       const a=await post('/api/integrations/telegram/connect',{});
       const u=new URL(a.url,location.origin);
       if(u.origin!==location.origin&&u.origin!=='https://oauth.telegram.org')throw Error('Недопустимый адрес авторизации.');
+      try{sessionStorage.setItem('podmasterye.telegram.return','/app/?section=integrations&workshop='+encodeURIComponent(window.PMWorkshopId));}catch{}
       location.href=u.href;return;
      }
      if(action==='disconnect'){await post('/api/integrations/telegram/disconnect',{});await refreshTelegram();}
@@ -138,6 +139,24 @@ async function initMember(){
   const f=$('#assistant-form');let pending=null;
   const {mountComposer}=await import('/assets/podmasterye-composer.js');
   const composer=await mountComposer(f,chat,api);
+  const {LiveTurns}=await import('/assets/live-turn.js');
+  const live=new LiveTurns();
+  const labels={sending:'Отправляю сообщение',accepted:'Сообщение принято',model:'Модель готовит ответ',thinking:'Модель обдумывает ответ',tool:'Запрашиваю данные',model_wait:'Модель временно занята',marketplace_wait:'Ожидаю повторного запроса',writing:'Модель отвечает',failed:'Не удалось завершить запрос'};
+  function watchTurn(rid,txt){
+    const temporary=document.createElement('div');temporary.className='message user';temporary.textContent=txt;
+    const progress=document.createElement('div');progress.className='pm-live-turn';progress.dataset.liveTurn='sending';
+    const label=document.createElement('small');label.setAttribute('role','status');
+    const dots=document.createElement('span');dots.className='pm-thinking-dots';dots.setAttribute('aria-hidden','true');
+    for(let i=0;i<3;i++){const dot=document.createElement('span');dot.textContent='.';dots.append(dot);}
+    const answer=document.createElement('div');answer.className='pm-live-text';
+    progress.append(label,dots,answer);messages.append(temporary,progress);
+    const controller=new AbortController();
+    const render=()=>{const v=live.views.get(chat);if(!v||v.rid!==rid)return;progress.dataset.liveTurn=v.stage;label.textContent=labels[v.stage]||'Обрабатываю';dots.hidden=v.stage==='writing';answer.textContent=v.text||'';messages.scrollTop=messages.scrollHeight;};
+    const unsubscribe=live.subscribe(chat,render);
+    live.update(chat,{rid,stage:'sending',text:'',notices:[]});
+    void live.watch(chat,rid,controller.signal);
+    return ()=>{controller.abort();unsubscribe();live.clear(chat,rid);temporary.remove();progress.remove();};
+  }
   f.onsubmit=async e=>{
     e.preventDefault();
     if(!composer.ready())return;
@@ -149,11 +168,14 @@ async function initMember(){
       pending={signature,body:{requestId:crypto.randomUUID(),text:txt,viewContext:viewContext(),...(ids.length?{attachments:ids}:{}),...(agentContext?{formContext:agentContext}:{})}};
       agentContext=null;
     }
+    let stopLive=()=>{};
     try{
       $('#assistant-status').textContent=ids.length?'Проверяю вложения…':'Обрабатываю…';
       if(ids.length)await composer.prepare(ids);
       $('#assistant-status').textContent='Обрабатываю…';
+      stopLive=watchTurn(pending.body.requestId,txt);
       const m=await post('/api/chats/'+encodeURIComponent(chat)+'/turns',pending.body);
+      stopLive();
       pending=null;
       composer.committed(ids);input.value='';composer.resize();
       row(messages,txt,'user',{attachments:files.map(file=>({...file,download:'/api/chats/'+encodeURIComponent(chat)+'/files/'+file.attachmentId}))});
@@ -170,7 +192,7 @@ async function initMember(){
       // Keep the exact draft and request ID after refusal, cancellation or unknown outcome.
       if(pending){input.value=txt;composer.resize();}
       await wallet().catch(()=>{});
-    }finally{composer.unlock();}
+    }finally{stopLive();composer.unlock();}
   };
   $('#recipe-form').onsubmit=async e=>{e.preventDefault();const f=e.target,o=Object.fromEntries(new FormData(f));o.pack_quantity=Number(o.pack_quantity);o.usage_quantity=Number(o.usage_quantity);o.pack_price=o.pack_price.trim()||null;
     const b=f.querySelector('button');b.disabled=true;try{await post('/api/production/recipe',{requestId:crypto.randomUUID(),recipe:o});await refresh();$('#recipe-status').textContent='Сохранено.';}catch(err){$('#recipe-status').textContent=err.message;}finally{b.disabled=false;}};

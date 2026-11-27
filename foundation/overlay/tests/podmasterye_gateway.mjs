@@ -68,6 +68,19 @@ const upstream=http.createServer(async(req,res)=>{
   const event=(type,fields={})=>res.write('event: '+type+'\ndata: '+JSON.stringify({type,...fields})+'\n\n');
   res.writeHead(200,{'content-type':'text/event-stream'});
   event('message_start',{message:{id:'fixture-'+ ++calls,role:'assistant',type:'message',content:[],model:q.model,usage:{input_tokens:10,output_tokens:0,cache_read_input_tokens:pressure?50000:0,cache_creation_input_tokens:0}}});
+  if(text.includes('fixture-progress:')){
+    event('content_block_start',{index:0,content_block:{type:'thinking',thinking:''}});
+    event('content_block_delta',{index:0,delta:{type:'thinking_delta',thinking:'PRIVATE_PROGRESS_FIXTURE'}});
+    await new Promise(r=>setTimeout(r,900));
+    event('content_block_stop',{index:0});
+    event('content_block_start',{index:1,content_block:{type:'text',text:''}});
+    event('content_block_delta',{index:1,delta:{type:'text_delta',text:'Потоковый ответ'}});
+    await new Promise(r=>setTimeout(r,900));
+    event('content_block_delta',{index:1,delta:{type:'text_delta',text:' завершён.'}});
+    event('content_block_stop',{index:1});
+    event('message_delta',{delta:{stop_reason:'end_turn'},usage:{output_tokens:5}});
+    event('message_stop');res.end();return;
+  }
   if(draft){
     event('content_block_start',{index:0,content_block:{type:'tool_use',id:'prepare-1',name:tool.name,input:{}}});
     event('content_block_delta',{index:0,delta:{type:'input_json_delta',partial_json:JSON.stringify(settings?{form:'workshop_create',arguments:{name:'Новая мастерская',description:'Проверка'}}:partial?{operation:'purchase',arguments:{material:'Бусины',quantity:2}}:continuation?{operation:'purchase',arguments:{total:'1600'}}:accounting?{operation:'purchase',arguments:{material:'Бусины',quantity:1,purchase_unit:'pack',total:'800'}}:report?{view:'summary'}:{material:'Бусины',product:'Браслет',pack_quantity:400,usage_quantity:40,pack_price:'800'})}});

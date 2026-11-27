@@ -407,6 +407,8 @@ def render(faq, key, cards):
     f.write_text(s)
     # No product-specific cost/receipt logic is reimplemented.
     shutil.copytree(HERE/"overlay",root,dirs_exist_ok=True)
+    from owner_v18 import apply
+    apply(root)
     (dest/"PODMASTERYE_SOURCE").write_text(PIN+"\n")
     print("Prepared private candidate:",root)
 if __name__=="__main__": main()

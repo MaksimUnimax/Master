@@ -167,3 +167,16 @@ body[data-mode="member"][data-pm-surface="work"] .layout>main .metric-grid{grid-
 .octo-voice-clock{font-size:12px;font-variant-numeric:tabular-nums}
 .octo-voice-spinner{animation:octo-voice-spin .8s linear infinite}
 @keyframes octo-voice-spin{to{transform:rotate(360deg)}}
+
+/* Persistent surface navigation; the header stays within its scroll container. */
+body[data-mode="member"] .layout>main .pm-work-header{position:sticky;top:0;z-index:5;background:var(--panel);padding:10px 0 12px}
+body[data-mode="member"][data-pm-surface="work"] .layout>main .pm-work-header{background:var(--bg)}
+body[data-mode="member"] #close-helper{font-size:13px;min-width:0;padding:6px 10px;width:auto;height:auto}
+.pm-live-turn{padding:12px 2px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
+.pm-live-turn .pm-live-text{margin-top:8px;color:var(--ink);line-height:1.6}
+.pm-thinking-dots{display:inline-flex;gap:1px}
+.pm-thinking-dots span{animation:pm-think 1.2s ease-in-out infinite}
+.pm-thinking-dots span:nth-child(2){animation-delay:.16s}
+.pm-thinking-dots span:nth-child(3){animation-delay:.32s}
+@keyframes pm-think{0%,60%,100%{opacity:.25}30%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.pm-thinking-dots span{animation:none}}

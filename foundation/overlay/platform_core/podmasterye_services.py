@@ -3,6 +3,7 @@ import json
 from decimal import Decimal
 from datetime import datetime,timezone
 from starlette.routing import Route
+from starlette.concurrency import run_in_threadpool
 from starlette.responses import JSONResponse
 from starlette.exceptions import HTTPException
 from . import coins,provider_keys,telegram_api, podmasterye_book as book,podmasterye_workshops as workshops
@@ -55,7 +56,7 @@ def usage(identity,token):
 def routes(token_for,body):
     async def admin(req):
         token=token_for(req,allow_cookie=True);state=req.app.state
-        r=usage(state.identity,token)
+        r=await run_in_threadpool(usage,state.identity,token)
         r["configured"]=bool(provider_keys.read("deepseek"))
         r["gateway"]=bool(state.worker.gateway)
         return JSONResponse(r)

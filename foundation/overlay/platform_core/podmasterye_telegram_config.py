@@ -3,6 +3,7 @@ import os
 import json
 import re
 from pathlib import Path
+from dataclasses import replace
 from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
 from starlette.routing import Route
@@ -28,6 +29,13 @@ def configuration(fields):
         if not isinstance(secret,str) or not 1<=len(secret)<=4096 or not secret.isascii() or not secret.isprintable():raise ValueError("Укажите Client Secret Telegram Login.")
         data["client_secret"]=secret
         cfg=tg.Config(bot,secret,token)
+    route=os.getenv("PODMASTERYE_TELEGRAM_PROXY_PORT")
+    if route:
+        try:port=int(route)
+        except ValueError:raise ValueError("Некорректная конфигурация маршрута Telegram.") from None
+        if not 1<=port<=65535:raise ValueError("Некорректная конфигурация маршрута Telegram.")
+        data["connect_proxy_port"]=port
+        cfg=replace(cfg,proxy_port=port)
     return data,cfg
 
 def routes(token_for,body):

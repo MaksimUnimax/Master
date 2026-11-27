@@ -56,7 +56,7 @@ if($('#balance-settings')){
  action($('#balance-settings'),f=>balances('/settings',{intervalMinutes:f.elements.intervalMinutes.valueAsNumber}));
  action($('#balance-alert-settings'),f=>balances('/alert-settings',{thresholdUsd:f.elements.thresholdUsd.valueAsNumber.toFixed(2),cnyPerUsd:f.elements.cnyPerUsd.value}));
  action($('#balance-telegram-test'),()=>balances('/telegram-test'));
- action($('#balance-telegram-connect'),async()=>{const d=await post('/api/admin/provider-balances/telegram-connect',{}),u=new URL(d.url,location.origin);if(!(u.origin===location.origin&&u.pathname==='/telegram/return')&&!(u.origin==='https://oauth.telegram.org'&&u.pathname==='/auth'))throw Error('Недопустимый адрес авторизации.');location.href=u.href;});
+ action($('#balance-telegram-connect'),async()=>{const d=await post('/api/admin/provider-balances/telegram-connect',{}),u=new URL(d.url,location.origin);if(!(u.origin===location.origin&&u.pathname==='/telegram/return')&&!(u.origin==='https://oauth.telegram.org'&&u.pathname==='/auth'))throw Error('Недопустимый адрес авторизации.');try{sessionStorage.setItem('podmasterye.telegram.return','/admin');}catch{}location.href=u.href;});
 }
 let guestRevision=0;
 async function guests(){const v=++guestRevision,period=$('#guest-period').value,custom=['day','range'].includes(period),from=$('#guest-from'),to=$('#guest-to');$('#guest-from-label').hidden=!custom;$('#guest-to-label').hidden=period!=='range';const params=new URLSearchParams({period});if(custom)params.set('from',from.value);if(period==='range')params.set('to',to.value);if(custom&&(!from.value||period==='range'&&(!to.value||from.value>to.value))){txt('guest-coverage','Укажите корректный период.');return;}
