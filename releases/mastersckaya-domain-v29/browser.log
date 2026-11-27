@@ -1,0 +1,8 @@
+test_public_layout_navigation_and_registration (tests.browser.test_podmasterye_public_v22_ui.PublicV22UI.test_public_layout_navigation_and_registration) ... ok
+test_single_menu_and_fast_public_transport (tests.browser.test_podmasterye_public_v23_ui.PublicV23UI.test_single_menu_and_fast_public_transport) ... ok
+test_guest_payment_form_without_authorization (tests.browser.test_podmasterye_public_payment_v24_ui.PublicPaymentV24UI.test_guest_payment_form_without_authorization) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 16.834s
+
+OK

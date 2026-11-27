@@ -1,0 +1,46 @@
+test_existing_guest_and_member_contracts (tests.test_mastersckaya_domain_v29.DomainV29.test_existing_guest_and_member_contracts) ... ok
+test_guest_continuity_and_authorized_public_pages (tests.test_mastersckaya_domain_v29.DomainV29.test_guest_continuity_and_authorized_public_pages) ... ok
+test_indexing_explicit_opt_in_and_sitemap (tests.test_mastersckaya_domain_v29.DomainV29.test_indexing_explicit_opt_in_and_sitemap) ... ok
+test_new_origin_contract (tests.test_mastersckaya_domain_v29.DomainV29.test_new_origin_contract) ... ok
+test_payment_matches_quote_and_no_checkout (tests.test_mastersckaya_domain_v29.DomainV29.test_payment_matches_quote_and_no_checkout) ... ok
+test_public_routes_and_legal_information (tests.test_mastersckaya_domain_v29.DomainV29.test_public_routes_and_legal_information) ... ok
+test_guest_continuity_and_authorized_public_pages (tests.test_podmasterye_public_v22.PublicV22.test_guest_continuity_and_authorized_public_pages) ... ok
+test_indexing_explicit_opt_in_and_sitemap (tests.test_podmasterye_public_v22.PublicV22.test_indexing_explicit_opt_in_and_sitemap) ... ok
+test_payment_matches_quote_and_no_checkout (tests.test_podmasterye_public_v22.PublicV22.test_payment_matches_quote_and_no_checkout) ... ok
+test_public_routes_and_legal_information (tests.test_podmasterye_public_v22.PublicV22.test_public_routes_and_legal_information) ... ok
+test_combined_guest_snapshot_and_replay (tests.test_podmasterye_public_v23.PublicV23.test_combined_guest_snapshot_and_replay) ... ok
+test_fragment_transport_and_fresh_payment (tests.test_podmasterye_public_v23.PublicV23.test_fragment_transport_and_fresh_payment) ... ok
+test_guest_continuity_and_authorized_public_pages (tests.test_podmasterye_public_v23.PublicV23.test_guest_continuity_and_authorized_public_pages) ... ok
+test_guest_snapshot_is_read_only_and_foreign_scope_is_denied (tests.test_podmasterye_public_v23.PublicV23.test_guest_snapshot_is_read_only_and_foreign_scope_is_denied) ... ok
+test_indexing_explicit_opt_in_and_sitemap (tests.test_podmasterye_public_v23.PublicV23.test_indexing_explicit_opt_in_and_sitemap) ... ok
+test_payment_matches_quote_and_no_checkout (tests.test_podmasterye_public_v23.PublicV23.test_payment_matches_quote_and_no_checkout) ... ok
+test_public_routes_and_legal_information (tests.test_podmasterye_public_v23.PublicV23.test_public_routes_and_legal_information) ... ok
+test_market_credentials_scope_and_read_only_checks (tests.test_podmasterye_admin_v12.AdminPages.test_market_credentials_scope_and_read_only_checks) ... ok
+test_market_invalid_and_workshop_scope (tests.test_podmasterye_admin_v12.AdminPages.test_market_invalid_and_workshop_scope) ... ok
+test_separate_pages_and_permission (tests.test_podmasterye_admin_v12.AdminPages.test_separate_pages_and_permission) ... ok
+test_telegram_widget_consent_and_disconnect (tests.test_podmasterye_admin_v12.AdminPages.test_telegram_widget_consent_and_disconnect) ... ok
+test_visits_separate_counter (tests.test_podmasterye_admin_v12.AdminPages.test_visits_separate_counter) ... ok
+test_catalog_all_direct_aliases_and_access_boundaries (tests.test_podmasterye_guest_v17.GuestV17.test_catalog_all_direct_aliases_and_access_boundaries) ... ok
+test_concurrent_message_reservation (tests.test_podmasterye_guest_v17.GuestV17.test_concurrent_message_reservation) ... ok
+test_filter_context_invalid_output_and_private_data (tests.test_podmasterye_guest_v17.GuestV17.test_filter_context_invalid_output_and_private_data) ... ok
+test_http_unlimited_no_key_and_cross_session (tests.test_podmasterye_guest_v17.GuestV17.test_http_unlimited_no_key_and_cross_session) ... ok
+test_live_prices_and_registration_history (tests.test_podmasterye_guest_v17.GuestV17.test_live_prices_and_registration_history) ... ok
+test_stale_reserved_request_and_obsolete_setting (tests.test_podmasterye_guest_v17.GuestV17.test_stale_reserved_request_and_obsolete_setting) ... ok
+test_unlimited_local_model_unknown_and_replay (tests.test_podmasterye_guest_v17.GuestV17.test_unlimited_local_model_unknown_and_replay) ... ok
+test_upgrade_published_faq_without_losing_editor_changes (tests.test_podmasterye_guest_v17.GuestV17.test_upgrade_published_faq_without_losing_editor_changes) ... ok
+test_embedded_widget_confirmation_replay_and_verified_credit (tests.test_checkout.CheckoutTests.test_embedded_widget_confirmation_replay_and_verified_credit) ... ok
+test_embedded_widget_rejects_missing_provider_confirmation (tests.test_checkout.CheckoutTests.test_embedded_widget_rejects_missing_provider_confirmation) ... ok
+test_live_pilot_is_admin_only_and_one_coin (tests.test_checkout.CheckoutTests.test_live_pilot_is_admin_only_and_one_coin) ... ok
+test_no_merchant_and_session_boundaries (tests.test_checkout.CheckoutTests.test_no_merchant_and_session_boundaries) ... ok
+test_production_credential_is_fail_closed_and_receipts_validated (tests.test_checkout.CheckoutTests.test_production_credential_is_fail_closed_and_receipts_validated) ... ok
+test_provider_retry_replay_verified_credit_and_amount (tests.test_checkout.CheckoutTests.test_provider_retry_replay_verified_credit_and_amount) ... ok
+test_verified_full_refund_reverses_credits_and_replay_is_harmless (tests.test_checkout.CheckoutTests.test_verified_full_refund_reverses_credits_and_replay_is_harmless) ... ok
+test_wallet_checkout_plain_language_and_clean_amount_focus (tests.test_checkout.CheckoutTests.test_wallet_checkout_plain_language_and_clean_amount_focus) ... ok
+test_widget_assets_and_scoped_browser_security_policy (tests.test_checkout.CheckoutTests.test_widget_assets_and_scoped_browser_security_policy) ... ok
+test_yookassa_widget_has_required_return_url_and_bounded_loader (tests.test_checkout.CheckoutTests.test_yookassa_widget_has_required_return_url_and_bounded_loader) ... ok
+test_unlimited_local_and_classified_messages (tests.test_guest_quota_shared.GuestUnlimitedContract.test_unlimited_local_and_classified_messages) ... ok
+
+----------------------------------------------------------------------
+Ran 41 tests in 36.035s
+
+OK
