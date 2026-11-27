@@ -1,0 +1,176 @@
+{
+  "sourceHashesBefore": {
+    "stage.sqlite3": "14996ca4d9b2fae8e43c465975f50b900bac5a127aca5ea8c0e68b44d073f301",
+    "chats/native-chats.sqlite3": "9a176b01e200f39c12ec042c18eacfad7678a86cc2a873ed06428e6f1051cf01",
+    "web-admission.sqlite3": "de489f9f6e1734f44d36a4946ed564503506cd7bef1edbd8fba9f63a8711533c",
+    "stage.sqlite3.public-faq.sqlite3": "0a76c826efd4879d75bae461f20025ed4eaa85137a191fabfdf94d7f5c8450b6",
+    "usage.jsonl": "99764b04c4f494c6c3ef488d248704b7f2ddb361eedb6ef41f4f3de02c9dc637"
+  },
+  "sourceHashesAfter": {
+    "stage.sqlite3": "14996ca4d9b2fae8e43c465975f50b900bac5a127aca5ea8c0e68b44d073f301",
+    "chats/native-chats.sqlite3": "9a176b01e200f39c12ec042c18eacfad7678a86cc2a873ed06428e6f1051cf01",
+    "web-admission.sqlite3": "de489f9f6e1734f44d36a4946ed564503506cd7bef1edbd8fba9f63a8711533c",
+    "stage.sqlite3.public-faq.sqlite3": "0a76c826efd4879d75bae461f20025ed4eaa85137a191fabfdf94d7f5c8450b6",
+    "usage.jsonl": "99764b04c4f494c6c3ef488d248704b7f2ddb361eedb6ef41f4f3de02c9dc637"
+  },
+  "sourceUnchanged": true,
+  "copies": {
+    "stage.sqlite3": {
+      "rows": {
+        "access_contacts": 1,
+        "access_limits": 3,
+        "access_pending": 0,
+        "chat_plugins": 0,
+        "chats": 1,
+        "coin_attempts": 9,
+        "coin_checkout_widgets": 0,
+        "coin_checkouts": 0,
+        "coin_grants": 1,
+        "coin_orders": 5,
+        "coin_pricing": 1,
+        "coin_refunds": 0,
+        "coin_ruble_orders": 5,
+        "coin_signup_bonus": 0,
+        "direct_chat_default": 0,
+        "direct_operation_models": 6,
+        "entitlements": 0,
+        "guest_activity_daily": 2,
+        "guest_activity_start": 1,
+        "guest_calculator_actions": 31,
+        "guest_chats": 4,
+        "guest_detailed_answers": 1,
+        "guest_filter_attempt": 1,
+        "guest_filter_daily": 2,
+        "guest_filter_memory": 4,
+        "guest_filter_setting": 1,
+        "guest_turns": 34,
+        "identity_accounts": 1,
+        "identity_admins": 1,
+        "identity_presence": 1,
+        "identity_registration_dates": 1,
+        "identity_session_preferences": 1,
+        "identity_sessions": 1,
+        "marketplace_retry_notices": 0,
+        "marketplace_retry_windows": 0,
+        "pm_accounting_drafts": 0,
+        "pm_agent_context": 0,
+        "pm_agent_drafts": 0,
+        "pm_book_events": 0,
+        "pm_book_rows": 0,
+        "pm_cancelled_events": 0,
+        "pm_channel_rates": 0,
+        "pm_corrections": 0,
+        "pm_cost_policies": 0,
+        "pm_drafts": 1,
+        "pm_external_events": 0,
+        "pm_external_offers": 0,
+        "pm_external_orders": 0,
+        "pm_market_connections": 2,
+        "pm_materials": 0,
+        "pm_matrix_edit_history": 0,
+        "pm_matrix_edits": 0,
+        "pm_mutations": 0,
+        "pm_product_photos": 0,
+        "pm_products": 0,
+        "pm_recipe": 0,
+        "pm_recipe_versions": 0,
+        "pm_route_decisions": 8,
+        "pm_sources": 0,
+        "pm_tasks": 0,
+        "pm_turn_attachments": 0,
+        "pm_turns": 9,
+        "pm_workers": 0,
+        "pm_workshop_chats": 1,
+        "pm_workshop_requests": 0,
+        "pm_workshops": 1,
+        "pm_write_intents": 0,
+        "pm_write_preferences": 0,
+        "provider_balance_alert_events": 0,
+        "provider_balance_alert_settings": 1,
+        "provider_balance_schedule": 0,
+        "telegram_integration_consents": 0,
+        "telegram_recipients": 1,
+        "telegram_widget_receipts": 1,
+        "usage_grants": 0,
+        "usage_operations": 6,
+        "web_attempt_state": 0,
+        "web_public_plans": 1,
+        "web_requests": 0,
+        "workspace_paid_model_access": 1,
+        "workspaces": 1
+      },
+      "financial": {
+        "hashes": {
+          "coin_grants": "18eab0bb64bb2ecef1377a5a1b9311239ff64a3a2335f0de6f558d2de59a30c5",
+          "coin_orders": "bb79dff1d5743d1b01cd3c81dcb2d16407d15e83988bd12e435be773dde398dd",
+          "coin_attempts": "f8e92c0249320929937db1f6f206e6bdf233592618ee507f0343b260a0cf1b75",
+          "coin_ruble_orders": "494cc879b4e5371e87c8644b30eaa8b3b76edc24ce1c0861fb7c0272a2fffbbf",
+          "coin_checkouts": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "coin_refunds": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "usage_operations": "9f878a897d0f3b5bfea421b13ab854aa061678990b4a39e298649c0009d40df9",
+          "guest_filter_daily": "b807b986fdd18b70fc36309cc016e1eee90c93f3f0be8488308bedb99e1e5b33"
+        },
+        "walletSha256": "48f842bac20767f5c03a1cf613c2e29898f4d6323838ec67053a6548b2976a44",
+        "wallets": 1,
+        "availableUnits": "REDACTED_IN_REPOSITORY",
+        "reservedUnits": "REDACTED_IN_REPOSITORY",
+        "attempts": 9,
+        "chargedUnits": "REDACTED_IN_REPOSITORY",
+        "pendingAttempts": 0,
+        "pendingBoundUnits": "REDACTED_IN_REPOSITORY"
+      },
+      "nativeShape": null,
+      "sanitizedSha256": "d37a1396b2c4400b419aab46bbc19d1fbb92c20951566a8811d0a8d3aea9360b"
+    },
+    "chats/native-chats.sqlite3": {
+      "rows": {
+        "chat_file_messages": 0,
+        "chat_files": 0,
+        "deleted_chat_scopes": 0,
+        "file_analysis": 0,
+        "file_delete_queue": 0,
+        "file_pending": 0,
+        "file_results": 0,
+        "marketplace_file_drafts": 0,
+        "native_batches": 7,
+        "native_dialog_epochs": 1,
+        "native_model_dispatch": 6,
+        "native_spills": 0,
+        "turn_file_dependencies": 0,
+        "turn_media": 0,
+        "turn_media_lifetime": 0,
+        "turn_views": 0,
+        "vision_claims": 0
+      },
+      "financial": {
+        "hashes": {}
+      },
+      "nativeShape": "bbf513d7646db5f401688b62d69ac44f8597751ec2b4436012bdadc2cdb1be0c",
+      "sanitizedSha256": "eac3ca6701dfb155c286c3635e613167be178175c410f1ce3f449e464f6c08e9"
+    },
+    "web-admission.sqlite3": {
+      "rows": {
+        "web_pacing": 0,
+        "web_queue": 0
+      },
+      "financial": {
+        "hashes": {}
+      },
+      "nativeShape": null,
+      "sanitizedSha256": "d2e60838560064dfb349aadbf479baf128779b1960f1c13453e87a5575314898"
+    },
+    "stage.sqlite3.public-faq.sqlite3": {
+      "rows": {
+        "public_faq": 23
+      },
+      "financial": {
+        "hashes": {}
+      },
+      "nativeShape": null,
+      "sanitizedSha256": "5bb774fd9ffd927c3e9e6d356cb847e61979d32d3e6e23f140ffe4b2cd831a50"
+    }
+  },
+  "credentialsCopied": false,
+  "attachmentsPresent": false,
+  "publication": "Monetary totals omitted; original fingerprints and counts retained."
+}

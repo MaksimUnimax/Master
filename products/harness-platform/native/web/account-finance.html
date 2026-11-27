@@ -1,0 +1,49 @@
+<section data-account-finance aria-labelledby="account-heading">
+  <h2 id="account-heading">Мой аккаунт</h2>
+  <nav class="account-tabs" aria-label="Настройки аккаунта">
+    <button type="button" data-account-tab="profile">Профиль</button>
+    <button type="button" data-account-tab="security">Безопасность</button>
+    <button type="button" data-account-tab="sessions">Сеансы</button>
+    <button type="button" data-account-tab="wallet">Кошелёк</button>
+  </nav>
+  <p class="account-message" data-account-message role="status"></p>
+  <div data-account-section="profile">
+    <div class="account-card"><h3>Данные аккаунта</h3><p data-account-login>Загрузка…</p><p class="hint" data-account-created></p></div>
+    <form class="account-card account-form" data-account-password>
+      <h3>Сменить пароль</h3>
+      <label>Текущий пароль<input name="current" type="password" autocomplete="current-password" maxlength="256" required></label>
+      <label>Новый пароль<input name="password" type="password" autocomplete="new-password" maxlength="256" required></label>
+      <label>Повторите новый пароль<input name="confirmation" type="password" autocomplete="new-password" maxlength="256" required></label>
+      <p class="hint">После смены пароля остальные сеансы будут завершены.</p>
+      <button type="submit">Изменить пароль</button>
+    </form>
+  </div>
+  <div data-account-section="security" hidden>
+    <div class="account-card"><h3>Подтверждение входа</h3><p data-account-email></p><p data-account-security-info></p>
+      <form class="account-form" data-account-security hidden>
+        <label class="account-check"><input name="enabled" type="checkbox">Подтверждать вход кодом из письма</label>
+        <label>Текущий пароль<input name="current" type="password" autocomplete="current-password" maxlength="256" required></label>
+        <button type="submit">Сохранить защиту входа</button>
+      </form>
+    </div>
+  </div>
+  <div data-account-section="sessions" hidden>
+    <div class="account-card"><div class="account-heading-row"><h3>Активные сеансы</h3><button type="button" class="secondary" data-account-revoke-others>Завершить остальные</button></div>
+      <p class="hint">Если вы входили на другом устройстве, его сеанс можно завершить здесь.</p>
+      <ul class="account-sessions" data-account-sessions></ul>
+    </div>
+  </div>
+  <div data-account-section="wallet" hidden>
+    <div id="wallet-info" class="account-card account-wallet"><div><span class="hint">Доступно </span><strong data-wallet-available>—</strong><span>монет</span></div>
+      <div><span class="hint">В резерве</span><strong data-wallet-reserved>—</strong><span>монет</span></div>
+      <button type="button" data-buy-coins>Пополнить баланс</button>
+    </div>
+    <div class="account-card">
+      <div class="account-heading-row"><h3>История операций</h3><button type="button" class="secondary" data-wallet-refresh>Обновить</button></div>
+      <div class="account-filters"><label>Операции<select data-wallet-kind><option value="">Все</option><option value="purchase">Покупки</option><option value="grant">Начисления</option><option value="charge">Списания</option><option value="reserve">Резервы</option><option value="refund">Возвраты</option></select></label>
+        <label>На странице<select data-wallet-limit><option>10</option><option selected>20</option><option>50</option><option>100</option></select></label></div>
+      <div id="wallet-history" class="table-scroll" data-wallet-history></div>
+      <div class="account-pager"><button type="button" class="secondary" data-wallet-prev>Назад</button><span data-wallet-page></span><button type="button" class="secondary" data-wallet-next>Далее</button></div>
+    </div>
+  </div>
+</section>

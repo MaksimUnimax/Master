@@ -1,0 +1,140 @@
+{
+  "launch": {
+    "pid": 2375167,
+    "startedUnix": 1795778835.4315994,
+    "command": [
+      "/usr/bin/nice",
+      "-n",
+      "10",
+      "/opt/harness-prod/runtime/attachments-06f257269dd3/venv/bin/python",
+      "acceptance/run_workshop_python.py",
+      "--result",
+      "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/python.json"
+    ],
+    "cwd": "/opt/podmasterye/candidates/functionality-transfer-v31/source-r3/products/harness-platform",
+    "environment": {
+      "PATH": "/usr/bin:/bin:/usr/local/bin",
+      "LANG": "C.UTF-8",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONUNBUFFERED": "1",
+      "PYTHONPATH": "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python-fixtures:/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python",
+      "TMPDIR": "/opt/podmasterye/candidates/functionality-transfer-v31/test-state/python-r3-native",
+      "HARNESS_NODE_MODULES": "/opt/harness-prod/runtime/attachments-06f257269dd3/node_modules",
+      "HARNESS_MEDIA_PYTHON": "/opt/harness-prod/runtime/attachments-06f257269dd3/venv/bin/python",
+      "HARNESS_TEST_PYTHON": "/opt/harness-prod/runtime/attachments-06f257269dd3/venv/bin/python",
+      "HARNESS_DIALOG_ENGINE": "native"
+    },
+    "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+    "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+    "privateCodeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+    "sourceFilesVerified": 617,
+    "fixtureManifestSha256": "c935e52952d82c4aa4c9042c9a7f515a146b36e98230c9fbc8b06b9ba6eb1552",
+    "engineProvenance": {
+      "productionServices": "Coordinator read-only /proc inspection confirmed HARNESS_DIALOG_ENGINE=native for Master and Octoport; no configuration edited.",
+      "masterProductionNodeModules": "/opt/harness-prod/runtime/native-dialog-b667280/node_modules",
+      "testNodeModules": "/opt/harness-prod/runtime/attachments-06f257269dd3/node_modules",
+      "testPython": "/opt/harness-prod/runtime/attachments-06f257269dd3/venv/bin/python"
+    }
+  },
+  "testPython": {
+    "pythonVersion": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "packages": {
+      "mcp": "2.2.0",
+      "starlette": "1.6.0",
+      "uvicorn": "0.52.1",
+      "cryptography": "50.0.0",
+      "httpx": "0.28.1",
+      "openpyxl": "3.1.5",
+      "pypdfium2": "5.15.2",
+      "python-docx": "1.2.0",
+      "python-pptx": "1.0.2",
+      "reportlab": "4.4.4",
+      "lxml": "6.1.3"
+    }
+  },
+  "testNode": {
+    "executable": "/usr/local/bin/node",
+    "version": "v24.22.2",
+    "modules": {
+      "@deepseek-ai/dsh": "0.2.2-rc.1",
+      "fflate": "0.8.3",
+      "sharp": "0.35.5",
+      "@deepseek-ai/libreoffice-kit": "0.1.5",
+      "@deepseek-ai/libreoffice-kit-wasm": "0.1.5"
+    }
+  },
+  "fixtureDependencies": {
+    "packages": [
+      "python-docx==1.2.0",
+      "python-pptx==1.0.2",
+      "reportlab==4.4.4",
+      "lxml==6.1.3",
+      "xlsxwriter==3.3.4",
+      "charset-normalizer==3.5.3"
+    ],
+    "target": "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python-fixtures",
+    "wheels": {
+      "charset_normalizer-3.5.3-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl": "e5e4785d8a0adeadfbdf75f4efc357911842674651cbafd7e97f69b11ec3cbc6",
+      "lxml-6.1.3-cp312-cp312-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl": "909f4e927bb051f7740d6367285fc60cdcfdaf0258c2dba4ff5ba7eadadc250c",
+      "python_docx-1.2.0-py3-none-any.whl": "3fd478f3250fbbbfd3b94fe1e985955737c145627498896a8a6bf81f4baf66c7",
+      "python_pptx-1.0.2-py3-none-any.whl": "160838e0b8565a8b1f67947675886e9fea18aa5e795db7ae531606d68e785cba",
+      "reportlab-4.4.4-py3-none-any.whl": "299b3b0534e7202bb94ed2ddcd7179b818dcda7de9d8518a57c85a58a1ebaadb",
+      "xlsxwriter-3.3.4-py3-none-any.whl": "da62fecb24fdd0f003c874c86109b9e1245ae89533052745ab85a085eb2b04d7"
+    },
+    "sourceConstraintsSha256": "5061cdc56715934b915959d9f41fb215931aae3acf225c8d13d6537f4f192052"
+  },
+  "sourceBefore": {
+    "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+    "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+    "verifiedFiles": 617,
+    "verified": true
+  },
+  "sourceAfter": {
+    "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+    "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+    "verifiedFiles": 617,
+    "changedFiles": [],
+    "missingFiles": [],
+    "verified": true
+  },
+  "complete": true,
+  "providerKeysInherited": false,
+  "sharedRuntimeModifiedByTests": false,
+  "processAfter": {
+    "state": "absent",
+    "exitCodeIfStillPresent": null
+  },
+  "mainSuite": {
+    "testsRun": 519,
+    "elapsedSeconds": 2497.141,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "successful": true
+  },
+  "supplementarySuite": {
+    "testsRun": 17,
+    "elapsedSeconds": 26.329,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "successful": true,
+    "testFileSha256": "b0ee596781469b3d50a501a7e8412ea749f7b8e3082a1fe9e089c0767c522bd2",
+    "originalAssertCalls": 55,
+    "unchangedAfterFixtureNormalization": 54,
+    "mappedFieldAssertions": 1,
+    "addedFi02Assertions": 3,
+    "distinctScenarioMethods": 11,
+    "separateTestFileOutsideImmutableSource": true
+  },
+  "combinedTestIds": 536,
+  "overlappingTestIds": 0,
+  "landlockAbi": 4,
+  "checksums": {
+    "python.json": "2a62ac938c0cccaf122f5dd2197b3605458561b3e3c26a2b90cc75ab7aaf12ab",
+    "python.log": "54dd0631d28f954e2f2c92098e7d00e2148d086b46ba749560e0acf7932908c9",
+    "service-billing.json": "39709d7065b6993a8d9ca60fcb14d912fd66387042b107cc150a95c2d707fdbb",
+    "service-billing.log": "fb83413b5b393f2b212b96cde5884660974be8b013ad636b4ef3bf76275b85b2"
+  },
+  "completedUnix": 1795781503.2743528
+}

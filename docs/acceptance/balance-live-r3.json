@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "sourceRoot": "source-r3",
+  "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+  "scope": "BalanceMonitor.fetch backend, not admin API/UI",
+  "provider": "deepseek",
+  "startedAt": "2026-11-27T11:39:43.720800+00:00",
+  "checkedAt": "2026-11-27T11:39:44.162852+00:00",
+  "state": "passed",
+  "requests": [
+    {
+      "method": "GET",
+      "url": "https://api.deepseek.com/user/balance",
+      "httpStatus": 200
+    }
+  ],
+  "amounts": [
+    {
+      "currency": "CNY",
+      "amount": "<redacted>",
+      "amountPresent": true,
+      "decimalStringValid": true
+    },
+    {
+      "currency": "USD",
+      "amount": "<redacted>",
+      "amountPresent": true,
+      "decimalStringValid": true
+    }
+  ],
+  "error": null,
+  "updatedAtPresent": false,
+  "updatedAtExplanation": "fetch returns amounts/error; refresh assigns snapshot updatedAt. checkedAt is the observed completion time, not a fabricated refresh snapshot.",
+  "execution": {
+    "normalBackendRoutine": true,
+    "applicationStarted": false,
+    "periodicMonitorStarted": false,
+    "identityStoreInitialized": false,
+    "modelRequests": 0,
+    "openrouterRequests": 0,
+    "telegramMessages": 0,
+    "credentialsReadByStockBackendOnly": true,
+    "credentialsCopiedOrPrinted": false
+  },
+  "processExitCode": 0,
+  "scriptSha256": "9274e0b26680b6de59b845168f8059c3dcb8d6fbeddeda45dd24e2a69fce9d29",
+  "hostVerification": {
+    "productionServicesBefore": {
+      "master": {
+        "activeState": "active",
+        "pid": 2344897,
+        "cwd": "/srv/podmasterye-stage/products/harness-platform"
+      },
+      "octoport": {
+        "activeState": "active",
+        "pid": 2346529,
+        "cwd": "/opt/harness-prod/releases/dacb7114476cad88b34932ade4c03942a058060a/products/harness-platform"
+      }
+    },
+    "productionServicesAfter": {
+      "master": {
+        "activeState": "active",
+        "pid": 2344897,
+        "cwd": "/srv/podmasterye-stage/products/harness-platform"
+      },
+      "octoport": {
+        "activeState": "active",
+        "pid": 2346529,
+        "cwd": "/opt/harness-prod/releases/dacb7114476cad88b34932ade4c03942a058060a/products/harness-platform"
+      }
+    },
+    "productionPidAndCwdUnchanged": true,
+    "mainLiveUnitInactiveBeforeAndAfter": true,
+    "providerKeyMetadataUnchanged": true,
+    "liveLedgerBefore": {
+      "attempts": 7,
+      "chargedUnits": 272448499038,
+      "pending": 0
+    },
+    "liveLedgerAfter": {
+      "attempts": 7,
+      "chargedUnits": 272448499038,
+      "pending": 0
+    },
+    "newCoinAttempts": 0,
+    "newChargedUnits": 0,
+    "isolatedStateEmpty": true,
+    "productionDatabasesOpenedByBackend": false,
+    "newTelegramMessagesByThisProcess": 0
+  }
+}

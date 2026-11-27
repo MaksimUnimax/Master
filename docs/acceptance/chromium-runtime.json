@@ -1,0 +1,276 @@
+{
+  "browser": "chromium",
+  "privateCodeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+  "sourceRoot": "/opt/podmasterye/candidates/functionality-transfer-v31/source-r3",
+  "sourceFilesVerified": 617,
+  "sourceBefore": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+  "sourceAfter": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+  "sourceUnchanged": true,
+  "runtimeFileCount": 311,
+  "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+  "identity": {
+    "version": "151.0.7922.34",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+    "title": "Browser verification",
+    "executable": "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/chromium/chromium-1234/chrome-linux64/chrome",
+    "binarySha256": "0b20b130e7edd9dd51873be867761295fe0cfad490c2b9a64f95bd3cfc08fa71",
+    "sourceSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+    "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6"
+  },
+  "invocation": {
+    "command": [
+      "/opt/harness-prod/runtime/attachments-06f257269dd3/venv/bin/python",
+      "acceptance/run_workshop_browser.py",
+      "--result",
+      "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/browser-results.json"
+    ],
+    "cwd": "/opt/podmasterye/candidates/functionality-transfer-v31/source-r3/products/harness-platform",
+    "sourceFilesVerified": 617,
+    "sourceSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+    "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+    "nice": 10,
+    "fixtureDependencyPaths": [
+      "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python-fixtures",
+      "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python"
+    ],
+    "dialogEngine": "native",
+    "providerKeysDirectoryEnvironment": "unset",
+    "temporaryDirectory": "/tmp/pm-r3-chromium-s8oftllb",
+    "telegramConfig": "nonexistent-test-file",
+    "externalProviderKeys": "removed"
+  },
+  "actualRunnerEnvironment": {
+    "runnerPid": 2377872,
+    "HARNESS_DIALOG_ENGINE": "native",
+    "HARNESS_NODE_MODULES": "/opt/harness-prod/runtime/attachments-06f257269dd3/node_modules",
+    "HARNESS_PROVIDER_KEYS_DIR": "<unset>",
+    "TMPDIR": "/tmp/pm-r3-chromium-s8oftllb",
+    "PYTHONPATH": "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python-fixtures:/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python"
+  },
+  "fullSuite": {
+    "testsRun": 260,
+    "elapsedSeconds": 1974.489,
+    "successful": true,
+    "failures": [],
+    "errors": [],
+    "skipped": []
+  },
+  "capture": {
+    "kind": "supplemental-synthetic-visual-capture",
+    "testsRun": 1,
+    "successful": true,
+    "failed": 0,
+    "errors": 0,
+    "seconds": 65.478,
+    "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+    "sourceCodeUnmodified": true,
+    "assertionsUnmodified": true,
+    "screenshots": [
+      {
+        "file": "agent-file-history.png",
+        "sha256": "7ca2de2a3e6ccc57e41ac464c76c0a8a2ee25c931613c331d28c9c6ebdbe0eaa",
+        "bytes": 181281,
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "syntheticFixture": "AgentUI",
+        "dialogEngine": "native"
+      },
+      {
+        "file": "agent-document-original.png",
+        "sha256": "0821344fbb3cbd9a828b02e3eb5174657d8e16bb370ed5b95091a45fad0aa15d",
+        "bytes": 179841,
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "syntheticFixture": "AgentUI",
+        "dialogEngine": "native"
+      },
+      {
+        "file": "agent-document-edited.png",
+        "sha256": "c1ddd6281964babd0ffa9f977ce1dea60e36fd70d1d1881f8ee25d35f13bfd41",
+        "bytes": 193976,
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "syntheticFixture": "AgentUI",
+        "dialogEngine": "native"
+      },
+      {
+        "file": "agent-final-desktop.png",
+        "sha256": "8ae2f063b7d98cfc23caad66722923faa3ad47a5e8e754bf0cc270626c9c0c57",
+        "bytes": 198946,
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "syntheticFixture": "AgentUI",
+        "dialogEngine": "native"
+      },
+      {
+        "file": "agent-document-mobile.png",
+        "sha256": "f9911a76a8ed5356294a6fbaca9e54c0ad6845d913cb3e49bfb264fcd512490b",
+        "bytes": 85568,
+        "viewport": {
+          "width": 390,
+          "height": 900
+        },
+        "syntheticFixture": "AgentUI",
+        "dialogEngine": "native"
+      }
+    ]
+  },
+  "screenshots": [
+    {
+      "file": "account-desktop.png",
+      "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/account-profile.png",
+      "sha256": "5485759f3f82907a5487bf0ef733fbbb28701639bb4b50d2591ee7dc1e4a47e3",
+      "bytes": 69548,
+      "width": 1440,
+      "height": 1000,
+      "description": "Account profile desktop",
+      "synthetic": true,
+      "dialogEngine": "native"
+    },
+    {
+      "file": "wallet-desktop.png",
+      "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/account-wallet-desktop.png",
+      "sha256": "3c60ed156d628ca77b14e70afcf94553f80ef9ca0d8041575a2396a9e28c390e",
+      "bytes": 90816,
+      "width": 1440,
+      "height": 1000,
+      "description": "Wallet ledger desktop",
+      "synthetic": true,
+      "dialogEngine": "native"
+    },
+    {
+      "file": "wallet-mobile.png",
+      "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/test_wallet_exact_history_pagination_and_shared_refresh.png",
+      "sha256": "3301f54fda6be425b05046b31af078e95109c7a9e9b91fb2dec7b090600bedb9",
+      "bytes": 46257,
+      "width": 420,
+      "height": 900,
+      "description": "Wallet ledger mobile",
+      "synthetic": true,
+      "dialogEngine": "native"
+    },
+    {
+      "file": "menu-mobile.png",
+      "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/member-summary-390-dark.png",
+      "sha256": "c21ebb3aaded716cbdc0a00bda40d4047f83f8d3fbd56d3e7791d55a7cdf656e",
+      "bytes": 67893,
+      "width": 390,
+      "height": 844,
+      "description": "Mobile menu dark theme",
+      "synthetic": true,
+      "dialogEngine": "native"
+    },
+    {
+      "file": "timer-desktop.png",
+      "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/member-schedule-1440-light.png",
+      "sha256": "f29852a0816b4cede665fa9f5161ee46d7b738d5c9a2580267851fa5c66e6a22",
+      "bytes": 69391,
+      "width": 1440,
+      "height": 900,
+      "description": "Schedule desktop",
+      "synthetic": true,
+      "dialogEngine": "native"
+    },
+    {
+      "file": "timer-report-mobile.png",
+      "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/test_member_preview_edit_run_delivery_and_download.png",
+      "sha256": "2c6a9b57785b744b2cf11ebff01beee0b06ab133dc7ca75c08514b571bdd12f5",
+      "bytes": 72399,
+      "width": 390,
+      "height": 844,
+      "description": "Timer report and history mobile",
+      "synthetic": true,
+      "dialogEngine": "native"
+    },
+    {
+      "file": "timer-admin.png",
+      "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/test_admin_queue_pagination_pause_and_member_access.png",
+      "sha256": "3688962323205a93db187f06f8ec465f4c6dfe60cb9e6d44cf1295d48a145092",
+      "bytes": 148646,
+      "width": 1440,
+      "height": 1000,
+      "description": "Admin timer queue",
+      "synthetic": true,
+      "dialogEngine": "native"
+    },
+    {
+      "file": "ai-provider-keys.png",
+      "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/ai-provider-keys.png",
+      "sha256": "3994f3bac7d965547a357f8fa0d409cab7d2474b6e3a8bda4c648a02a755547b",
+      "bytes": 53466,
+      "width": 1440,
+      "height": 1000,
+      "description": "Provider configuration synthetic keys",
+      "synthetic": true,
+      "dialogEngine": "native"
+    },
+    {
+      "file": "ai-models-admin.png",
+      "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/ai-models-admin.png",
+      "sha256": "0ad3cbc87ec8876ce6fdb94207dab405c6032bd6c98188d972d456ff8bd0ac15",
+      "bytes": 81341,
+      "width": 1440,
+      "height": 1000,
+      "description": "Model catalogue configuration",
+      "synthetic": true,
+      "dialogEngine": "native"
+    },
+    {
+      "file": "agent-file-history.png",
+      "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/agent-capture/agent-file-history.png",
+      "sha256": "7ca2de2a3e6ccc57e41ac464c76c0a8a2ee25c931613c331d28c9c6ebdbe0eaa",
+      "bytes": 181281,
+      "width": 1440,
+      "height": 1000,
+      "description": "Native file-only history restored",
+      "synthetic": true,
+      "dialogEngine": "native"
+    },
+    {
+      "file": "agent-document-edited.png",
+      "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/agent-capture/agent-document-edited.png",
+      "sha256": "c1ddd6281964babd0ffa9f977ce1dea60e36fd70d1d1881f8ee25d35f13bfd41",
+      "bytes": 193976,
+      "width": 1440,
+      "height": 1000,
+      "description": "Native edited text document download (TXT fixture)",
+      "synthetic": true,
+      "dialogEngine": "native"
+    },
+    {
+      "file": "agent-document-mobile.png",
+      "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/agent-capture/agent-document-mobile.png",
+      "sha256": "f9911a76a8ed5356294a6fbaca9e54c0ad6845d913cb3e49bfb264fcd512490b",
+      "bytes": 85568,
+      "width": 390,
+      "height": 900,
+      "description": "Native document chat on mobile",
+      "synthetic": true,
+      "dialogEngine": "native"
+    }
+  ],
+  "mode": "headless",
+  "actualDialogEngine": "native",
+  "transferManifestBefore": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+  "transferManifestAfter": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+  "rawArtifacts": {
+    "result": {
+      "path": "final-chromium.json",
+      "sha256": "d78c8e6093e1544dd53492df71389f02ac132bf824607266a763b0d334247204",
+      "bytes": 25222
+    },
+    "log": {
+      "path": "final-chromium.log",
+      "sha256": "ea1536ab9b145dda3608e1121703de4d30a359f44f08526c6bacef3f82df9641",
+      "bytes": 37335
+    }
+  }
+}

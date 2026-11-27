@@ -1,0 +1,53 @@
+{
+  "passed": true,
+  "originalTablesUnchanged": 101,
+  "databaseCopies": 4,
+  "restorePassed": true,
+  "native": {
+    "chats": 1,
+    "visibleMessages": 14
+  },
+  "financial": {
+    "hashes": {
+      "coin_grants": "18eab0bb64bb2ecef1377a5a1b9311239ff64a3a2335f0de6f558d2de59a30c5",
+      "coin_orders": "bb79dff1d5743d1b01cd3c81dcb2d16407d15e83988bd12e435be773dde398dd",
+      "coin_attempts": "f8e92c0249320929937db1f6f206e6bdf233592618ee507f0343b260a0cf1b75",
+      "coin_ruble_orders": "494cc879b4e5371e87c8644b30eaa8b3b76edc24ce1c0861fb7c0272a2fffbbf",
+      "coin_checkouts": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coin_refunds": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "usage_operations": "9f878a897d0f3b5bfea421b13ab854aa061678990b4a39e298649c0009d40df9",
+      "guest_filter_daily": "b807b986fdd18b70fc36309cc016e1eee90c93f3f0be8488308bedb99e1e5b33"
+    },
+    "walletSha256": "48f842bac20767f5c03a1cf613c2e29898f4d6323838ec67053a6548b2976a44",
+    "wallets": 1,
+    "availableUnits": "REDACTED_IN_REPOSITORY",
+    "reservedUnits": "REDACTED_IN_REPOSITORY",
+    "attempts": 9,
+    "chargedUnits": "REDACTED_IN_REPOSITORY",
+    "pendingAttempts": 0,
+    "pendingBoundUnits": "REDACTED_IN_REPOSITORY"
+  },
+  "migrations": [
+    "20261127_ai_v1",
+    "20261127_ai_v2",
+    "20261127_finance_payments_v1",
+    "20261127_finance_v1",
+    "20261127_lifecycle_v1",
+    "20261127_permissions_v30",
+    "20261127_timer_admin_v1",
+    "20261127_timer_engine_v1",
+    "20261127_workshop_timer_v1"
+  ],
+  "paidOrExternalCalls": 0,
+  "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+  "sourceManifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+  "privateCodeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+  "sourceHashesAfterMigration": {
+    "stage.sqlite3": "14996ca4d9b2fae8e43c465975f50b900bac5a127aca5ea8c0e68b44d073f301",
+    "chats/native-chats.sqlite3": "9a176b01e200f39c12ec042c18eacfad7678a86cc2a873ed06428e6f1051cf01",
+    "web-admission.sqlite3": "de489f9f6e1734f44d36a4946ed564503506cd7bef1edbd8fba9f63a8711533c",
+    "stage.sqlite3.public-faq.sqlite3": "0a76c826efd4879d75bae461f20025ed4eaa85137a191fabfdf94d7f5c8450b6",
+    "usage.jsonl": "99764b04c4f494c6c3ef488d248704b7f2ddb361eedb6ef41f4f3de02c9dc637"
+  },
+  "sourceUnchangedAfterMigration": true
+}

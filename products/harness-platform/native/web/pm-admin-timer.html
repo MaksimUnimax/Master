@@ -1,0 +1,9 @@
+<section aria-labelledby="admin-timer-heading">
+  <h2 id="admin-timer-heading">Исполнение расписаний</h2>
+  <p>Состояние очереди и доставки. Содержимое личных отчётов здесь не раскрывается. Приостановленное поручение возобновляет его владелец.</p>
+  <div class="button-group"><button type="button" id="admin-timer-refresh">Обновить</button><label>На странице<select id="admin-timer-limit"><option>10</option><option selected>20</option><option>50</option><option>100</option></select></label></div>
+  <p id="admin-timer-status" role="status" aria-live="polite"></p>
+  <dl id="admin-timer-counts" class="visits-metrics"></dl>
+  <div class="stats-table" tabindex="0"><table><thead><tr><th>Аккаунт</th><th>Поручение</th><th>Состояние</th><th>Следующий запуск</th><th>Последний результат</th><th>Telegram</th><th>Действие</th></tr></thead><tbody id="admin-timer-rows"></tbody></table></div>
+  <div class="button-group"><button type="button" id="admin-timer-prev" class="secondary">Назад</button><span id="admin-timer-page"></span><button type="button" id="admin-timer-next" class="secondary">Далее</button></div>
+</section>

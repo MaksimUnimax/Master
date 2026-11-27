@@ -1,0 +1,44 @@
+<section data-finance>
+  <p>Расходы поставщиков, списания монет и поступления от оплаты учитываются отдельно. Неизвестные суммы остаются на сверке.</p>
+  <form data-finance-filters class="account-filters">
+    <label>С даты<input type="date" name="start"></label><label>По дату<input type="date" name="end"></label>
+    <label>Аккаунт<input name="login" type="text" autocomplete="off" placeholder="Все аккаунты"></label>
+    <label>Поставщик<select name="provider"><option value="">Все</option><option>DeepSeek</option><option>OpenRouter</option><option>Не определён</option></select></label>
+    <label>Расходы<select name="kind"><option value="">Все</option><option value="tokens">Токены</option><option value="web">Интернет</option><option value="files">Файлы</option><option value="audio">Аудио</option><option value="images">Изображения</option><option value="services">Другие услуги</option></select></label>
+    <label>Состояние<select name="state"><option value="">Все</option><option value="reserved">Зарезервировано</option><option value="running">Выполняется</option><option value="pending">На сверке</option><option value="settled">Учтено</option><option value="conflict">Конфликт</option></select></label>
+    <label>Операция<input name="operation" type="text" autocomplete="off" placeholder="Идентификатор"></label>
+    <label>На странице<select name="limit"><option>10</option><option selected>20</option><option>50</option><option>100</option></select></label>
+    <label>Сортировка<select name="sort"><option value="date">По дате</option><option value="account">По аккаунту</option><option value="provider">По поставщику</option><option value="coins">По списанным монетам</option><option value="cost">По расходу поставщика</option></select></label>
+    <label>Порядок<select name="direction"><option value="desc">По убыванию</option><option value="asc">По возрастанию</option></select></label>
+    <button type="submit">Показать</button>
+  </form>
+  <p data-finance-status role="status"></p>
+  <div class="finance-summary" data-finance-summary></div>
+  <h2>По поставщикам и видам услуг</h2><div class="table-scroll" data-finance-breakdown></div>
+  <h2>Операции</h2><div class="table-scroll finance-details" data-finance-rows></div>
+  <div class="account-pager"><button type="button" class="secondary" data-finance-prev>Назад</button><span data-finance-page></span><button type="button" class="secondary" data-finance-next>Далее</button></div>
+  <h2>Поступления</h2><p data-finance-payments></p>
+  <h2>Платежи ЮKassa</h2>
+  <p data-payment-configuration></p>
+  <p class="hint">Период и аккаунт берутся из фильтров выше. Проверка получает состояние уже созданного платежа; начисление выполняет существующий платёжный контур.</p>
+  <form class="account-filters" data-payment-filters>
+    <label>Состояние платежа<select name="state"><option value="">Все</option><option value="pending">Ожидает оплаты или сверки</option><option value="succeeded">Оплачено</option><option value="canceled">Отменено</option><option value="refunded">Возвращено</option></select></label>
+    <label>Платежей на странице<select name="limit"><option>10</option><option selected>20</option><option>50</option><option>100</option></select></label>
+    <button type="submit">Обновить платежи</button>
+  </form>
+  <p data-payment-status role="status"></p>
+  <div class="table-scroll finance-details" data-payment-rows></div>
+  <div class="account-pager"><button type="button" class="secondary" data-payment-prev>Назад</button><span data-payment-page></span><button type="button" class="secondary" data-payment-next>Далее</button></div>
+  <h2>Гостевая справка</h2><p class="hint">Общие расходы сервиса. В клиентские списания выше не входят.</p><p data-finance-guest></p>
+  <dialog class="finance-review" data-finance-review>
+    <form data-finance-review-form class="account-form">
+      <h2>Подтвердить расход</h2><p data-finance-review-info></p>
+      <label>Сумма из квитанции<input name="amount" inputmode="decimal" pattern="[0-9]{1,7}(\.[0-9]{1,12})?" required></label>
+      <label>Валюта квитанции<select name="currency"><option>USD</option><option>RUB</option></select></label>
+      <label>Номер или ссылка на подтверждающий документ<input name="reference" minlength="5" maxlength="160" required autocomplete="off"></label>
+      <p class="hint">Сохранённый тариф и лимит операции определяют списание. Повторная отправка той же квитанции не списывает монеты ещё раз.</p>
+      <p data-finance-review-error role="alert"></p>
+      <div><button type="submit">Применить сверку</button> <button type="button" class="secondary" data-finance-review-cancel>Отмена</button></div>
+    </form>
+  </dialog>
+</section>

@@ -1,0 +1,330 @@
+{
+  "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+  "codeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+  "environment": "same isolated synthetic fixture, local Chromium158.0.8127.0, native engine,9 samples per phase",
+  "comparisonFileSha256": "76be5ebbb177a2f5cd699b4b809ee154214de510745f2ce3bd3abc04efb26c20",
+  "deltas": {
+    "reloads": {
+      "readyMs": {
+        "p50": {
+          "baseline": 933.661,
+          "candidate": 931.891,
+          "absolute": -1.77,
+          "percent": -0.19
+        },
+        "p95": {
+          "baseline": 949.987,
+          "candidate": 935.926,
+          "absolute": -14.061,
+          "percent": -1.48
+        }
+      },
+      "apiRequests": {
+        "p50": {
+          "baseline": 7,
+          "candidate": 10,
+          "absolute": 3,
+          "percent": 42.86
+        },
+        "p95": {
+          "baseline": 7.0,
+          "candidate": 10.0,
+          "absolute": 3.0,
+          "percent": 42.86
+        }
+      },
+      "assetTransferBytes": {
+        "p50": {
+          "baseline": 179079,
+          "candidate": 239529,
+          "absolute": 60450,
+          "percent": 33.76
+        },
+        "p95": {
+          "baseline": 179079.0,
+          "candidate": 239529.0,
+          "absolute": 60450.0,
+          "percent": 33.76
+        }
+      },
+      "assetEncodedBytes": {
+        "p50": {
+          "baseline": 174879,
+          "candidate": 233229,
+          "absolute": 58350,
+          "percent": 33.37
+        },
+        "p95": {
+          "baseline": 174879.0,
+          "candidate": 233229.0,
+          "absolute": 58350.0,
+          "percent": 33.37
+        }
+      },
+      "assetDecodedBytes": {
+        "p50": {
+          "baseline": 174879,
+          "candidate": 233229,
+          "absolute": 58350,
+          "percent": 33.37
+        },
+        "p95": {
+          "baseline": 174879.0,
+          "candidate": 233229.0,
+          "absolute": 58350.0,
+          "percent": 33.37
+        }
+      }
+    },
+    "navigations": {
+      "readyMs": {
+        "p50": {
+          "baseline": 58.074,
+          "candidate": 60.228,
+          "absolute": 2.154,
+          "percent": 3.71
+        },
+        "p95": {
+          "baseline": 76.012,
+          "candidate": 70.674,
+          "absolute": -5.338,
+          "percent": -7.02
+        }
+      },
+      "apiRequests": {
+        "p50": {
+          "baseline": 1,
+          "candidate": 1,
+          "absolute": 0,
+          "percent": 0.0
+        },
+        "p95": {
+          "baseline": 1.0,
+          "candidate": 1.0,
+          "absolute": 0.0,
+          "percent": 0.0
+        }
+      },
+      "assetTransferBytes": {
+        "p50": {
+          "baseline": 0,
+          "candidate": 0,
+          "absolute": 0,
+          "percent": null
+        },
+        "p95": {
+          "baseline": 0.0,
+          "candidate": 0.0,
+          "absolute": 0.0,
+          "percent": null
+        }
+      },
+      "assetEncodedBytes": {
+        "p50": {
+          "baseline": 0,
+          "candidate": 0,
+          "absolute": 0,
+          "percent": null
+        },
+        "p95": {
+          "baseline": 0.0,
+          "candidate": 0.0,
+          "absolute": 0.0,
+          "percent": null
+        }
+      },
+      "assetDecodedBytes": {
+        "p50": {
+          "baseline": 0,
+          "candidate": 0,
+          "absolute": 0,
+          "percent": null
+        },
+        "p95": {
+          "baseline": 0.0,
+          "candidate": 0.0,
+          "absolute": 0.0,
+          "percent": null
+        }
+      }
+    }
+  },
+  "baseline": {
+    "browser": "158.0.8127.0",
+    "samplesPerPhase": 9,
+    "databaseCounts": {
+      "identity_accounts": 1,
+      "pm_materials": 2,
+      "pm_products": 3,
+      "pm_recipe": 2,
+      "pm_book_events": 2,
+      "coin_attempts": 0
+    },
+    "sourceHashes": {
+      "platform_core/chat_api.py": "4b02bdcf767e81c25d8ce58cc0de8f7ce0099ff4148b72260413f1af49955296",
+      "native/web/podmasterye.js": "64b6195750a97d9b28b4a2b3be21658d6366cf7e5c1d9bbac500b0450ffbec58",
+      "native/web/podmasterye.css": "2a9b75de9308f09601e7e4acddc2c3559312cc905f4137d11e2888e67c7a6ee4"
+    },
+    "summary": {
+      "reloads": {
+        "readyMs": {
+          "p50": 933.661,
+          "p95": 949.987,
+          "min": 483.935,
+          "max": 958.482
+        },
+        "apiRequests": {
+          "p50": 7,
+          "p95": 7.0,
+          "min": 7,
+          "max": 7
+        },
+        "assetTransferBytes": {
+          "p50": 179079,
+          "p95": 179079.0,
+          "min": 179079,
+          "max": 179079
+        },
+        "assetEncodedBytes": {
+          "p50": 174879,
+          "p95": 174879.0,
+          "min": 174879,
+          "max": 174879
+        },
+        "assetDecodedBytes": {
+          "p50": 174879,
+          "p95": 174879.0,
+          "min": 174879,
+          "max": 174879
+        }
+      },
+      "navigations": {
+        "readyMs": {
+          "p50": 58.074,
+          "p95": 76.012,
+          "min": 55.88,
+          "max": 76.91
+        },
+        "apiRequests": {
+          "p50": 1,
+          "p95": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "assetTransferBytes": {
+          "p50": 0,
+          "p95": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "assetEncodedBytes": {
+          "p50": 0,
+          "p95": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "assetDecodedBytes": {
+          "p50": 0,
+          "p95": 0.0,
+          "min": 0,
+          "max": 0
+        }
+      }
+    },
+    "draft": {
+      "navigationPreserved": true,
+      "reloadPreserved": false
+    },
+    "httpFailures": [],
+    "pageErrors": []
+  },
+  "candidate": {
+    "browser": "158.0.8127.0",
+    "samplesPerPhase": 9,
+    "databaseCounts": {
+      "identity_accounts": 1,
+      "pm_materials": 2,
+      "pm_products": 3,
+      "pm_recipe": 2,
+      "pm_book_events": 2,
+      "coin_attempts": 0
+    },
+    "sourceHashes": {
+      "platform_core/chat_api.py": "4bfeb3d4ce88c47fc1cd44f7fff4e56f91892382ab64d913f56fc46d101dede0",
+      "native/web/podmasterye.js": "c8c4b81d2b0888fb9993eebb77f74efae2840ff5a1615ea0186e45a2d2529925",
+      "native/web/podmasterye.css": "6a2980c5f71fa685f587c96053cf09e56af29348ee5328d413d77d0175fda122"
+    },
+    "summary": {
+      "reloads": {
+        "readyMs": {
+          "p50": 931.891,
+          "p95": 935.926,
+          "min": 422.952,
+          "max": 937.186
+        },
+        "apiRequests": {
+          "p50": 10,
+          "p95": 10.0,
+          "min": 10,
+          "max": 10
+        },
+        "assetTransferBytes": {
+          "p50": 239529,
+          "p95": 239529.0,
+          "min": 239529,
+          "max": 239529
+        },
+        "assetEncodedBytes": {
+          "p50": 233229,
+          "p95": 233229.0,
+          "min": 233229,
+          "max": 233229
+        },
+        "assetDecodedBytes": {
+          "p50": 233229,
+          "p95": 233229.0,
+          "min": 233229,
+          "max": 233229
+        }
+      },
+      "navigations": {
+        "readyMs": {
+          "p50": 60.228,
+          "p95": 70.674,
+          "min": 56.715,
+          "max": 71.081
+        },
+        "apiRequests": {
+          "p50": 1,
+          "p95": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "assetTransferBytes": {
+          "p50": 0,
+          "p95": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "assetEncodedBytes": {
+          "p50": 0,
+          "p95": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "assetDecodedBytes": {
+          "p50": 0,
+          "p95": 0.0,
+          "min": 0,
+          "max": 0
+        }
+      }
+    },
+    "draft": {
+      "navigationPreserved": true,
+      "reloadPreserved": false
+    },
+    "httpFailures": [],
+    "pageErrors": []
+  }
+}

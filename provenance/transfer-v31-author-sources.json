@@ -1,0 +1,798 @@
+{
+  "schemaVersion": 1,
+  "state": "reviewed_source_only_docs_deferred",
+  "createdAt": "2026-11-27T11:57:11.611949+00:00",
+  "defaultDeny": true,
+  "publicationPerformed": false,
+  "sourceRoot": "candidate",
+  "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+  "baselinePrivateCommit": "02a2efdbbe716fcf642ebf9aaf12f30ddea6476f",
+  "fileCount": 53,
+  "totalBytes": 469917,
+  "standaloneProductBuild": false,
+  "sourceCatalogs": [
+    {
+      "path": "context/finance-public-files.json",
+      "sha256": "3839050519d3ee7a25701d8d44641be047de2540456b60fcc5dc95522ec0d762"
+    },
+    {
+      "path": "context/timer-original-provenance.json",
+      "sha256": "841a7efc678bc1c0318886a4d36e13f650560e2f51874226b39441f81601c722"
+    },
+    {
+      "path": "context/ai-public-original-allowlist.json",
+      "sha256": "146d5a004ef615d12136cc79d30d0db60a177c44734c2677515b5a7c8b035824"
+    }
+  ],
+  "files": [
+    {
+      "path": "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "bytes": 14770,
+      "sha256": "e9905c3378826c3d006fe98f0fb986572b3ffb538757f0263ffe96925c20f267",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/acceptance/transfer_performance.py",
+      "bytes": 10221,
+      "sha256": "bf9819b2bcf6d00e599a782d18a62528abd9e8893800cd26bca0f9493ba8fc7a",
+      "authorship": "scheduler_admin",
+      "provenanceEvidence": "context/timer-original-provenance.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/assistant-preferences.mjs",
+      "bytes": 1378,
+      "sha256": "0ab5ca6bb431c5722c1d7d6378b7908d969a4632753b29d27aa4a64ee93da511",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/account-finance-admin.js",
+      "bytes": 13687,
+      "sha256": "12cc07e6c1050fda11284f6a7c621864e9e232deea19b1abe7092125023329d2",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/account-finance.css",
+      "bytes": 3180,
+      "sha256": "5e408fdeae7f7edc44e4645f5b4760e92d698950ec82a13ef6ec902ca42af732",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/account-finance.html",
+      "bytes": 4244,
+      "sha256": "fb26f477a959080420a5ac658cb3bd9dd6b6fc8931bc29f52ea916ac8dbc7640",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/account-finance.js",
+      "bytes": 10963,
+      "sha256": "0bbdb6d466a373f5746d47018214999e0798a682bcfe2319b5eea7f2d74ceb39",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/admin-accounts.js",
+      "bytes": 5965,
+      "sha256": "1795b121d13a768c64d83227cee84509cf2838400841b78b96ba2daebd49dc4d",
+      "authorship": "root",
+      "provenanceEvidence": "Explicit root authorship declaration plus independent snapshot/body comparison",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/admin-analytics.js",
+      "bytes": 1129,
+      "sha256": "7cf1b5b9836e704295996c11e53cb49da7caf80351c9d966f2b0a99f475ae74a",
+      "authorship": "root",
+      "provenanceEvidence": "Explicit root authorship declaration plus independent snapshot/body comparison",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/admin-timer.js",
+      "bytes": 3539,
+      "sha256": "1f4c01769f2c6ff4012e1aae283458a73d89ac9f3dc37bff267261da5b284ada",
+      "authorship": "scheduler_admin",
+      "provenanceEvidence": "context/timer-original-provenance.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/analytics.js",
+      "bytes": 4171,
+      "sha256": "46a84283c64867200607cb079190db631aca30b4d153735eed35569a58d18d98",
+      "authorship": "root",
+      "provenanceEvidence": "Explicit root authorship declaration plus independent snapshot/body comparison",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/coin-format.js",
+      "bytes": 591,
+      "sha256": "42207670b2a0431d5851af34b19fc10aa784fb2f9fcc1893927f95487556ee64",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/pm-admin-ai-balances.html",
+      "bytes": 1378,
+      "sha256": "07faf454a439f595b54e7f211a694a2ef0b9021d15a75fe56b52cc5e988d68e8",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/pm-admin-ai-keys.html",
+      "bytes": 913,
+      "sha256": "d3bb9d2973c15fdecf061689a5fbe18647537401d8be2fab8d3d83801da05ebd",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/pm-admin-ai-models.html",
+      "bytes": 1637,
+      "sha256": "6cb53e9ff1b479aa49d4db4c01f43dadf17d47886cd19a988233d3129f00b09d",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/pm-admin-finance.html",
+      "bytes": 5688,
+      "sha256": "91d003cf2ac5a95b997ba81130eee6f71235701c508155089ff6cd9e1c1ce640",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/pm-admin-timer.html",
+      "bytes": 1349,
+      "sha256": "c8e8548f3b1771bc76e17b50e19b864ca83985edba26599b8ebe4af768c8d49f",
+      "authorship": "scheduler_admin",
+      "provenanceEvidence": "context/timer-original-provenance.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/podmasterye-ai-settings.html",
+      "bytes": 2208,
+      "sha256": "ac201bde7759db3e91f9b61734449b14334d3d1df4f5e012c42a2df6cd7e0746",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/podmasterye-ai.css",
+      "bytes": 1209,
+      "sha256": "a41c1f03ffde65a5df252b39ae5fc9a538404c81bbda039f5d221e709902ac4e",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/podmasterye-ai.js",
+      "bytes": 13988,
+      "sha256": "eb22e09cc30f22ce6643e4d11fb324d9a313632b7cd4972e30f356affb6d1155",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/podmasterye-timer.css",
+      "bytes": 1466,
+      "sha256": "feb920ad19c68869bf4157a78650569e8b1100aa54e02e7109471b4cde5be69e",
+      "authorship": "scheduler_admin",
+      "provenanceEvidence": "context/timer-original-provenance.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/native/web/podmasterye-timer.js",
+      "bytes": 23968,
+      "sha256": "d3acc12c5ac98a524d7affdb6f3e5d9ffdce5346a9a2ed49e0a9f634ed6bf3db",
+      "authorship": "scheduler_admin",
+      "provenanceEvidence": "context/timer-original-provenance.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/platform_core/account_finance.py",
+      "bytes": 16767,
+      "sha256": "050cc8e612158249f64b80fd1f23f30f83eb58ae571470ee8d4a2557fb25ff71",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/platform_core/account_lifecycle.py",
+      "bytes": 20154,
+      "sha256": "3dd75d13c06779bcb34aed541d72ebc4bcd93f2b0c2ae2397a10c6bd56f3fa41",
+      "authorship": "root",
+      "provenanceEvidence": "Explicit root authorship declaration plus independent snapshot/body comparison",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/platform_core/ai_settings.py",
+      "bytes": 15395,
+      "sha256": "30d2ddeaa532dd495e2f796dbe7608c745e83a86ef024135acda91900dfa41c1",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/platform_core/analytics.py",
+      "bytes": 4065,
+      "sha256": "c7918e18e8021478becb5120c31252834826a73fb2d1d54fbb6f3cd216697a20",
+      "authorship": "root",
+      "provenanceEvidence": "Explicit root authorship declaration plus independent snapshot/body comparison",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/platform_core/capability_registry.py",
+      "bytes": 14262,
+      "sha256": "f75c243f4fb90e9741bc779270bbdd373eecfb6683436f7a36378b873a7b0f2c",
+      "authorship": "scheduler_admin",
+      "provenanceEvidence": "context/timer-original-provenance.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/platform_core/finance_payments.py",
+      "bytes": 8312,
+      "sha256": "c6b20232806a61fe68e5588cb86857b197f17cc495b8af792bdf94100e497808",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/platform_core/finance_reporting.py",
+      "bytes": 15602,
+      "sha256": "78bf2f296d8d29920caa81ade177029aa9f759c4df188c435c0eb73bf823d269",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/platform_core/finance_schema.py",
+      "bytes": 2463,
+      "sha256": "510d4e934a97be9f7b128fe65b09657803feb268a16351bf7f95b7886969761d",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_timer.py",
+      "bytes": 33568,
+      "sha256": "0ff039ae4e572d4c2314eb05f9f0414bb0d054958e5e7e68ec383a252f51238a",
+      "authorship": "scheduler_admin",
+      "provenanceEvidence": "context/timer-original-provenance.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_timer_reports.py",
+      "bytes": 12224,
+      "sha256": "1bed6bebd882ae9fdfb7d1ef8013486cab907a101334fbca07580c44f4613a0e",
+      "authorship": "scheduler_admin",
+      "provenanceEvidence": "context/timer-original-provenance.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/platform_core/schema_migrations.py",
+      "bytes": 2403,
+      "sha256": "dfa03bd8ebda890f1f90cebc76d161613dfad6b64824ef35ec489920b1ab33a6",
+      "authorship": "root",
+      "provenanceEvidence": "Explicit root authorship declaration plus independent snapshot/body comparison",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/platform_core/service_catalog.py",
+      "bytes": 1543,
+      "sha256": "3bde9ce90ee5b737d10e7d489f3ed2800d4dfb9a8340cd6420dcab0db00bb3c5",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/platform_core/system_status.py",
+      "bytes": 6112,
+      "sha256": "b6d8d76622faca254e95806262fc8bde914dcab2425ac251bbbbd6dbe6df27d5",
+      "authorship": "root",
+      "provenanceEvidence": "Explicit root authorship declaration plus independent snapshot/body comparison",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/scripts/verify_transfer_copy.py",
+      "bytes": 18326,
+      "sha256": "0ad73486251754cace4696f4a1874fac8f6ff82c7b4201a7b5862807faf85cf7",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/browser/test_transfer_ai_ui.py",
+      "bytes": 5566,
+      "sha256": "b1cc4692ca01ad0fba815d12ed36cccdd81e8dc06ea5d93bb66c5a6db205d74c",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/browser/test_transfer_finance_ui.py",
+      "bytes": 10661,
+      "sha256": "0cd6930aca1cf0a5f19511fb42f03a0f3854019072f4753eb006ef423fd89fd6",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/browser/test_transfer_shell_ui.py",
+      "bytes": 7266,
+      "sha256": "4d1073c595d17ef69e03d0a0419c7fadfee5ac7f991edc621b1f9c674b620f92",
+      "authorship": "root",
+      "provenanceEvidence": "Explicit root authorship declaration plus independent snapshot/body comparison",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/browser/test_workshop_timer_ui.py",
+      "bytes": 8300,
+      "sha256": "a0255c5412042e9919b574f6322fe2611d345f61828ef8a30d347e4fab5656ef",
+      "authorship": "scheduler_admin",
+      "provenanceEvidence": "context/timer-original-provenance.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/test_capability_contracts.py",
+      "bytes": 5486,
+      "sha256": "2c9865dc7b806e416b0d3d040d9119845de1bb46687c48b510141dbd67fe9658",
+      "authorship": "scheduler_admin",
+      "provenanceEvidence": "context/timer-original-provenance.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/test_transfer_ai.py",
+      "bytes": 17087,
+      "sha256": "df8b01319e512319f6640911edeedcfce554e4b1e32f847e1fe2be0b979314df",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/test_transfer_ai_authority.py",
+      "bytes": 6742,
+      "sha256": "00aea4bd5f836b3b60302f3f3c021d043610d6970d3d751be3c7e36554e920aa",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/test_transfer_ai_history.py",
+      "bytes": 5264,
+      "sha256": "2561a324f715033c0069deaa5297e4d61a4b8a2185c9be6f3038c3967ed92306",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/test_transfer_ai_http.py",
+      "bytes": 12031,
+      "sha256": "2cc534327c13087a6e24c9d4f89d1b33f36ccd4836c37d749d04b14b39f97ccb",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/test_transfer_ai_live_acceptance.py",
+      "bytes": 2395,
+      "sha256": "bb4ef8829eaedae19225443d920a71d187760741f95da053470f4c64a0f34bfa",
+      "authorship": "ai_integrations",
+      "provenanceEvidence": "context/ai-public-original-allowlist.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/test_transfer_analytics.py",
+      "bytes": 3796,
+      "sha256": "2357cf6353a8b0f089e4b0e807ec0961a69117e0f3704bed6261384cdd408d8c",
+      "authorship": "root",
+      "provenanceEvidence": "Explicit root authorship declaration plus independent snapshot/body comparison",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/test_transfer_finance.py",
+      "bytes": 26816,
+      "sha256": "7c39219fa7d729e19c093f9c8718e78e795590ad96a85b3b0409d5f08e3e5eb6",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/test_transfer_finance_payments.py",
+      "bytes": 8153,
+      "sha256": "4a2d7a4a00a661af1c5b8118c546236f8a89837fb25a39608ba1614b7a440c8c",
+      "authorship": "finance_accounts",
+      "provenanceEvidence": "context/finance-public-files.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/test_transfer_lifecycle.py",
+      "bytes": 8745,
+      "sha256": "0020decd88ed2a1cfa5c68e2755a9a89670bd58de71c7ad9f10af45a065d1f0e",
+      "authorship": "root",
+      "provenanceEvidence": "Explicit root authorship declaration plus independent snapshot/body comparison",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/test_workshop_timer.py",
+      "bytes": 31215,
+      "sha256": "9fed83d54f9e7c48111f5a901757c7a7ccf82b1e6021122836a555509350b55b",
+      "authorship": "scheduler_admin",
+      "provenanceEvidence": "context/timer-original-provenance.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/test_workshop_timer_http.py",
+      "bytes": 8115,
+      "sha256": "88599dbf473d1ad533469ffb90cf1da79c14811ba0af728c7321ddba85aec008",
+      "authorship": "scheduler_admin",
+      "provenanceEvidence": "context/timer-original-provenance.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    },
+    {
+      "path": "products/harness-platform/tests/test_workshop_timer_native.py",
+      "bytes": 3441,
+      "sha256": "4b03122ecf238bb4a68aa8c545f05ad5734bc410103f48b112d6c1058fb0c1d5",
+      "authorship": "scheduler_admin",
+      "provenanceEvidence": "context/timer-original-provenance.json",
+      "snapshotSamePathAbsent": {
+        "baseline": true,
+        "octoport-baseline": true,
+        "updates/master": true,
+        "updates/octoport": true
+      }
+    }
+  ],
+  "deferredDocumentation": [
+    {
+      "path": "products/harness-platform/docs/AI_INTEGRATION.md",
+      "reason": "Documentation will be separately reviewed and appended by root after final gates."
+    }
+  ],
+  "excludedMandatory": [
+    {
+      "path": "products/harness-platform/platform_core/assistant_preferences.py",
+      "reason": "Extracted private Octoport preferences/schema/CAS body; a new filename does not establish original authorship."
+    },
+    {
+      "path": "products/harness-platform/tests/test_transfer_service_billing.py",
+      "reason": "Adapted from private upstream LedgerBoundaries/PriceLedger regression source."
+    }
+  ],
+  "exclusionPolicy": [
+    "All unlisted existing/modified/copied shared runtime and tests are private, even if their diff was authored in this transfer.",
+    "No databases, credentials, sessions, key symlinks, real receipts, historic screenshots, private operational evidence, archives, dependency trees, pyc or caches.",
+    "Do not follow imports or copy enclosing directories. Export exact regular files only after size and SHA256 verification.",
+    "Documentation is added separately after final gates. This source list does not authorize publication of referenced private modules."
+  ],
+  "dependencyNotice": "This is an original public extension layer, not a standalone complete product. It imports/calls private identity, ledger, router, native Harness, domain, timer, transport and test-fixture contracts. The maintained complete product remains the private Git tree/bundle with the exact release manifest. No permanent patch-chain build is introduced.",
+  "directPrivateDependencyPaths": [
+    "products/harness-platform/platform_core/__init__.py",
+    "products/harness-platform/platform_core/account_access.py",
+    "products/harness-platform/platform_core/admin_statistics.py",
+    "products/harness-platform/platform_core/assistant_preferences.py",
+    "products/harness-platform/platform_core/catalog.py",
+    "products/harness-platform/platform_core/chat_api.py",
+    "products/harness-platform/platform_core/chat_defaults.py",
+    "products/harness-platform/platform_core/chat_worker.py",
+    "products/harness-platform/platform_core/checkout.py",
+    "products/harness-platform/platform_core/coin_review.py",
+    "products/harness-platform/platform_core/coins.py",
+    "products/harness-platform/platform_core/dispatch.py",
+    "products/harness-platform/platform_core/guest_registration.py",
+    "products/harness-platform/platform_core/guest_selector.py",
+    "products/harness-platform/platform_core/identity.py",
+    "products/harness-platform/platform_core/model_choices.py",
+    "products/harness-platform/platform_core/model_router.py",
+    "products/harness-platform/platform_core/operation_grants.py",
+    "products/harness-platform/platform_core/podmasterye_agent_forms.py",
+    "products/harness-platform/platform_core/podmasterye_book.py",
+    "products/harness-platform/platform_core/podmasterye_chat_context.py",
+    "products/harness-platform/platform_core/podmasterye_domain.py",
+    "products/harness-platform/platform_core/podmasterye_integrations.py",
+    "products/harness-platform/platform_core/podmasterye_market_links.py",
+    "products/harness-platform/platform_core/podmasterye_matrix.py",
+    "products/harness-platform/platform_core/podmasterye_mcp.py",
+    "products/harness-platform/platform_core/podmasterye_visits.py",
+    "products/harness-platform/platform_core/podmasterye_workshops.py",
+    "products/harness-platform/platform_core/provider_balance_alerts.py",
+    "products/harness-platform/platform_core/provider_keys.py",
+    "products/harness-platform/platform_core/router_recovery.py",
+    "products/harness-platform/platform_core/service_billing.py",
+    "products/harness-platform/platform_core/site_identity.py",
+    "products/harness-platform/platform_core/storage.py",
+    "products/harness-platform/platform_core/telegram_api.py",
+    "products/harness-platform/platform_core/user_plugins/__init__.py",
+    "products/harness-platform/platform_core/user_plugins/illustrations.py",
+    "products/harness-platform/platform_core/user_plugins/timer/jobs.py",
+    "products/harness-platform/platform_core/user_plugins/timer/recipe.py",
+    "products/harness-platform/platform_core/user_plugins/timer/schedule.py",
+    "products/harness-platform/platform_core/user_plugins/timer/store.py",
+    "products/harness-platform/platform_core/workshop_write_permissions.py",
+    "products/harness-platform/tests/auth_fixture.py",
+    "products/harness-platform/tests/browser/test_podmasterye_independent_ui.py",
+    "products/harness-platform/tests/test_openrouter_operations.py"
+  ],
+  "review": {
+    "sourceCatalogHashMatches": true,
+    "newPathsAbsentInAllFourSnapshots": true,
+    "pythonFunctionsCompared": true,
+    "exactPrivateFunctionBodyCopiesAtLeastSevenLines": 0,
+    "fiveLineSourceOverlap": "Only one conventional library-import block; no copied implementation body found.",
+    "candidateSecretDatabaseScan": "context/source-safety-scan.json",
+    "scanContainsMatchedValues": false,
+    "publicSafetyFindings": "Only synthetic test mailboxes and descriptive test tokens; no personal or operational data or live credential material detected."
+  }
+}

@@ -1,0 +1,17 @@
+<section class="pm-ai" data-pm-ai-admin="models" aria-labelledby="pm-ai-default-heading">
+  <h2 id="pm-ai-default-heading">Модели Подмастерья</h2>
+  <p>Общая модель действует со следующего сообщения для всех аккаунтов. Уже начатые операции сохраняют выбранный маршрут.</p>
+  <form data-ai="default-model">
+    <label>Источник<select name="source"><option value="deepseek">DeepSeek</option><option value="openrouter-paid">OpenRouter · платные</option><option value="openrouter-free">OpenRouter · бесплатные</option></select></label>
+    <label>Модель<select name="model" required></select></label>
+    <label>Рассуждения<select name="effort" required></select></label>
+    <button type="submit">Установить по умолчанию</button>
+  </form>
+  <p data-ai="default-current"></p>
+  <button type="button" data-ai="refresh-admin-models">Обновить каталог</button>
+  <h3>Доступные модели</h3>
+  <p>Каталог учитывает доступ поставщика, тариф и проверенную совместимость с инструментами. Непроверенные модели отображаются здесь для приёмки.</p>
+  <label>Поиск<input type="search" data-ai="admin-model-search" placeholder="Модель или производитель"></label>
+  <div class="pm-ai-table" data-ai="admin-model-list"></div>
+  <p data-ai="status" role="status" aria-live="polite"></p>
+</section>

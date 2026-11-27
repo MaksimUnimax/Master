@@ -1,0 +1,496 @@
+{
+  "privateProjectDependencies": {
+    "products/harness-platform/platform_core/__init__.py": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/platform_core/account_finance.py",
+      "products/harness-platform/platform_core/account_lifecycle.py",
+      "products/harness-platform/platform_core/ai_settings.py",
+      "products/harness-platform/platform_core/capability_registry.py",
+      "products/harness-platform/platform_core/finance_payments.py",
+      "products/harness-platform/platform_core/finance_reporting.py",
+      "products/harness-platform/platform_core/finance_schema.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/platform_core/podmasterye_timer_reports.py",
+      "products/harness-platform/platform_core/system_status.py",
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/browser/test_transfer_finance_ui.py",
+      "products/harness-platform/tests/browser/test_workshop_timer_ui.py",
+      "products/harness-platform/tests/test_capability_contracts.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_authority.py",
+      "products/harness-platform/tests/test_transfer_ai_history.py",
+      "products/harness-platform/tests/test_transfer_ai_http.py",
+      "products/harness-platform/tests/test_transfer_analytics.py",
+      "products/harness-platform/tests/test_transfer_finance.py",
+      "products/harness-platform/tests/test_transfer_finance_payments.py",
+      "products/harness-platform/tests/test_transfer_lifecycle.py",
+      "products/harness-platform/tests/test_workshop_timer.py",
+      "products/harness-platform/tests/test_workshop_timer_http.py",
+      "products/harness-platform/tests/test_workshop_timer_native.py"
+    ],
+    "products/harness-platform/platform_core/account_access.py": [
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/test_transfer_finance.py"
+    ],
+    "products/harness-platform/platform_core/admin_statistics.py": [
+      "products/harness-platform/platform_core/account_lifecycle.py",
+      "products/harness-platform/platform_core/analytics.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/platform_core/system_status.py"
+    ],
+    "products/harness-platform/platform_core/assistant_preferences.py": [
+      "products/harness-platform/platform_core/ai_settings.py",
+      "products/harness-platform/platform_core/capability_registry.py",
+      "products/harness-platform/tests/test_capability_contracts.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_http.py"
+    ],
+    "products/harness-platform/platform_core/catalog.py": [
+      "products/harness-platform/platform_core/podmasterye_timer.py"
+    ],
+    "products/harness-platform/platform_core/chat_api.py": [
+      "products/harness-platform/tests/test_transfer_ai_http.py",
+      "products/harness-platform/tests/test_transfer_finance.py",
+      "products/harness-platform/tests/test_transfer_finance_payments.py",
+      "products/harness-platform/tests/test_workshop_timer_http.py"
+    ],
+    "products/harness-platform/platform_core/chat_defaults.py": [
+      "products/harness-platform/platform_core/ai_settings.py"
+    ],
+    "products/harness-platform/platform_core/chat_worker.py": [
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/test_workshop_timer_native.py"
+    ],
+    "products/harness-platform/platform_core/checkout.py": [
+      "products/harness-platform/platform_core/finance_payments.py",
+      "products/harness-platform/platform_core/system_status.py",
+      "products/harness-platform/tests/browser/test_transfer_finance_ui.py",
+      "products/harness-platform/tests/test_transfer_finance.py",
+      "products/harness-platform/tests/test_transfer_finance_payments.py"
+    ],
+    "products/harness-platform/platform_core/coin_review.py": [
+      "products/harness-platform/platform_core/account_finance.py"
+    ],
+    "products/harness-platform/platform_core/coins.py": [
+      "products/harness-platform/platform_core/account_finance.py",
+      "products/harness-platform/platform_core/account_lifecycle.py",
+      "products/harness-platform/platform_core/finance_reporting.py",
+      "products/harness-platform/tests/browser/test_transfer_finance_ui.py",
+      "products/harness-platform/tests/test_transfer_finance.py"
+    ],
+    "products/harness-platform/platform_core/dispatch.py": [
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_workshop_timer.py"
+    ],
+    "products/harness-platform/platform_core/guest_registration.py": [
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_authority.py",
+      "products/harness-platform/tests/test_transfer_ai_history.py",
+      "products/harness-platform/tests/test_workshop_timer.py",
+      "products/harness-platform/tests/test_workshop_timer_native.py"
+    ],
+    "products/harness-platform/platform_core/guest_selector.py": [
+      "products/harness-platform/platform_core/account_finance.py"
+    ],
+    "products/harness-platform/platform_core/identity.py": [
+      "products/harness-platform/platform_core/account_finance.py",
+      "products/harness-platform/platform_core/account_lifecycle.py",
+      "products/harness-platform/platform_core/ai_settings.py",
+      "products/harness-platform/platform_core/analytics.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/platform_core/system_status.py",
+      "products/harness-platform/tests/browser/test_transfer_finance_ui.py",
+      "products/harness-platform/tests/browser/test_transfer_shell_ui.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_authority.py",
+      "products/harness-platform/tests/test_transfer_analytics.py",
+      "products/harness-platform/tests/test_transfer_finance.py",
+      "products/harness-platform/tests/test_transfer_finance_payments.py",
+      "products/harness-platform/tests/test_transfer_lifecycle.py",
+      "products/harness-platform/tests/test_workshop_timer.py"
+    ],
+    "products/harness-platform/platform_core/model_choices.py": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/platform_core/ai_settings.py",
+      "products/harness-platform/tests/test_transfer_ai.py"
+    ],
+    "products/harness-platform/platform_core/model_router.py": [
+      "products/harness-platform/tests/test_transfer_ai.py"
+    ],
+    "products/harness-platform/platform_core/operation_grants.py": [
+      "products/harness-platform/platform_core/ai_settings.py",
+      "products/harness-platform/platform_core/finance_schema.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_authority.py",
+      "products/harness-platform/tests/test_transfer_finance.py",
+      "products/harness-platform/tests/test_transfer_lifecycle.py",
+      "products/harness-platform/tests/test_workshop_timer.py"
+    ],
+    "products/harness-platform/platform_core/podmasterye_agent_forms.py": [
+      "products/harness-platform/platform_core/capability_registry.py"
+    ],
+    "products/harness-platform/platform_core/podmasterye_book.py": [
+      "products/harness-platform/platform_core/capability_registry.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/platform_core/podmasterye_timer_reports.py",
+      "products/harness-platform/tests/test_workshop_timer.py"
+    ],
+    "products/harness-platform/platform_core/podmasterye_chat_context.py": [
+      "products/harness-platform/tests/test_transfer_ai_history.py"
+    ],
+    "products/harness-platform/platform_core/podmasterye_domain.py": [
+      "products/harness-platform/platform_core/account_lifecycle.py",
+      "products/harness-platform/platform_core/ai_settings.py",
+      "products/harness-platform/platform_core/analytics.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_history.py",
+      "products/harness-platform/tests/test_transfer_analytics.py",
+      "products/harness-platform/tests/test_transfer_lifecycle.py",
+      "products/harness-platform/tests/test_workshop_timer.py",
+      "products/harness-platform/tests/test_workshop_timer_native.py"
+    ],
+    "products/harness-platform/platform_core/podmasterye_integrations.py": [
+      "products/harness-platform/tests/test_transfer_lifecycle.py"
+    ],
+    "products/harness-platform/platform_core/podmasterye_market_links.py": [
+      "products/harness-platform/platform_core/analytics.py"
+    ],
+    "products/harness-platform/platform_core/podmasterye_matrix.py": [
+      "products/harness-platform/platform_core/capability_registry.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py"
+    ],
+    "products/harness-platform/platform_core/podmasterye_mcp.py": [
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_workshop_timer.py"
+    ],
+    "products/harness-platform/platform_core/podmasterye_visits.py": [
+      "products/harness-platform/platform_core/analytics.py"
+    ],
+    "products/harness-platform/platform_core/podmasterye_workshops.py": [
+      "products/harness-platform/platform_core/capability_registry.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/tests/browser/test_workshop_timer_ui.py",
+      "products/harness-platform/tests/test_transfer_ai_authority.py",
+      "products/harness-platform/tests/test_transfer_ai_history.py",
+      "products/harness-platform/tests/test_workshop_timer.py",
+      "products/harness-platform/tests/test_workshop_timer_http.py",
+      "products/harness-platform/tests/test_workshop_timer_native.py"
+    ],
+    "products/harness-platform/platform_core/provider_balance_alerts.py": [
+      "products/harness-platform/tests/test_transfer_ai.py"
+    ],
+    "products/harness-platform/platform_core/provider_keys.py": [
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_http.py"
+    ],
+    "products/harness-platform/platform_core/router_recovery.py": [
+      "products/harness-platform/tests/test_transfer_ai.py"
+    ],
+    "products/harness-platform/platform_core/service_billing.py": [
+      "products/harness-platform/platform_core/account_finance.py",
+      "products/harness-platform/platform_core/finance_reporting.py",
+      "products/harness-platform/platform_core/finance_schema.py",
+      "products/harness-platform/tests/test_transfer_finance.py"
+    ],
+    "products/harness-platform/platform_core/site_identity.py": [
+      "products/harness-platform/platform_core/analytics.py",
+      "products/harness-platform/platform_core/system_status.py"
+    ],
+    "products/harness-platform/platform_core/storage.py": [
+      "products/harness-platform/platform_core/capability_registry.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/test_transfer_lifecycle.py"
+    ],
+    "products/harness-platform/platform_core/telegram_api.py": [
+      "products/harness-platform/tests/test_workshop_timer.py"
+    ],
+    "products/harness-platform/platform_core/user_plugins/__init__.py": [
+      "products/harness-platform/tests/test_transfer_ai.py"
+    ],
+    "products/harness-platform/platform_core/user_plugins/illustrations.py": [
+      "products/harness-platform/platform_core/ai_settings.py",
+      "products/harness-platform/platform_core/capability_registry.py",
+      "products/harness-platform/tests/test_capability_contracts.py",
+      "products/harness-platform/tests/test_transfer_ai.py"
+    ],
+    "products/harness-platform/platform_core/user_plugins/timer/jobs.py": [
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/tests/test_workshop_timer.py"
+    ],
+    "products/harness-platform/platform_core/user_plugins/timer/recipe.py": [
+      "products/harness-platform/platform_core/podmasterye_timer.py"
+    ],
+    "products/harness-platform/platform_core/user_plugins/timer/schedule.py": [
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/tests/test_capability_contracts.py",
+      "products/harness-platform/tests/test_workshop_timer.py"
+    ],
+    "products/harness-platform/platform_core/user_plugins/timer/store.py": [
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/tests/test_workshop_timer.py"
+    ],
+    "products/harness-platform/platform_core/workshop_write_permissions.py": [
+      "products/harness-platform/platform_core/ai_settings.py"
+    ],
+    "products/harness-platform/tests/auth_fixture.py": [
+      "products/harness-platform/tests/browser/test_workshop_timer_ui.py"
+    ],
+    "products/harness-platform/tests/browser/test_podmasterye_independent_ui.py": [
+      "products/harness-platform/acceptance/transfer_performance.py",
+      "products/harness-platform/tests/browser/test_transfer_ai_ui.py",
+      "products/harness-platform/tests/browser/test_transfer_finance_ui.py",
+      "products/harness-platform/tests/browser/test_transfer_shell_ui.py",
+      "products/harness-platform/tests/browser/test_workshop_timer_ui.py"
+    ],
+    "products/harness-platform/tests/test_openrouter_operations.py": [
+      "products/harness-platform/tests/test_transfer_ai_authority.py"
+    ]
+  },
+  "standardLibraryOrThirdPartyImports": {
+    "argparse": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/acceptance/transfer_performance.py",
+      "products/harness-platform/scripts/verify_transfer_copy.py"
+    ],
+    "asyncio": [
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_finance_payments.py",
+      "products/harness-platform/tests/test_workshop_timer.py"
+    ],
+    "base64": [
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/test_transfer_ai_http.py"
+    ],
+    "collections": [
+      "products/harness-platform/acceptance/transfer_performance.py"
+    ],
+    "contextlib": [
+      "products/harness-platform/platform_core/finance_payments.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/scripts/verify_transfer_copy.py"
+    ],
+    "copy": [
+      "products/harness-platform/platform_core/capability_registry.py",
+      "products/harness-platform/tests/test_transfer_finance_payments.py"
+    ],
+    "dataclasses": [
+      "products/harness-platform/platform_core/capability_registry.py",
+      "products/harness-platform/platform_core/podmasterye_timer_reports.py"
+    ],
+    "datetime": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/platform_core/account_finance.py",
+      "products/harness-platform/platform_core/finance_reporting.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/platform_core/podmasterye_timer_reports.py",
+      "products/harness-platform/tests/test_workshop_timer.py"
+    ],
+    "decimal": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/platform_core/account_finance.py",
+      "products/harness-platform/platform_core/finance_payments.py",
+      "products/harness-platform/platform_core/finance_reporting.py",
+      "products/harness-platform/tests/browser/test_transfer_finance_ui.py",
+      "products/harness-platform/tests/test_transfer_finance.py"
+    ],
+    "hashlib": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/acceptance/transfer_performance.py",
+      "products/harness-platform/platform_core/account_lifecycle.py",
+      "products/harness-platform/platform_core/ai_settings.py",
+      "products/harness-platform/platform_core/analytics.py",
+      "products/harness-platform/platform_core/finance_payments.py",
+      "products/harness-platform/platform_core/finance_reporting.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/platform_core/schema_migrations.py",
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/test_transfer_ai_authority.py"
+    ],
+    "html": [
+      "products/harness-platform/platform_core/system_status.py"
+    ],
+    "httpx": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_http.py"
+    ],
+    "inspect": [
+      "products/harness-platform/platform_core/schema_migrations.py"
+    ],
+    "json": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/acceptance/transfer_performance.py",
+      "products/harness-platform/platform_core/account_lifecycle.py",
+      "products/harness-platform/platform_core/ai_settings.py",
+      "products/harness-platform/platform_core/analytics.py",
+      "products/harness-platform/platform_core/finance_payments.py",
+      "products/harness-platform/platform_core/finance_reporting.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/platform_core/schema_migrations.py",
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/browser/test_transfer_shell_ui.py",
+      "products/harness-platform/tests/browser/test_workshop_timer_ui.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_authority.py",
+      "products/harness-platform/tests/test_transfer_ai_http.py",
+      "products/harness-platform/tests/test_transfer_ai_live_acceptance.py",
+      "products/harness-platform/tests/test_transfer_analytics.py",
+      "products/harness-platform/tests/test_transfer_finance.py",
+      "products/harness-platform/tests/test_transfer_lifecycle.py",
+      "products/harness-platform/tests/test_workshop_timer.py"
+    ],
+    "jsonschema": [
+      "products/harness-platform/tests/test_capability_contracts.py"
+    ],
+    "math": [
+      "products/harness-platform/acceptance/transfer_performance.py"
+    ],
+    "os": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/acceptance/transfer_performance.py",
+      "products/harness-platform/platform_core/finance_payments.py",
+      "products/harness-platform/platform_core/system_status.py",
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/browser/test_transfer_ai_ui.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_authority.py",
+      "products/harness-platform/tests/test_transfer_ai_http.py",
+      "products/harness-platform/tests/test_transfer_analytics.py",
+      "products/harness-platform/tests/test_workshop_timer_http.py",
+      "products/harness-platform/tests/test_workshop_timer_native.py"
+    ],
+    "pathlib": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/acceptance/transfer_performance.py",
+      "products/harness-platform/platform_core/account_lifecycle.py",
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/browser/test_transfer_ai_ui.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_authority.py",
+      "products/harness-platform/tests/test_transfer_ai_history.py",
+      "products/harness-platform/tests/test_transfer_ai_http.py",
+      "products/harness-platform/tests/test_transfer_ai_live_acceptance.py",
+      "products/harness-platform/tests/test_transfer_analytics.py",
+      "products/harness-platform/tests/test_transfer_finance.py",
+      "products/harness-platform/tests/test_transfer_lifecycle.py",
+      "products/harness-platform/tests/test_workshop_timer.py",
+      "products/harness-platform/tests/test_workshop_timer_http.py",
+      "products/harness-platform/tests/test_workshop_timer_native.py"
+    ],
+    "re": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/platform_core/account_finance.py",
+      "products/harness-platform/platform_core/account_lifecycle.py",
+      "products/harness-platform/platform_core/ai_settings.py",
+      "products/harness-platform/platform_core/finance_payments.py",
+      "products/harness-platform/platform_core/schema_migrations.py",
+      "products/harness-platform/platform_core/service_catalog.py",
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/browser/test_transfer_shell_ui.py"
+    ],
+    "shutil": [
+      "products/harness-platform/scripts/verify_transfer_copy.py"
+    ],
+    "sqlite3": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/platform_core/account_lifecycle.py",
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/test_transfer_finance.py",
+      "products/harness-platform/tests/test_transfer_lifecycle.py",
+      "products/harness-platform/tests/test_workshop_timer.py",
+      "products/harness-platform/tests/test_workshop_timer_native.py"
+    ],
+    "statistics": [
+      "products/harness-platform/acceptance/transfer_performance.py"
+    ],
+    "subprocess": [
+      "products/harness-platform/acceptance/transfer_performance.py",
+      "products/harness-platform/tests/test_transfer_ai_authority.py",
+      "products/harness-platform/tests/test_transfer_ai_live_acceptance.py",
+      "products/harness-platform/tests/test_transfer_finance.py"
+    ],
+    "sys": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/acceptance/transfer_performance.py",
+      "products/harness-platform/scripts/verify_transfer_copy.py",
+      "products/harness-platform/tests/test_transfer_ai_live_acceptance.py",
+      "products/harness-platform/tests/test_transfer_finance.py"
+    ],
+    "tempfile": [
+      "products/harness-platform/tests/browser/test_transfer_ai_ui.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_authority.py",
+      "products/harness-platform/tests/test_transfer_ai_history.py",
+      "products/harness-platform/tests/test_transfer_ai_http.py",
+      "products/harness-platform/tests/test_transfer_ai_live_acceptance.py",
+      "products/harness-platform/tests/test_transfer_analytics.py",
+      "products/harness-platform/tests/test_transfer_finance.py",
+      "products/harness-platform/tests/test_transfer_lifecycle.py",
+      "products/harness-platform/tests/test_workshop_timer.py",
+      "products/harness-platform/tests/test_workshop_timer_http.py",
+      "products/harness-platform/tests/test_workshop_timer_native.py"
+    ],
+    "time": [
+      "products/harness-platform/acceptance/transfer_performance.py",
+      "products/harness-platform/platform_core/account_finance.py",
+      "products/harness-platform/platform_core/account_lifecycle.py",
+      "products/harness-platform/platform_core/ai_settings.py",
+      "products/harness-platform/platform_core/finance_payments.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/tests/browser/test_transfer_finance_ui.py",
+      "products/harness-platform/tests/browser/test_transfer_shell_ui.py",
+      "products/harness-platform/tests/browser/test_workshop_timer_ui.py",
+      "products/harness-platform/tests/test_transfer_ai_authority.py",
+      "products/harness-platform/tests/test_transfer_finance.py",
+      "products/harness-platform/tests/test_workshop_timer_http.py"
+    ],
+    "types": [
+      "products/harness-platform/platform_core/service_catalog.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_history.py",
+      "products/harness-platform/tests/test_workshop_timer.py"
+    ],
+    "unittest": [
+      "products/harness-platform/tests/browser/test_transfer_finance_ui.py",
+      "products/harness-platform/tests/browser/test_transfer_shell_ui.py",
+      "products/harness-platform/tests/browser/test_workshop_timer_ui.py",
+      "products/harness-platform/tests/test_capability_contracts.py",
+      "products/harness-platform/tests/test_transfer_ai.py",
+      "products/harness-platform/tests/test_transfer_ai_authority.py",
+      "products/harness-platform/tests/test_transfer_ai_history.py",
+      "products/harness-platform/tests/test_transfer_ai_http.py",
+      "products/harness-platform/tests/test_transfer_ai_live_acceptance.py",
+      "products/harness-platform/tests/test_transfer_analytics.py",
+      "products/harness-platform/tests/test_transfer_finance.py",
+      "products/harness-platform/tests/test_transfer_finance_payments.py",
+      "products/harness-platform/tests/test_transfer_lifecycle.py",
+      "products/harness-platform/tests/test_workshop_timer.py",
+      "products/harness-platform/tests/test_workshop_timer_http.py",
+      "products/harness-platform/tests/test_workshop_timer_native.py"
+    ],
+    "uuid": [
+      "products/harness-platform/acceptance/ai_live_acceptance.py",
+      "products/harness-platform/platform_core/account_finance.py",
+      "products/harness-platform/platform_core/finance_payments.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py",
+      "products/harness-platform/tests/browser/test_transfer_finance_ui.py",
+      "products/harness-platform/tests/browser/test_transfer_shell_ui.py",
+      "products/harness-platform/tests/browser/test_workshop_timer_ui.py",
+      "products/harness-platform/tests/test_transfer_finance.py",
+      "products/harness-platform/tests/test_transfer_finance_payments.py",
+      "products/harness-platform/tests/test_workshop_timer.py",
+      "products/harness-platform/tests/test_workshop_timer_http.py"
+    ],
+    "zoneinfo": [
+      "products/harness-platform/platform_core/finance_reporting.py",
+      "products/harness-platform/platform_core/podmasterye_timer.py"
+    ]
+  },
+  "method": "Static AST imports; direct project dependencies only; UI also requires existing host mounting/HTTP/auth contracts. Does not package dependencies."
+}

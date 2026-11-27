@@ -1,0 +1,553 @@
+{
+  "format": 1,
+  "state": "accepted_in_recorded_scope_with_external_blockers",
+  "codeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+  "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+  "statusMeaning": {
+    "verified": "Реализовано и проверено в кандидате; не означает выкладку в production",
+    "partial_external": "Внутренний контракт реализован и проверен; указанная внешняя приёмка не завершена",
+    "blocked": "Предусмотренный ТЗ отдельный допуск или политика отсутствует; операция закрыта",
+    "compatibility": "Совместимость архитектуры проверена; внешний D0 принимается отдельно",
+    "domain_external": "Фактическая внешняя настройка относится к отдельному переносу домена"
+  },
+  "requirements": [
+    [
+      "A01",
+      "verified",
+      "Общий Harness, identity, ledger, router, timer и Telegram переиспользованы; свежие v30 и применимые общие изменения Octoport объединены",
+      "Архитектура; provenance; capability, native и полный Python"
+    ],
+    [
+      "A02",
+      "verified",
+      "UI, инструменты и расписания используют учётное ядро, единые receipts и типизированный registry",
+      "test_capability_contracts; test_workshop_timer; test_workshop_permissions_v30"
+    ],
+    [
+      "A03",
+      "verified",
+      "Девять версий миграций с checksum/SAVEPOINT; clean/repeat/restore и реальная обезличенная копия; точные доли сохранены",
+      "migration-r3.json; test_transfer_lifecycle; test_transfer_finance"
+    ],
+    [
+      "A04",
+      "verified",
+      "Общие роли/сеансы/CSRF, scope, отзыв grants, защита админа, отсутствие credentials в UI; archive проверяется и на общем gateway",
+      "test_account_access; test_browser_session; test_transfer_ai_authority; test_transfer_lifecycle"
+    ],
+    [
+      "A05",
+      "verified",
+      "Идемпотентные receipts, durable leases/fencing, unknown outcome сохраняет резерв; запрет слепого повтора",
+      "test_openrouter_recovery; test_timer; test_workshop_timer; test_transfer_finance_payments; live-r3.json"
+    ],
+    [
+      "A06",
+      "verified",
+      "Одна навигация аккаунта, три колонки, темы/узкие экраны/клавиатура; черновик сохраняется при переходе; производительность измерена",
+      "Оба полных browser results; performance-summary.json; test_transfer_shell_ui"
+    ],
+    [
+      "A07",
+      "verified",
+      "Активные функции имеют обработчики и evidence; закрытые внешние операции явно не приняты; полное исходное дерево в Git без постоянной patch-сборки",
+      "Архитектура; source manifest; матрица блокеров; полный Git bundle"
+    ],
+    [
+      "AC01",
+      "verified",
+      "Единое меню: профиль, кошелёк, настройки, о сервисе, админка по роли и выход; keyboard/Escape/focus",
+      "test_transfer_shell_ui; test_transfer_finance_ui"
+    ],
+    [
+      "AC02",
+      "verified",
+      "Профиль, штатная смена пароля, неверный пароль, отзыв старых сеансов и собственный список сессий",
+      "test_browser_session; test_transfer_finance; test_transfer_finance_ui"
+    ],
+    [
+      "AC03",
+      "verified",
+      "Почтовая защита через действующий auth; обязательные email/TOTP администратора не отключаются",
+      "test_account_access; test_browser_session; полный браузерный admin enrollment"
+    ],
+    [
+      "AC04",
+      "verified",
+      "Один точный кошелёк, история/резервы/пагинация, единое обновление и BigInt округление видимого итога до сотых",
+      "test_transfer_finance; test_transfer_finance_ui; test_podmasterye_balance_v28_ui; wallet-focus-return.json (настоящий возврат фокуса окна)"
+    ],
+    [
+      "AC05",
+      "verified",
+      "Один прежний основной чат; файлы, голос, документы, контекст, streaming/stop и guest history сохранены",
+      "test_transfer_ai_history; test_podmasterye_agent_first; AgentUI; files/native regression"
+    ],
+    [
+      "FI01",
+      "verified",
+      "Один ledger для direct DS, OR, web, media, images и зарегистрированных услуг; отдельного wallet нет",
+      "test_transfer_service_billing; test_openrouter_operations; test_transfer_finance; live-r3.json; гостевые расходы — отдельная проекция платформы в общем отчёте"
+    ],
+    [
+      "FI02",
+      "verified",
+      "Себестоимость, тариф, FX, клиентская цена, coins, reserves и поступления разделены; неизвестные суммы не равны нулю",
+      "test_transfer_finance; test_openrouter_operations; finance report"
+    ],
+    [
+      "FI03",
+      "verified",
+      "Резерв до dispatch по тарифу; недостаточный/точный/достаточный баланс, конкуренция; локальный учёт и отчёты бесплатны",
+      "test_openrouter_operations; test_shared_web_access; test_workshop_timer; test_transfer_finance"
+    ],
+    [
+      "FI04",
+      "verified",
+      "Общий admin список, фильтры и атомарная сверка с evidence/version/audit без повторного списания",
+      "test_transfer_finance; test_transfer_finance_ui; test_transfer_finance_payments"
+    ],
+    [
+      "FI05",
+      "verified",
+      "Единая финансовая проекция по аккаунтам/периодам/поставщикам/услугам, точные итоги и признак неполноты",
+      "test_transfer_finance; test_admin_statistics; finance UI"
+    ],
+    [
+      "AI01",
+      "partial_external",
+      "DS/OR объединены в router/gateway; direct DS живой PASS. Собственный OR key отсутствует; реальные OR-модели не объявлены принятыми",
+      "test_transfer_ai; test_openrouter_catalog/operations/recovery; live-r3.json"
+    ],
+    [
+      "AI02",
+      "partial_external",
+      "Write-only keys, paid/free каталог, default/effort и server capability gate работают; реальный OR catalogue/model check ожидает ключ",
+      "test_transfer_ai_http; test_transfer_ai_ui; test_openrouter_catalog"
+    ],
+    [
+      "AI03",
+      "partial_external",
+      "Выбор разрешённой модели на аккаунте, возврат к default и глобальная revision семантика проверены; живой OR выбор ожидает ключ",
+      "test_transfer_ai; test_transfer_ai_http; native contracts"
+    ],
+    [
+      "AI04",
+      "partial_external",
+      "DS/OR monitor, ручной/периодический refresh, FX/threshold/dedup реализованы; штатный backend DS fetch дал HTTP 200. Реальные OR и TG alerts не принимались",
+      "test_admin_provider_balances; test_admin_balance_alerts; test_transfer_ai_ui; balance-live-r3.json (backend fetch, не admin UI)"
+    ],
+    [
+      "AI05",
+      "verified",
+      "Обращение/тон/подробность в общем профиле, CAS/reset, применение к следующему native turn и frozen recovery",
+      "test_transfer_ai; assistant-preferences.test.mjs; test_transfer_ai_ui"
+    ],
+    [
+      "AI06",
+      "verified",
+      "Собственная готовая матрица, local FAQ/calculators, ID-only classifier, без новых квот и свободного гостевого агента",
+      "guest/python/browser regression; native guest retry/restart"
+    ],
+    [
+      "AI07",
+      "verified",
+      "Обычный помощник выполнил настоящий Search и Fetch с источниками, единицами и ledger; replay не вызвал новую платную попытку",
+      "live-r3.json; test_shared_web_access; native web evidence/security tests"
+    ],
+    [
+      "AI08",
+      "partial_external",
+      "Built-in illustrations, model/price gate, immutable versions, owner download, stop/recovery/billing работают; внешний image provider не подключён",
+      "test_openrouter_operations/recovery; test_transfer_ai; native image contracts"
+    ],
+    [
+      "TM01",
+      "verified",
+      "Расписания встроены в новый аккаунт и помощника; нет plugin entitlement/отдельного cron",
+      "test_workshop_timer_http; test_capability_contracts; test_workshop_timer_ui"
+    ],
+    [
+      "TM02",
+      "verified",
+      "Один durable event contract, one-shot/daily/weekly/monthly, timezone, edit/pause/resume/cancel/manual/history",
+      "test_timer; test_workshop_timer; test_workshop_timer_ui"
+    ],
+    [
+      "TM03",
+      "verified",
+      "Все шесть отчётов читают прежнее хозяйственное ядро, локально считают числа и не используют coins/model",
+      "test_workshop_timer; test_workshop_timer_http; timer report"
+    ],
+    [
+      "TM04",
+      "partial_external",
+      "App/TG/both, единая привязка, отдельный delivery status, revocation/unknown реализованы; реальная отправка адресату не выполнялась",
+      "test_workshop_timer; test_workshop_timer_native; test_workshop_timer_ui"
+    ],
+    [
+      "TM05",
+      "verified",
+      "Типизированные учётные действия идут через общий finalizer; конкретный preview/confirmation и актуальная версия обязательны",
+      "test_workshop_timer; test_workshop_timer_http; test_capability_contracts"
+    ],
+    [
+      "TM06",
+      "verified",
+      "Atomic claim, leases, restart, fencing, per-channel outcome, cancellation/archive и изоляция; unknown delivery не повторяется вслепую",
+      "test_timer; test_workshop_timer; test_workshop_timer_native; test_transfer_lifecycle"
+    ],
+    [
+      "AD01",
+      "partial_external",
+      "Checkout/гостевой выбор/receipt email/idempotent recovery/admin payments реализованы; боевой платёж и чек не приняты",
+      "test_checkout; test_transfer_finance_payments; PublicPaymentV24UI; T28 blocked"
+    ],
+    [
+      "AD02",
+      "partial_external",
+      "Один public-only consent-aware counter, SPA hits, withdraw и отдельная конфигурация; собственный живой счётчик/токен ожидают настройки",
+      "test_transfer_analytics; test_transfer_shell_ui; test_mastersckaya_domain_v29"
+    ],
+    [
+      "AD03",
+      "verified",
+      "Группировка admin, финансы/платежи, модели/ключи/балансы, расписания и read-only system state с серверными правами",
+      "test_admin_statistics; test_podmasterye_admin_v12; LayoutUI; transfer UI"
+    ],
+    [
+      "AD04",
+      "verified",
+      "Блокировка/архив/restore с сохранением данных, отзывом session/grants, паузой заданий/интеграций и audit",
+      "test_transfer_lifecycle; test_transfer_shell_ui; test_transfer_ai_authority"
+    ],
+    [
+      "AD05",
+      "blocked",
+      "Dependency preview/version и безопасные массовые обратимые действия готовы; необратимое удаление закрыто до утверждения политики хранения",
+      "TRANSFER_DATA_POLICY_RU.md; test_transfer_lifecycle; T32 blocked"
+    ],
+    [
+      "EX01",
+      "verified",
+      "Штатные возможности регистрируются через единый capability contract; пользовательский каталог плагинов не смонтирован",
+      "test_capability_contracts; test_workshop_timer_http; native tool set"
+    ],
+    [
+      "EX02",
+      "verified",
+      "Рекламные bidder/parser.market/BHAPI и специфические actions Octoport не активированы; прежние интеграции Мастерской сохранены",
+      "Capability exclusions; registry; Полный guest/member regression"
+    ]
+  ],
+  "criteria": [
+    [
+      "T01",
+      "verified",
+      "Общая архитектура и один authoritative write path",
+      "A01/A02; capability contracts, timer effects, архитектурный аудит"
+    ],
+    [
+      "T02",
+      "verified",
+      "Clean/install, реальная обезличенная копия, повтор и restore",
+      "migration-r3.json: 101 существующая таблица/4 DB, 9 migrations, native 14; заполненный synthetic accounting regression"
+    ],
+    [
+      "T03",
+      "verified",
+      "Account/workshop isolation, guest/member/admin и direct API",
+      "test_transfer_finance, lifecycle, AI authority, timer, access"
+    ],
+    [
+      "T04",
+      "verified",
+      "Повторы, конкуренция, restart и unknown outcome",
+      "test_openrouter_recovery; test_timer; live replay; payment reconcile race"
+    ],
+    [
+      "T05",
+      "verified",
+      "Настоящие Chromium и Opera, themes/mobile/keyboard/drafts",
+      "Полные browser JSON, каждое 260 unique tests; без UA подмены"
+    ],
+    [
+      "T06",
+      "verified",
+      "Menu/profile/password/sessions/email/TOTP",
+      "BrowserSession, access и transfer finance UI; admin enrollment"
+    ],
+    [
+      "T07",
+      "verified",
+      "Balance refresh, UI до сотых, точный ledger/API",
+      "Finance rounding/refresh tests; wallet-focus-return.json: actual trusted blur→focus, 0 background/1 return GET, exact API 12.345678901234 and UI 12,35; hidden→visible not separately observed"
+    ],
+    [
+      "T08",
+      "verified",
+      "Один chat, files/voice/documents/context",
+      "AgentUI file-only/read/create/edit; history/native/attachments regression"
+    ],
+    [
+      "T09",
+      "verified",
+      "Несколько поставщиков/услуг, tariff/FX snapshot",
+      "OR operations + service billing + finance projections; DS/Web live"
+    ],
+    [
+      "T10",
+      "verified",
+      "Все границы баланса и бесплатный local path",
+      "OR exact/free/insufficient; concurrent reserve; timer reports no charge"
+    ],
+    [
+      "T11",
+      "verified",
+      "Success/429/error/cancel/unknown/reconcile",
+      "OR recovery, coins/service billing, finance atomic receipt"
+    ],
+    [
+      "T12",
+      "verified",
+      "Итоги периода и неполные метрики",
+      "Finance reporting exact sums/unknown; admin statistics"
+    ],
+    [
+      "T13",
+      "partial_external",
+      "Прямой DS принят; OR catalogue/config/paid/free проверены controlled transport",
+      "Live OR models pending: собственного ключа нет"
+    ],
+    [
+      "T14",
+      "partial_external",
+      "Native stream/stop/context/cache/tools/docs проверены; реальная совместимость всех OR models не доказана",
+      "Native77; OR native suites; actual DS/Search/Fetch; model capability gate"
+    ],
+    [
+      "T15",
+      "partial_external",
+      "Независимые balances, период/пороги/ошибки и TG dedup проверены",
+      "DS backend BalanceMonitor.fetch: HTTP 200, корректные CNY/USD decimal strings, без новых списаний; refresh/updatedAt/admin UI проверены fixtures. Живые OR и Telegram не приняты"
+    ],
+    [
+      "T16",
+      "verified",
+      "Style prefs/default/revision и права",
+      "AI preference Python/native/browser contracts"
+    ],
+    [
+      "T17",
+      "verified",
+      "Local FAQ/calculator и strict classifier ID",
+      "Guest selector, matrix, browser calculator; посторонняя тема"
+    ],
+    [
+      "T18",
+      "verified",
+      "Нет новых квот, pagination и guest→member history",
+      "Guest messages beyond old limits; native retry/restart history"
+    ],
+    [
+      "T19",
+      "verified",
+      "Реальный авторизованный Search/Fetch, источники и расходы",
+      "live-r3.json: 1 search, 1 fetch, 0.272448499038 RUB total, all replay no new attempt; security suites"
+    ],
+    [
+      "T20",
+      "partial_external",
+      "Генерация/versions/download/cancel/owner/unknown проверены fixtures",
+      "Реальный платный image provider/model pending: OR key отсутствует"
+    ],
+    [
+      "T21",
+      "verified",
+      "Новый аккаунт получает timer без plugins; lifecycle event UI",
+      "workshop timer HTTP/browser tests"
+    ],
+    [
+      "T22",
+      "verified",
+      "One-shot/daily/weekly/monthly/timezones/misfire/restart/claims",
+      "test_timer и workshop timer boundary cases"
+    ],
+    [
+      "T23",
+      "verified",
+      "Шесть локальных отчётов, совпадающие с domain",
+      "Report totals and filters; model attempts/coin changes0"
+    ],
+    [
+      "T24",
+      "partial_external",
+      "App/TG/both и отдельный статус доставки",
+      "Реальный native app exchange PASS; TG transport controlled, реального адресата не отправляли"
+    ],
+    [
+      "T25",
+      "verified",
+      "Typed scheduled effect и confirmation/version/replay",
+      "Общий finalizer и receipt, unsafe/expired/archive отказ"
+    ],
+    [
+      "T26",
+      "verified",
+      "Unknown delivery, stop/archive, partial failure, isolation",
+      "Timer leases/fencing и lifecycle regressions"
+    ],
+    [
+      "T27",
+      "verified",
+      "Гостевой выбор суммы→login→checkout; имитация успеха/ошибок/дублей",
+      "Checkout tests, payment recovery7, PublicPayment UI"
+    ],
+    [
+      "T28",
+      "blocked",
+      "Реальный платёж, чек и сверка ЮKassa",
+      "Отдельный допуск/собственный магазин/фискальная политика отсутствуют; payments disabled"
+    ],
+    [
+      "T29",
+      "partial_external",
+      "Consent/public-only/SPA/withdraw/excluded admin, отдельный counter",
+      "Controlled analytics transport PASS; собственный действующий counter/token и отчёт посещений pending"
+    ],
+    [
+      "T30",
+      "verified",
+      "Admin filters/sorts/pages10/20/50/100 и прежние формы/права",
+      "Admin statistics + finance/payments + real browser layouts"
+    ],
+    [
+      "T31",
+      "verified",
+      "Block/archive/restore, revocations и protected/last-admin",
+      "Lifecycle Python+browser, gateway authority, timer cancellation"
+    ],
+    [
+      "T32",
+      "blocked",
+      "Политика и необратимое индивидуальное/массовое удаление",
+      "Политика не утверждена; preview/version/partial reversible batch протестированы. Общий endpoint отклоняет action=delete; необратимый исполнитель отсутствует"
+    ],
+    [
+      "T33",
+      "verified",
+      "Новый tool/report через registry без второго engine",
+      "Capability table actual handlers; excluded advertising tools"
+    ],
+    [
+      "T34",
+      "verified",
+      "Полная актуальная регрессия продукта и затронутого ядра",
+      "Python 519 +17 общих финансовых cases, native 77, Opera 260 и Chromium 260: все финальные наборы PASS, 0 failures/errors/skips; один runtime SHA"
+    ],
+    [
+      "T35",
+      "partial_external",
+      "Точный source commit, Git bundle/delta, source manifest, backup/restore, live cost и runbooks",
+      "Private canonical Git готов; full private GitHub remote требует доступной авторизации создания/публикации, public export не заменяет full tree"
+    ],
+    [
+      "T36",
+      "domain_external",
+      "DNS/TLS/ACME/http redirects",
+      "В этом задании DNS/Nginx/SSL не менялись; фактическая приёмка отдельного D0"
+    ],
+    [
+      "T37",
+      "compatibility",
+      "Единый origin и fail-closed invalid config",
+      "test_mastersckaya_domain_v29; Telegram/analytics/SEO use shared identity"
+    ],
+    [
+      "T38",
+      "compatibility",
+      "Мастерская как сервис, Подмастерье как agent; v29/v30 сохранены",
+      "Auth/public/admin browser contracts; catalog/data preservation"
+    ],
+    [
+      "T39",
+      "compatibility",
+      "Прежние account IDs/data, cookie/Origin/CSRF; no token URL",
+      "Migration and BrowserSession PASS; настоящий вход на новом публичном HTTPS origin принимает D0"
+    ],
+    [
+      "T40",
+      "domain_external",
+      "Почтовый домен, доставка и SPF/DKIM/DMARC",
+      "SMTP/DNS/mail credentials не менялись; внешний D0 отдельно"
+    ],
+    [
+      "T41",
+      "compatibility",
+      "Callbacks из общего origin, checkout и analytics isolation",
+      "URL/CSRF/return/Webhook controlled contracts; реальные настройки TG/ЮKassa/Метрика нового домена pending"
+    ],
+    [
+      "T42",
+      "compatibility",
+      "SEO/noindex/backup/restore совместимы с единым release",
+      "Existing public routes regression и restore PASS; production redirect/canonical/public smoke относятся к D0"
+    ]
+  ],
+  "domainRequirements": [
+    [
+      "D01",
+      "domain_external",
+      "DNS/HTTPS/ACME и redirects не изменялись",
+      "Фактическая внешняя приёмка отдельной работы D0"
+    ],
+    [
+      "D02",
+      "compatibility",
+      "Единый site_identity/PODMASTERYE_PUBLIC_ORIGIN, strict invalid config, без доменов в отдельных новых модулях",
+      "test_mastersckaya_domain_v29; analytics/origin contracts"
+    ],
+    [
+      "D03",
+      "compatibility",
+      "Сервис Мастерская, агент Подмастерье; свежая доменная v29/v30 база сохранена",
+      "Public/auth/admin/guest browser regression; FAQ preservation"
+    ],
+    [
+      "D04",
+      "compatibility",
+      "Прежние accounts/workshops/chat/files/exact ledger; cookie/CSRF и повторный вход не ослаблены",
+      "Migration/restore + BrowserSession; live нового domain вне этого выпуска"
+    ],
+    [
+      "D05",
+      "domain_external",
+      "Действующая почта и ключи не переключались",
+      "Отдельные sender/SPF/DKIM/DMARC/delivery принимаются D0"
+    ],
+    [
+      "D06",
+      "compatibility",
+      "Callbacks/SEO/Мetrika используют один origin и собственный state; payments/indexing закрыты до допуска",
+      "Domain contracts + analytics + checkout; реальные внешние настройки pending"
+    ],
+    [
+      "D07",
+      "compatibility",
+      "Один immutable release, provenance, backup/restore и exact-source приёмка подготовлены",
+      "Production switch/new-domain live smoke не выполнялись; bundle/runbooks"
+    ]
+  ],
+  "recordedAt": "2026-11-27T17:38:01.448348+05:00",
+  "gates": {
+    "python": 519,
+    "additionalSharedServiceBilling": 17,
+    "native": 77,
+    "opera": 260,
+    "chromium": 260,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25"
+  }
+}

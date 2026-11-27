@@ -1,0 +1,844 @@
+{
+  "schemaVersion": 1,
+  "privateCodeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+  "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+  "transferManifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+  "sourceRoot": "/opt/podmasterye/candidates/functionality-transfer-v31/source-r3",
+  "browsers": {
+    "chromium": {
+      "browser": "chromium",
+      "privateCodeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+      "sourceRoot": "/opt/podmasterye/candidates/functionality-transfer-v31/source-r3",
+      "sourceFilesVerified": 617,
+      "sourceBefore": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+      "sourceAfter": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+      "sourceUnchanged": true,
+      "runtimeFileCount": 311,
+      "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+      "identity": {
+        "version": "151.0.7922.34",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+        "title": "Browser verification",
+        "executable": "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/chromium/chromium-1234/chrome-linux64/chrome",
+        "binarySha256": "0b20b130e7edd9dd51873be867761295fe0cfad490c2b9a64f95bd3cfc08fa71",
+        "sourceSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+        "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6"
+      },
+      "invocation": {
+        "command": [
+          "/opt/harness-prod/runtime/attachments-06f257269dd3/venv/bin/python",
+          "acceptance/run_workshop_browser.py",
+          "--result",
+          "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/browser-results.json"
+        ],
+        "cwd": "/opt/podmasterye/candidates/functionality-transfer-v31/source-r3/products/harness-platform",
+        "sourceFilesVerified": 617,
+        "sourceSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+        "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+        "nice": 10,
+        "fixtureDependencyPaths": [
+          "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python-fixtures",
+          "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python"
+        ],
+        "dialogEngine": "native",
+        "providerKeysDirectoryEnvironment": "unset",
+        "temporaryDirectory": "/tmp/pm-r3-chromium-s8oftllb",
+        "telegramConfig": "nonexistent-test-file",
+        "externalProviderKeys": "removed"
+      },
+      "actualRunnerEnvironment": {
+        "runnerPid": 2377872,
+        "HARNESS_DIALOG_ENGINE": "native",
+        "HARNESS_NODE_MODULES": "/opt/harness-prod/runtime/attachments-06f257269dd3/node_modules",
+        "HARNESS_PROVIDER_KEYS_DIR": "<unset>",
+        "TMPDIR": "/tmp/pm-r3-chromium-s8oftllb",
+        "PYTHONPATH": "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python-fixtures:/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python"
+      },
+      "fullSuite": {
+        "testsRun": 260,
+        "elapsedSeconds": 1974.489,
+        "successful": true,
+        "failures": [],
+        "errors": [],
+        "skipped": []
+      },
+      "capture": {
+        "kind": "supplemental-synthetic-visual-capture",
+        "testsRun": 1,
+        "successful": true,
+        "failed": 0,
+        "errors": 0,
+        "seconds": 65.478,
+        "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+        "sourceCodeUnmodified": true,
+        "assertionsUnmodified": true,
+        "screenshots": [
+          {
+            "file": "agent-file-history.png",
+            "sha256": "7ca2de2a3e6ccc57e41ac464c76c0a8a2ee25c931613c331d28c9c6ebdbe0eaa",
+            "bytes": 181281,
+            "viewport": {
+              "width": 1440,
+              "height": 1000
+            },
+            "syntheticFixture": "AgentUI",
+            "dialogEngine": "native"
+          },
+          {
+            "file": "agent-document-original.png",
+            "sha256": "0821344fbb3cbd9a828b02e3eb5174657d8e16bb370ed5b95091a45fad0aa15d",
+            "bytes": 179841,
+            "viewport": {
+              "width": 1440,
+              "height": 1000
+            },
+            "syntheticFixture": "AgentUI",
+            "dialogEngine": "native"
+          },
+          {
+            "file": "agent-document-edited.png",
+            "sha256": "c1ddd6281964babd0ffa9f977ce1dea60e36fd70d1d1881f8ee25d35f13bfd41",
+            "bytes": 193976,
+            "viewport": {
+              "width": 1440,
+              "height": 1000
+            },
+            "syntheticFixture": "AgentUI",
+            "dialogEngine": "native"
+          },
+          {
+            "file": "agent-final-desktop.png",
+            "sha256": "8ae2f063b7d98cfc23caad66722923faa3ad47a5e8e754bf0cc270626c9c0c57",
+            "bytes": 198946,
+            "viewport": {
+              "width": 1440,
+              "height": 1000
+            },
+            "syntheticFixture": "AgentUI",
+            "dialogEngine": "native"
+          },
+          {
+            "file": "agent-document-mobile.png",
+            "sha256": "f9911a76a8ed5356294a6fbaca9e54c0ad6845d913cb3e49bfb264fcd512490b",
+            "bytes": 85568,
+            "viewport": {
+              "width": 390,
+              "height": 900
+            },
+            "syntheticFixture": "AgentUI",
+            "dialogEngine": "native"
+          }
+        ]
+      },
+      "screenshots": [
+        {
+          "file": "account-desktop.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/account-profile.png",
+          "sha256": "5485759f3f82907a5487bf0ef733fbbb28701639bb4b50d2591ee7dc1e4a47e3",
+          "bytes": 69548,
+          "width": 1440,
+          "height": 1000,
+          "description": "Account profile desktop",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "wallet-desktop.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/account-wallet-desktop.png",
+          "sha256": "3c60ed156d628ca77b14e70afcf94553f80ef9ca0d8041575a2396a9e28c390e",
+          "bytes": 90816,
+          "width": 1440,
+          "height": 1000,
+          "description": "Wallet ledger desktop",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "wallet-mobile.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/test_wallet_exact_history_pagination_and_shared_refresh.png",
+          "sha256": "3301f54fda6be425b05046b31af078e95109c7a9e9b91fb2dec7b090600bedb9",
+          "bytes": 46257,
+          "width": 420,
+          "height": 900,
+          "description": "Wallet ledger mobile",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "menu-mobile.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/member-summary-390-dark.png",
+          "sha256": "c21ebb3aaded716cbdc0a00bda40d4047f83f8d3fbd56d3e7791d55a7cdf656e",
+          "bytes": 67893,
+          "width": 390,
+          "height": 844,
+          "description": "Mobile menu dark theme",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "timer-desktop.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/member-schedule-1440-light.png",
+          "sha256": "f29852a0816b4cede665fa9f5161ee46d7b738d5c9a2580267851fa5c66e6a22",
+          "bytes": 69391,
+          "width": 1440,
+          "height": 900,
+          "description": "Schedule desktop",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "timer-report-mobile.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/test_member_preview_edit_run_delivery_and_download.png",
+          "sha256": "2c6a9b57785b744b2cf11ebff01beee0b06ab133dc7ca75c08514b571bdd12f5",
+          "bytes": 72399,
+          "width": 390,
+          "height": 844,
+          "description": "Timer report and history mobile",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "timer-admin.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/test_admin_queue_pagination_pause_and_member_access.png",
+          "sha256": "3688962323205a93db187f06f8ec465f4c6dfe60cb9e6d44cf1295d48a145092",
+          "bytes": 148646,
+          "width": 1440,
+          "height": 1000,
+          "description": "Admin timer queue",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "ai-provider-keys.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/ai-provider-keys.png",
+          "sha256": "3994f3bac7d965547a357f8fa0d409cab7d2474b6e3a8bda4c648a02a755547b",
+          "bytes": 53466,
+          "width": 1440,
+          "height": 1000,
+          "description": "Provider configuration synthetic keys",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "ai-models-admin.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/screenshots/ai-models-admin.png",
+          "sha256": "0ad3cbc87ec8876ce6fdb94207dab405c6032bd6c98188d972d456ff8bd0ac15",
+          "bytes": 81341,
+          "width": 1440,
+          "height": 1000,
+          "description": "Model catalogue configuration",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "agent-file-history.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/agent-capture/agent-file-history.png",
+          "sha256": "7ca2de2a3e6ccc57e41ac464c76c0a8a2ee25c931613c331d28c9c6ebdbe0eaa",
+          "bytes": 181281,
+          "width": 1440,
+          "height": 1000,
+          "description": "Native file-only history restored",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "agent-document-edited.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/agent-capture/agent-document-edited.png",
+          "sha256": "c1ddd6281964babd0ffa9f977ce1dea60e36fd70d1d1881f8ee25d35f13bfd41",
+          "bytes": 193976,
+          "width": 1440,
+          "height": 1000,
+          "description": "Native edited text document download (TXT fixture)",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "agent-document-mobile.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/chromium/agent-capture/agent-document-mobile.png",
+          "sha256": "f9911a76a8ed5356294a6fbaca9e54c0ad6845d913cb3e49bfb264fcd512490b",
+          "bytes": 85568,
+          "width": 390,
+          "height": 900,
+          "description": "Native document chat on mobile",
+          "synthetic": true,
+          "dialogEngine": "native"
+        }
+      ],
+      "mode": "headless",
+      "actualDialogEngine": "native",
+      "transferManifestBefore": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+      "transferManifestAfter": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+      "rawArtifacts": {
+        "result": {
+          "path": "final-chromium.json",
+          "sha256": "d78c8e6093e1544dd53492df71389f02ac132bf824607266a763b0d334247204",
+          "bytes": 25222
+        },
+        "log": {
+          "path": "final-chromium.log",
+          "sha256": "ea1536ab9b145dda3608e1121703de4d30a359f44f08526c6bacef3f82df9641",
+          "bytes": 37335
+        }
+      },
+      "final-cleanup": {
+        "launcherAndRunnerAndCaptureExited": true,
+        "verifiedPids": [
+          2377702,
+          2377872,
+          2414212
+        ],
+        "forcedTermination": false,
+        "taggedBrowserNativeRemainder": [],
+        "sourceRetained": true,
+        "evidenceRetained": true
+      },
+      "metadataFile": "browser-r3/chromium/runtime-evidence.json",
+      "metadataSha256": "44f73615b2ce510511029288ddf4de1d63bb865f4984ce84dcc5fe1ed15ff43c"
+    },
+    "opera": {
+      "browser": "opera",
+      "privateCodeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+      "sourceRoot": "/opt/podmasterye/candidates/functionality-transfer-v31/source-r3",
+      "sourceFilesVerified": 617,
+      "sourceBefore": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+      "sourceAfter": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+      "sourceUnchanged": true,
+      "runtimeFileCount": 311,
+      "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+      "identity": {
+        "version": "158.0.8127.37",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/158.0.0.0 Safari/537.36 OPR/141.0.0.0",
+        "title": "Browser verification",
+        "executable": "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/opera/unpacked/usr/lib/x86_64-linux-gnu/opera-stable/opera",
+        "binarySha256": "86b1064c365d92c81774dbc417a44881775faec44f606de3a548059a55ec25c1",
+        "sourceSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+        "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6"
+      },
+      "invocation": {
+        "command": [
+          "/opt/harness-prod/runtime/attachments-06f257269dd3/venv/bin/python",
+          "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/with-headed-browser.py",
+          "acceptance/run_workshop_browser.py",
+          "--result",
+          "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/opera/headed/browser-results.json"
+        ],
+        "cwd": "/opt/podmasterye/candidates/functionality-transfer-v31/source-r3/products/harness-platform",
+        "sourceFilesVerified": 617,
+        "sourceSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+        "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+        "nice": 10,
+        "headless": false,
+        "display": ":99",
+        "headedRunnerSha256": "855c510f3ebb70086c27037da623e9d99360ba4b761d61e3a3b17e923122130e",
+        "fixtureDependencyPaths": [
+          "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python-fixtures",
+          "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python"
+        ],
+        "dialogEngine": "native",
+        "providerKeysDirectoryEnvironment": "unset",
+        "temporaryDirectory": "/tmp/pm-r3-opera-6y6jsoyn",
+        "telegramConfig": "nonexistent-test-file",
+        "externalProviderKeys": "removed"
+      },
+      "actualRunnerEnvironment": {
+        "runnerPid": 2408427,
+        "environment": {
+          "DISPLAY": ":99",
+          "HARNESS_DIALOG_ENGINE": "native",
+          "PYTHONPATH": "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python-fixtures:/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python",
+          "HARNESS_NODE_MODULES": "/opt/harness-prod/runtime/attachments-06f257269dd3/node_modules",
+          "HARNESS_OPENROUTER_ENABLED": "0",
+          "HARNESS_WEB_ENABLED": "0",
+          "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/opera/unpacked/usr/lib/x86_64-linux-gnu/opera-stable/opera",
+          "TMPDIR": "/tmp/pm-r3-opera-6y6jsoyn"
+        },
+        "providerKeysDirectoryEnvironment": "unset"
+      },
+      "fullSuite": {
+        "testsRun": 260,
+        "elapsedSeconds": 1813.823,
+        "successful": true,
+        "failures": [],
+        "errors": [],
+        "skipped": []
+      },
+      "capture": {
+        "kind": "supplemental-synthetic-visual-capture",
+        "testsRun": 1,
+        "successful": true,
+        "failed": 0,
+        "errors": 0,
+        "seconds": 54.022,
+        "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+        "sourceCodeUnmodified": true,
+        "assertionsUnmodified": true,
+        "screenshots": [
+          {
+            "file": "agent-file-history.png",
+            "sha256": "00a9edd3ac97302496e71ec590fc5ceac9cb377d7157f09428a3a9e3d4a75f66",
+            "bytes": 183764,
+            "viewport": {
+              "width": 1440,
+              "height": 1000
+            },
+            "syntheticFixture": "AgentUI",
+            "dialogEngine": "native"
+          },
+          {
+            "file": "agent-document-original.png",
+            "sha256": "b04ca9094403d583eefc7bbbbfffb414c9ccaac258e49d128404db630856eca3",
+            "bytes": 181456,
+            "viewport": {
+              "width": 1440,
+              "height": 1000
+            },
+            "syntheticFixture": "AgentUI",
+            "dialogEngine": "native"
+          },
+          {
+            "file": "agent-document-edited.png",
+            "sha256": "94342051d64b39ff60df780087feac903c3c9f77b426f482d53fe1aa34350eeb",
+            "bytes": 195553,
+            "viewport": {
+              "width": 1440,
+              "height": 1000
+            },
+            "syntheticFixture": "AgentUI",
+            "dialogEngine": "native"
+          },
+          {
+            "file": "agent-final-desktop.png",
+            "sha256": "89f74097642590a34fce40ea689539c7846e2b5e59be345720bd9b3caa47139b",
+            "bytes": 200211,
+            "viewport": {
+              "width": 1440,
+              "height": 1000
+            },
+            "syntheticFixture": "AgentUI",
+            "dialogEngine": "native"
+          },
+          {
+            "file": "agent-document-mobile.png",
+            "sha256": "368aaac31671dd5c557cbeecda73c56e452b810b600a81b5dfe4e98f18a3975f",
+            "bytes": 84702,
+            "viewport": {
+              "width": 390,
+              "height": 900
+            },
+            "syntheticFixture": "AgentUI",
+            "dialogEngine": "native"
+          }
+        ]
+      },
+      "screenshots": [
+        {
+          "file": "account-desktop.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/opera/headed/screenshots/account-profile.png",
+          "sha256": "f61899643d340db685db376a249399f8dd0d01c124de325da437da1ed63eab24",
+          "bytes": 70059,
+          "width": 1440,
+          "height": 1000,
+          "description": "Account profile desktop",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "wallet-desktop.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/opera/headed/screenshots/account-wallet-desktop.png",
+          "sha256": "d53512ba5ebf2d2b1c50e9d3966941e970722b2e085bf7332acef79038651803",
+          "bytes": 89688,
+          "width": 1440,
+          "height": 1000,
+          "description": "Wallet ledger desktop",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "wallet-mobile.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/opera/headed/screenshots/test_wallet_exact_history_pagination_and_shared_refresh.png",
+          "sha256": "e5088fbf0b293a574e9bc627d8691e294409ffe6d6628af29b4e9ec7a6fe1583",
+          "bytes": 47076,
+          "width": 420,
+          "height": 900,
+          "description": "Wallet ledger mobile",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "menu-mobile.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/opera/headed/screenshots/member-summary-390-dark.png",
+          "sha256": "0ad355b28edbfc6b631dcbd3cf090772b6fc153adfeec215bba2e1aa5d2f66f7",
+          "bytes": 67940,
+          "width": 390,
+          "height": 844,
+          "description": "Mobile menu dark theme",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "timer-desktop.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/opera/headed/screenshots/member-schedule-1440-light.png",
+          "sha256": "1fdf461dc949df301dc0226538cbebaa5b43ca08f6acce949ba5bc4079d76186",
+          "bytes": 69533,
+          "width": 1440,
+          "height": 900,
+          "description": "Schedule desktop",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "timer-report-mobile.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/opera/headed/screenshots/test_member_preview_edit_run_delivery_and_download.png",
+          "sha256": "d67c108eb9b106877fcdd83cadaa855078a9c2a72d89db48f37e9da7bbfef067",
+          "bytes": 73041,
+          "width": 390,
+          "height": 844,
+          "description": "Timer report and history mobile",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "timer-admin.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/opera/headed/screenshots/test_admin_queue_pagination_pause_and_member_access.png",
+          "sha256": "5c8a87b2d79cf8f9270985a5c63ca7342bf07d0b07c9a91fc6ce7890188020df",
+          "bytes": 152844,
+          "width": 1440,
+          "height": 1000,
+          "description": "Admin timer queue",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "ai-provider-keys.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/opera/headed/screenshots/ai-provider-keys.png",
+          "sha256": "3994f3bac7d965547a357f8fa0d409cab7d2474b6e3a8bda4c648a02a755547b",
+          "bytes": 53466,
+          "width": 1440,
+          "height": 1000,
+          "description": "Provider configuration synthetic keys",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "ai-models-admin.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/opera/headed/screenshots/ai-models-admin.png",
+          "sha256": "aa2f494c7c4ab41cbc5b889181d0176cfe0716ad35d968134195a5e92cd6a4b8",
+          "bytes": 81274,
+          "width": 1440,
+          "height": 1000,
+          "description": "Model catalogue configuration",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "agent-file-history.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/opera/headed/agent-capture/agent-file-history.png",
+          "sha256": "00a9edd3ac97302496e71ec590fc5ceac9cb377d7157f09428a3a9e3d4a75f66",
+          "bytes": 183764,
+          "width": 1440,
+          "height": 1000,
+          "description": "Native file-only history restored",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "agent-document-edited.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/opera/headed/agent-capture/agent-document-edited.png",
+          "sha256": "94342051d64b39ff60df780087feac903c3c9f77b426f482d53fe1aa34350eeb",
+          "bytes": 195553,
+          "width": 1440,
+          "height": 1000,
+          "description": "Native edited text document download (TXT fixture)",
+          "synthetic": true,
+          "dialogEngine": "native"
+        },
+        {
+          "file": "agent-document-mobile.png",
+          "source": "/opt/podmasterye/candidates/functionality-transfer-v31/evidence-r3/opera/headed/agent-capture/agent-document-mobile.png",
+          "sha256": "368aaac31671dd5c557cbeecda73c56e452b810b600a81b5dfe4e98f18a3975f",
+          "bytes": 84702,
+          "width": 390,
+          "height": 900,
+          "description": "Native document chat on mobile",
+          "synthetic": true,
+          "dialogEngine": "native"
+        }
+      ],
+      "mode": "headed",
+      "actualDialogEngine": "native",
+      "transferManifestBefore": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+      "transferManifestAfter": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+      "rawArtifacts": {
+        "result": {
+          "path": "final-opera.json",
+          "sha256": "b676e79bfd0f49bd728601138304fb25ce09f937a9b4cb91ab6e6b6ab457d282",
+          "bytes": 25236
+        },
+        "log": {
+          "path": "final-opera.log",
+          "sha256": "d5d2d4b4e5221bd299d8a009a5186d4310fa38b24d601901be12b2ddd6cf594d",
+          "bytes": 37335
+        }
+      },
+      "xvfb": {
+        "display": ":99",
+        "createdForThisAcceptance": true,
+        "launcherPid": 2408107,
+        "createdBy": "xvfb-run -a -s -screen 0 1920x1200x24",
+        "priorReadOnlyObservation": {
+          "DISPLAY": null,
+          "x11Sockets": []
+        },
+        "ownedXvfb": {
+          "pid": 2408122,
+          "ppid": 2408107,
+          "startTicks": 59389792,
+          "command": [
+            "Xvfb",
+            ":99",
+            "-screen",
+            "0",
+            "1920x1200x24",
+            "-nolisten",
+            "tcp",
+            "-auth",
+            "/tmp/xvfb-run.RO3W6i/Xauthority"
+          ]
+        },
+        "cleanup": "xvfb-run will stop only its own Xvfb when the acceptance process exits; no unrelated display is touched"
+      },
+      "main-cleanup": {
+        "mainRunOwnedProcessesClosed": true,
+        "ownedProcessesVerified": 17,
+        "forcedTermination": false,
+        "xvfbPid": 2408122,
+        "sourceRetained": true,
+        "evidenceRetained": true
+      },
+      "capture-cleanup": {
+        "captureOwnedProcessesClosed": true,
+        "ownedProcessesVerified": 19,
+        "forcedTermination": false,
+        "taggedBrowserNativeRemainder": [],
+        "unrelatedDisplaysUntouched": true,
+        "sourceRetained": true,
+        "evidenceRetained": true
+      },
+      "source-after-verification": {
+        "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+        "allSourceFilesVerified": 617,
+        "testFiles": {
+          "integrations/harness-native-lab/gateway/server.test.mjs": "b4586d1229573325e1f2087d2aa44cb862d6ec634abf6d2e0cc9ae9c8a162713",
+          "products/harness-platform/native/assistant-preferences.test.mjs": "21e21e4cd1c8b4b5a15fd045e5afd14323153bd313010b70bc6718a129234877",
+          "products/harness-platform/native/capability-filter.test.mjs": "14e3e327da31d927ff6eff7bd41846de7032fb3abaf0a87c39ba53a208e56e38",
+          "products/harness-platform/native/chat-worker.test.mjs": "2294b1a6fdfb77b3d98b90b2516d4dbe87507a8e8f8783c1230b3430cb251cc7",
+          "products/harness-platform/native/guest-selector.test.mjs": "4dc5c002b4bbb58b7b06ae9c8a63e14f7c6b1eb79813dd091551d463341ed91d",
+          "products/harness-platform/native/native-compaction.test.mjs": "201254edd4797334de4fc1580c4b37418d1a82bc0c9a7b9175a517e5cf7fb344",
+          "products/harness-platform/native/native-spill.test.mjs": "e76f8dfe90146be11a6edab8e6b04d5bc315848e0d119357ba10df5075da5cc7",
+          "products/harness-platform/native/openrouter-turn.test.mjs": "4520ef70288444db4c66906cc305c5b275fe76c5e84ef382d6314f7dd19eea01",
+          "products/harness-platform/native/platform-mcp.test.mjs": "aba04127ce76ce284991070fba3320314563d82e5df45014cfcb4671fe4d0c6a",
+          "products/harness-platform/native/private-input.test.mjs": "b5593e6fc62a816ad5f039e062a1d1fc9e37bf33e6c0cc7bf4c549f6250e238f",
+          "products/harness-platform/native/public-events.test.mjs": "b37fb19bb02b886b6edc2121f48ef40bc41d5a23891e1cf8223b2f6b080e3646",
+          "products/harness-platform/native/timer-setup.test.mjs": "022990c4501cbd8e5e1ddefbf3a1663ec4303157f8cfb124103f3db597b26812",
+          "products/harness-platform/native/transfer-ai-contract.test.mjs": "5b6725fe7a1493847cf2d4258918de4ae5eefa98ba68710892245f00efe2d9d6",
+          "products/harness-platform/native/web-evidence.test.mjs": "731c75651bce24d20a6e10df650bcab7695642f93aa039d2a4687e926ad498ee",
+          "products/harness-platform/tests/auth_fixture.py": "e96bc399c7e778a07e6f397fb901030407e65717e6208b30f171ccf08c45cd81",
+          "products/harness-platform/tests/browser/test_podmasterye_accounting_browser.py": "7c9beb191cc3d64975136192715dacceb7f6e2d9ed00ac70adf8eec938257e2c",
+          "products/harness-platform/tests/browser/test_podmasterye_agent_ui.py": "4192c34d5cb54012bddd83641a68605ff947d440b265c517a01a6a94b73ccd96",
+          "products/harness-platform/tests/browser/test_podmasterye_balance_v28_ui.py": "d4e511237ac9804bba37906e23458cee14f5a5c6c03e575f3eb35862c348f05c",
+          "products/harness-platform/tests/browser/test_podmasterye_guest_calculator_v25_ui.py": "ed7a6cd03363d5d6b4c50d11191e67bfc84630aaca5a78ea78336e84673918e2",
+          "products/harness-platform/tests/browser/test_podmasterye_guest_ui.py": "00067d7654b5dd64dee645b113e986a47bad0550e1d82447e819a52b2289829a",
+          "products/harness-platform/tests/browser/test_podmasterye_independent_ui.py": "30506a944b78a2c8dd33b418c83f2033f51e3d5984e3639eb4c32d7b52b4731c",
+          "products/harness-platform/tests/browser/test_podmasterye_layout.py": "560cec4c9e550c55939d0d34adb673a19676e5677ef795a526e1d696c0819ae4",
+          "products/harness-platform/tests/browser/test_podmasterye_market_ui.py": "0a24259d22662e1a3196547a9800c39e709ee4a11df6e660d33010891b2380c8",
+          "products/harness-platform/tests/browser/test_podmasterye_owner_v18_ui.py": "4c6a0fa882714b4370498d3d843ab0171eff3de60ea68399c60ffdcdd69560cf",
+          "products/harness-platform/tests/browser/test_podmasterye_profit_v26_ui.py": "d94dfa5bdadf4296840882c05e85a775001f238b3997c2fdeb77878d740576e7",
+          "products/harness-platform/tests/browser/test_podmasterye_public_payment_v24_ui.py": "b76cc3f044953e28dd658ef3c0a448db3bb32b7ef94d7f78df04186a829c4b85",
+          "products/harness-platform/tests/browser/test_podmasterye_public_v22_ui.py": "70ba240fd5716d360f4b077d2c449bc6fc3708010315933829f70a22613f6994",
+          "products/harness-platform/tests/browser/test_podmasterye_public_v23_ui.py": "da8eda662c69dba07f55e23634951587a20ac8af73d3e3099d17be911f60bdb1",
+          "products/harness-platform/tests/browser/test_podmasterye_public_v24_ui.py": "a1333285427cc26a9e9e193139e0e7ca9fbd003f68582e4e8d7a0e8e55d73b8b",
+          "products/harness-platform/tests/browser/test_podmasterye_single_workshop_v20_ui.py": "f1c0dfed1e0f809fcd3d51ddba2f085c71858ffc2bb6ecfff1140e29be817eba",
+          "products/harness-platform/tests/browser/test_podmasterye_sliders_v27_ui.py": "661cb1d931c7bf1c46103b10b06999bbdc9bd12cd5b4f96938baaacec6c4c2e9",
+          "products/harness-platform/tests/browser/test_transfer_ai_ui.py": "b1cc4692ca01ad0fba815d12ed36cccdd81e8dc06ea5d93bb66c5a6db205d74c",
+          "products/harness-platform/tests/browser/test_transfer_finance_ui.py": "0cd6930aca1cf0a5f19511fb42f03a0f3854019072f4753eb006ef423fd89fd6",
+          "products/harness-platform/tests/browser/test_transfer_shell_ui.py": "4d1073c595d17ef69e03d0a0419c7fadfee5ac7f991edc621b1f9c674b620f92",
+          "products/harness-platform/tests/browser/test_workshop_permissions_v30_ui.py": "d16c62f583aaf6cdc7c01b236c8df1211faebb3f5888fa982d17e4dd3b82fddf",
+          "products/harness-platform/tests/browser/test_workshop_timer_ui.py": "a0255c5412042e9919b574f6322fe2611d345f61828ef8a30d347e4fab5656ef",
+          "products/harness-platform/tests/browser/turn_response.py": "c5bb0429d89bece27c7ae53880068034a72fb472333d741a07e2e7a8eaa6e138",
+          "products/harness-platform/tests/fixtures/files_review/.gitattributes": "547f59603028195ff9f8a87d04c4651551e8bd0d68f075257dfd549cd846b25b",
+          "products/harness-platform/tests/fixtures/files_review/annotation-flags.pdf": "e0102385189e966f70f50c28805545fb4225c7261e6cd20c5b213ff6809ce88e",
+          "products/harness-platform/tests/fixtures/files_review/visible-annotation.pdf": "112159bdb4c13e4c84d9e011ed7f45855c3cd2da512e62a1b5bd5e754bc5a9c2",
+          "products/harness-platform/tests/fixtures/files_review/xls-error.xls": "5187ca31fb0dc2e0152d13e7cdce3483c861289b161098844f5d49db7c699d4f",
+          "products/harness-platform/tests/fixtures/marketplace_edit_cases.py": "3fd3e7c2aef3d37462730614b2297f6a0a18568c9de7695a371a7657ce3dd703",
+          "products/harness-platform/tests/fixtures/marketplace_matrix_cases.py": "3f3ec91099cf320c572cec02a0f147983a008b72565a48a7b8138be8d8ae3a9d",
+          "products/harness-platform/tests/fixtures/matrix_runtime.py": "6d65ab303d9e177a73d5fbadafd613fa4024f8016812d11c16cdf4b23909513e",
+          "products/harness-platform/tests/metered-chat-gateway.mjs": "b9a02c5d004fd6205acfcdf75806992115235b43071422aed4246b8407502abe",
+          "products/harness-platform/tests/podmasterye_gateway.mjs": "27ef2b7f76dab80181443444415e43467b8badace25b1e42dcd177dc47917454",
+          "products/harness-platform/tests/product-test-scope.json": "7e27ef10ad10c426a05da1151db18070ab87c65484e12800174734dad97bad2e",
+          "products/harness-platform/tests/shared-document-gateway.mjs": "c6cc2d2c27b530b6f03bc07e8584ff5ea261cf395ce254b3c5d4af067f22446d",
+          "products/harness-platform/tests/shared-web-gateway.mjs": "0a6e54a12a0ca25c6ccb8487ac48ab9ffcf4ad1ae4281b4a9c3f6019f7c695be",
+          "products/harness-platform/tests/test_account_access.py": "cd748be4ebe338a4120da34320cdae6251a3d8541b0bb7ee4c8f762d400c5653",
+          "products/harness-platform/tests/test_admin_balance_alerts.py": "bb4ad0724d432016a5ecf10c6485bfc9bfd8722ea171ad058e92bf98cb50f3a1",
+          "products/harness-platform/tests/test_admin_costs.py": "2df044de589f137842ebd4e7cfb55e1d49392004f85d0dcae933c8b659e79cfe",
+          "products/harness-platform/tests/test_admin_provider_balances.py": "2378a9e97f8a190c735e352d128c4304c98a189fc2b1d5491cdfbe0c0221d299",
+          "products/harness-platform/tests/test_admin_statistics.py": "5acb60622498336bbf301646425dd759d116ced71eeb2e2b468a37a5e43d56a1",
+          "products/harness-platform/tests/test_browser_session.py": "d980603fda63d9f16ef89489e4d2a1937d0b3a1fc4091116384d81e1c0560117",
+          "products/harness-platform/tests/test_capability_contracts.py": "2c9865dc7b806e416b0d3d040d9119845de1bb46687c48b510141dbd67fe9658",
+          "products/harness-platform/tests/test_catalog.py": "471cccccd1318d3cc966113e90332d481275366ee77aa09d6e5a7e63d03b595d",
+          "products/harness-platform/tests/test_chat_api.py": "83a32b99272c082620cd0715b7455290f6bdcdc98f0afaeb6bddbedc47466abf",
+          "products/harness-platform/tests/test_checkout.py": "06c39d20e424f7ba686f9b1da648057adf24e4ae51682ab0272be00cf0b83d87",
+          "products/harness-platform/tests/test_coin_wallet.py": "d77d34755122262b4cb9e38da5379991c5fdd412b04ce757e436f582fd91d58f",
+          "products/harness-platform/tests/test_dispatch.py": "8d086f42b6b7a7936ec5aadd59cf5b8d0bd0bd26144773cf6daaaf6432471950",
+          "products/harness-platform/tests/test_files_independent_regressions.py": "e70c8560985fa3000b470de5ecbc28079f3cc1400628d91a87c6ea06474e133f",
+          "products/harness-platform/tests/test_guest_activity.py": "a24a98979afc3463d5367f4b7809f98d0528dfdb3b6436b7233d02f0f6dce428",
+          "products/harness-platform/tests/test_guest_quota_shared.py": "03059ca7ebf2e3ce2fb72b2a5eaf0e737d3626c009690d0cbb901e22f63890b6",
+          "products/harness-platform/tests/test_guest_registration.py": "1d09d4463ee0d8f5fb3ecd96d1ade17b76d949f27078d4be5b489097f8dfa888",
+          "products/harness-platform/tests/test_guest_selector.py": "6b9d493e71004a66e1ff5bdd6f073e4cf2a4240a18286e52c67af413da8d2c3a",
+          "products/harness-platform/tests/test_identity.py": "ae4a7f72716454da969a9cf5e3dd9053d9b008893677564e838f002a3f67fb20",
+          "products/harness-platform/tests/test_mastersckaya_domain_v29.py": "2076f428a31b65d47084a7cc0bd9d4e23dafa7914eb9fce69735e06ce447ed2f",
+          "products/harness-platform/tests/test_mcp.py": "b8a4882c876d4dc464915fdcc12af3787deb1bdfe3691cda1ef8da97ca133240",
+          "products/harness-platform/tests/test_media_capacity.py": "946a141ca6360f0bede388bd1a9ad7b414102deac407b1fc961290acfe5f6178",
+          "products/harness-platform/tests/test_openrouter_catalog.py": "3ee205f15c6d22f22222441426924ed7bbd1c1cfb5eda1e7d37a777c021d89e1",
+          "products/harness-platform/tests/test_openrouter_operations.py": "8f6b10a7042b13e298e588124eb8b01d1095d89461fcfbe3f7a7ac7771e8b3c1",
+          "products/harness-platform/tests/test_openrouter_recovery.py": "eadbeab1f2d2652520a501b31a1a5502503a7c88ee3e7c3d4f1ec1f1cbd1acbc",
+          "products/harness-platform/tests/test_podmasterye_accounting.py": "d148faf18b9881943141ca78ed76378c1783d2ce0ff2cac2a02bb7231cef15b1",
+          "products/harness-platform/tests/test_podmasterye_admin_v12.py": "12bccf2b1f0545becdf079226f6458d7c67d4839808c187277d8f0e57c7777f5",
+          "products/harness-platform/tests/test_podmasterye_agent_first.py": "a73eaa9ed02a4fc960cc0f31056b6671ff99a382e01ece107d09be6d67eefb96",
+          "products/harness-platform/tests/test_podmasterye_foundation.py": "ccc2c848537ee70a8eb69a11cfdc4c7d358dd516cacc3e6ae9b3353bb06265a1",
+          "products/harness-platform/tests/test_podmasterye_guest_calculator_v25.py": "3623422039e709d623be34520261a289809b227f33fd6de6fbaf089a248e471c",
+          "products/harness-platform/tests/test_podmasterye_guest_v17.py": "a43485f4a9e52f59776f2b607fb2519cba59b764d9782d2270f8223e209f3e6f",
+          "products/harness-platform/tests/test_podmasterye_market_links.py": "c625f3e4e2f6193a38554c78f96bc6cc2d9679103e9abb6acab56c745cc83c11",
+          "products/harness-platform/tests/test_podmasterye_matrix_v11.py": "64bb2578e83403acce9baf6ae0f2d5fb11ad3a32775e3d67d1fb156db6017e7c",
+          "products/harness-platform/tests/test_podmasterye_media_v13.py": "a1bd6025ef2335682a802302434fc0f33df6ed000b5a18bf555361fb2ef81b4f",
+          "products/harness-platform/tests/test_podmasterye_owner_v18.py": "5e87f0e7f8082f16d7d60029d2e544c27a2675b8ef3840b304dd56c6509ca0a9",
+          "products/harness-platform/tests/test_podmasterye_owner_v19.py": "6cff703830175adc40ada5f08d473471ab3aaef752e3935a020a8688f16cd1a7",
+          "products/harness-platform/tests/test_podmasterye_owner_v21.py": "7b4cf49e6e3a6442c1f3b20701579ae42abb32a28df89a1a8270acefd3c24a91",
+          "products/harness-platform/tests/test_podmasterye_profit_v26.py": "de6d2bc7841b4d5a4774ea8bcbac4b710579a00d983eb8c573008cd2ccdce6f8",
+          "products/harness-platform/tests/test_podmasterye_provider_v16.py": "4449d113f9be8abf7ed3f43fb97065352a258a944bd76f2f52bbd9086f440c7d",
+          "products/harness-platform/tests/test_podmasterye_public_v22.py": "331a6b92cd38011f876869da72ce46e80daa94570508695400754d9a7ea725e4",
+          "products/harness-platform/tests/test_podmasterye_public_v23.py": "69281b73fe79d8173f2a0aaa6bdf7f9f9380d7a2473ff9f74c894ee7532811dc",
+          "products/harness-platform/tests/test_podmasterye_single_workshop_v20.py": "3ed75fd42541b29881ec480c3147fe6b8c05ccf935a567ef922979cb4c957a95",
+          "products/harness-platform/tests/test_shared_document_contract.py": "ad233e26abdcea182fbf67a11e7c9ba3ae9c07c63dd835656c0b9c2f7cdd7dbf",
+          "products/harness-platform/tests/test_shared_web_access.py": "81d541e13d349596ad05525aa2a5f725b44d9d07a7d220d164e8bb59fa6e18e8",
+          "products/harness-platform/tests/test_shared_web_flow.py": "7cae58a43c1af7185dc7a4a208104ad2fc6aaa0dd5cf3e0746a5aec01bf06de5",
+          "products/harness-platform/tests/test_storage.py": "4ffc3183afdd797f8db1134be2a9ed0f03f6a4c4e9d56eac96ae893472fee510",
+          "products/harness-platform/tests/test_timer.py": "84606c4f0b687e7d70f0b27cc0ce3a9c091047e61dbde00a21269ed99568edf1",
+          "products/harness-platform/tests/test_transfer_ai.py": "df8b01319e512319f6640911edeedcfce554e4b1e32f847e1fe2be0b979314df",
+          "products/harness-platform/tests/test_transfer_ai_authority.py": "00aea4bd5f836b3b60302f3f3c021d043610d6970d3d751be3c7e36554e920aa",
+          "products/harness-platform/tests/test_transfer_ai_history.py": "2561a324f715033c0069deaa5297e4d61a4b8a2185c9be6f3038c3967ed92306",
+          "products/harness-platform/tests/test_transfer_ai_http.py": "2cc534327c13087a6e24c9d4f89d1b33f36ccd4836c37d749d04b14b39f97ccb",
+          "products/harness-platform/tests/test_transfer_ai_live_acceptance.py": "bb4ef8829eaedae19225443d920a71d187760741f95da053470f4c64a0f34bfa",
+          "products/harness-platform/tests/test_transfer_analytics.py": "2357cf6353a8b0f089e4b0e807ec0961a69117e0f3704bed6261384cdd408d8c",
+          "products/harness-platform/tests/test_transfer_finance.py": "7c39219fa7d729e19c093f9c8718e78e795590ad96a85b3b0409d5f08e3e5eb6",
+          "products/harness-platform/tests/test_transfer_finance_payments.py": "4a2d7a4a00a661af1c5b8118c546236f8a89837fb25a39608ba1614b7a440c8c",
+          "products/harness-platform/tests/test_transfer_lifecycle.py": "0020decd88ed2a1cfa5c68e2755a9a89670bd58de71c7ad9f10af45a065d1f0e",
+          "products/harness-platform/tests/test_web_admission.py": "85199b963c8f25430a3da27a9db7ab7517f3b3648eae2aa90d3213e55b624a43",
+          "products/harness-platform/tests/test_workshop_permissions_v30.py": "c9ad2239888c8c0338b76f6041755199cdbd76eab4231fc14915f9d4f770e911",
+          "products/harness-platform/tests/test_workshop_provider_boundary.py": "9ec2568876421dc514323d6ee25df9a4340a95298996d6e53735da4b868bbc57",
+          "products/harness-platform/tests/test_workshop_timer.py": "9fed83d54f9e7c48111f5a901757c7a7ccf82b1e6021122836a555509350b55b",
+          "products/harness-platform/tests/test_workshop_timer_http.py": "88599dbf473d1ad533469ffb90cf1da79c14811ba0af728c7321ddba85aec008",
+          "products/harness-platform/tests/test_workshop_timer_native.py": "4b03122ecf238bb4a68aa8c545f05ad5734bc410103f48b112d6c1058fb0c1d5"
+        },
+        "afterMainFullSuite": true,
+        "sourceUnchanged": true
+      },
+      "metadataFile": "browser-r3/opera/runtime-evidence.json",
+      "metadataSha256": "1fc6bad8dd7bee16c0c294d7ba03a2a61797bbd4cfac337958dc07c0f94e4a94"
+    }
+  },
+  "same260TestIds": true,
+  "testSourceSnapshot": {
+    "path": "browser-r3/test-file-hashes.json",
+    "sha256": "6f1b03430339e189949587733c5308591a4e17b5519f0a00d51b41b95297c751",
+    "originalFiles": 110,
+    "originalExecutableAndFixtureFilesUnchanged": true,
+    "documentationDelta": [
+      "products/harness-platform/tests/product-test-scope.json"
+    ],
+    "additionalCandidateTests": {
+      "products/harness-platform/tests/test_transfer_service_billing.py": "b0ee596781469b3d50a501a7e8412ea749f7b8e3082a1fe9e089c0767c522bd2"
+    }
+  },
+  "runnerEquivalence": {
+    "kind": "launch-configuration-equivalence",
+    "networkRequests": 0,
+    "browserAssertionsUnmodified": true,
+    "headedWrapperSha256": "855c510f3ebb70086c27037da623e9d99360ba4b761d61e3a3b17e923122130e",
+    "acceptanceRunnerSha256": "da20ff37ec7badb2fa67e29a2cef5e135ca73abf0b3f11c5153484bb9d689044",
+    "cases": [
+      {
+        "requested": {},
+        "actual": {
+          "args": [],
+          "kwargs": {
+            "headless": false
+          }
+        },
+        "equal": true,
+        "restoredAfterContext": true
+      },
+      {
+        "requested": {
+          "headless": true
+        },
+        "actual": {
+          "args": [],
+          "kwargs": {
+            "headless": false
+          }
+        },
+        "equal": true,
+        "restoredAfterContext": true
+      },
+      {
+        "requested": {
+          "headless": false,
+          "executable_path": "/synthetic/opera",
+          "args": [
+            "--no-sandbox"
+          ]
+        },
+        "actual": {
+          "args": [],
+          "kwargs": {
+            "headless": false,
+            "executable_path": "/synthetic/opera",
+            "args": [
+              "--no-sandbox"
+            ]
+          }
+        },
+        "equal": true,
+        "restoredAfterContext": true
+      }
+    ],
+    "defaultModeUnchanged": true
+  },
+  "headlessOperaDiagnostic": {
+    "rawResult": "opera-headless-r3.json",
+    "rawResultSha256": "b48fa277041915362a0b98f0269ff39110222acb38ccfa04802f9f36c83b5ded",
+    "rawLog": "opera-headless-r3.log",
+    "rawLogSha256": "97c150deb8418ae3801be6519cc2cb1b26a7b7da0967739f6726c8788255ae59",
+    "testsRun": 260,
+    "passed": 259,
+    "failed": 1,
+    "report": "opera-wheel-diagnostic.json",
+    "reportSha256": "9e6057f8663075b943f8d5717a51eb89698d66e9affd7e6697bc3c64ec40efd9",
+    "resolution": "Full unchanged suite passes in headed Opera; no product/test assertion or timeout changes."
+  },
+  "screenshotsAreSyntheticFixtures": true,
+  "agentDocumentFixture": "XLSX input history and TXT create/edit/download; browser screenshots do not claim DOCX coverage",
+  "cleanup": {
+    "forcedTermination": false,
+    "operaMainOwnedClosed": 17,
+    "operaCaptureOwnedClosed": 19,
+    "chromiumKnownProcessesExited": [
+      2377702,
+      2377872,
+      2414212
+    ],
+    "taggedBrowserNativeRemainder": [],
+    "unrelatedDisplaysUntouched": true,
+    "sourceAndAllEvidenceRetained": true
+  }
+}

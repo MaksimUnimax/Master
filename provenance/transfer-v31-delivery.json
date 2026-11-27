@@ -1,0 +1,12 @@
+{
+  "fullSourceCommit": "ce37307c3a1aa03d34f8c622cd0658630c700f77",
+  "testedRuntimeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+  "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+  "publicLayerStandalone": false,
+  "privateFullSourceDelivery": "Canonical Git bundle and complete source archive delivered to the project owner",
+  "privateGitHubRemote": "blocked: no suitable private repository and no authenticated repository-creation capability",
+  "productionDeployment": false,
+  "sourceFiles": 53,
+  "policySource": "foundation/README.md",
+  "secretsOrProductionStateIncluded": false
+}

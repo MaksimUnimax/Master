@@ -1,0 +1,31 @@
+<section class="pm-ai" data-pm-ai-settings aria-labelledby="pm-ai-heading">
+  <h2 id="pm-ai-heading">Подмастерье</h2>
+  <form data-ai="preferences">
+    <fieldset><legend>Как общаться</legend>
+      <label>Обращение<select name="address" required></select></label>
+      <label>Тон<select name="tone" required></select></label>
+      <label>Подробность<select name="detail" required></select></label>
+      <div class="pm-ai-actions"><button type="submit">Сохранить</button><button type="button" data-ai="reset-style">По умолчанию</button></div>
+    </fieldset>
+  </form>
+  <form data-ai="model">
+    <fieldset><legend>Выбор ИИ</legend>
+      <p data-ai="model-current"></p>
+      <div class="pm-ai-filters"><label>Поиск модели<input name="search" type="search" placeholder="Название или производитель"></label>
+      <label>Стоимость<select name="price"><option value="all">Все модели</option><option value="free">Бесплатные</option><option value="paid">Платные</option></select></label></div>
+      <label>Модель<select name="model"></select></label>
+      <p class="hint">Общая модель задаётся администратором. После её изменения личный выбор можно сохранить заново.</p>
+      <div class="pm-ai-actions"><button type="submit">Выбрать</button><button type="button" data-ai="refresh-models">Обновить список</button></div>
+      <p data-ai="model-notice" role="status"></p>
+    </fieldset>
+  </form>
+  <form data-ai="image-model">
+    <fieldset><legend>Иллюстрации</legend>
+      <p>Выберите генератор и попросите Подмастерья создать эскиз или иллюстрацию в основном чате.</p>
+      <label>Генератор<select name="model"></select></label>
+      <button type="submit">Сохранить генератор</button>
+      <p data-ai="image-notice" role="status"></p>
+    </fieldset>
+  </form>
+  <p data-ai="status" role="status" aria-live="polite"></p>
+</section>

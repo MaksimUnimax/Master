@@ -1,0 +1,15 @@
+<section class="pm-ai" data-pm-ai-admin="balances" aria-labelledby="balance-heading">
+  <h2 id="balance-heading">Балансы поставщиков</h2>
+  <div data-ai="balances" class="pm-ai-balances"></div>
+  <button type="button" data-ai="refresh-balances">Обновить</button>
+  <form data-ai="balance-interval"><label>Обновление, минут<input name="intervalMinutes" type="number" min="1" step="1" required></label><button type="submit">Сохранить интервал</button></form>
+  <form data-ai="balance-alerts"><fieldset><legend>Оповещения в Telegram</legend>
+    <label>Порог DeepSeek, USD<input name="deepseek" type="number" min="0.01" step="0.01" required></label>
+    <label>Порог OpenRouter, USD<input name="openrouter" type="number" min="0.01" step="0.01" required></label>
+    <label>Юаней за 1 USD<input name="cnyPerUsd" type="number" min="0.00000001" step="any"></label>
+    <button type="submit">Сохранить оповещения</button>
+    <p data-ai="telegram-status"></p>
+    <div class="pm-ai-actions"><button type="button" data-ai="telegram-test">Проверить связь</button><button type="button" data-ai="telegram-connect">Повторная интеграция Telegram</button></div>
+  </fieldset></form>
+  <p data-ai="status" role="status" aria-live="polite"></p>
+</section>

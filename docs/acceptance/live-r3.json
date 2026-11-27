@@ -1,0 +1,454 @@
+{
+  "schemaVersion": 1,
+  "description": "Redacted live native acceptance evidence: only synthetic request/operation/attempt/receipt labels. No account identifiers, session values or provider credentials.",
+  "collectedAt": "2026-11-27T11:24:09.221143+00:00",
+  "budgetBasis": "Operator technical cap of 5 RUB within previously authorized paid requests; not a quoted user limit.",
+  "run": {
+    "startedAt": "2026-11-27T11:18:55.911554+00:00",
+    "sourceSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+    "budgetRub": "5",
+    "state": "passed",
+    "phases": [
+      {
+        "phase": "chat",
+        "requestId": "request-chat",
+        "question": "Ответь одной короткой фразой: проверка связи выполнена. Не используй инструменты.",
+        "maxCoins": "5",
+        "status": 200,
+        "text": "Проверка связи выполнена.",
+        "replayWithoutNewAttempt": true,
+        "operationId": "operation-chat",
+        "citations": []
+      },
+      {
+        "phase": "search",
+        "requestId": "request-search",
+        "question": "Найди в интернете официальный сайт IANA. Сделай один поиск, дай одну ссылку и одно короткое предложение. Не читай страницы.",
+        "maxCoins": "4.9130405594",
+        "status": 200,
+        "text": "Официальный сайт IANA — [iana.org](https://www.iana.org/about), где публикуются реестры интернет-идентификаторов, включая доменные имена и IP-адреса.\n\nПроверка ссылок: только поисковая выдача: 1.",
+        "replayWithoutNewAttempt": true,
+        "operationId": "operation-search",
+        "citations": [
+          {
+            "label": "iana.org",
+            "url": "https://www.iana.org/about"
+          }
+        ]
+      },
+      {
+        "phase": "fetch",
+        "requestId": "request-fetch",
+        "question": "Прочитай https://www.iana.org/domains/reserved и укажи в одном предложении, для чего зарезервирован example.com. Добавь ссылку на прочитанную страницу. Не делай поиск.",
+        "maxCoins": "4.815129341654",
+        "status": 200,
+        "text": "Домен example.com зарезервирован для использования в документации и иллюстративных примерах (согласно RFC 2606 и RFC 6761) и недоступен для регистрации или передачи — [IANA-managed Reserved Domains](https://www.iana.org/domains/reserved).\n\nПроверка ссылок: прочитано страниц: 1.",
+        "replayWithoutNewAttempt": true,
+        "operationId": "operation-fetch",
+        "citations": [
+          {
+            "label": "IANA-managed Reserved Domains",
+            "url": "https://www.iana.org/domains/reserved"
+          }
+        ],
+        "fetchedPageEvidence": {
+          "url": "https://www.iana.org/domains/reserved",
+          "httpStatus": 200,
+          "requestDigestMatchesExactPublicUrl": true,
+          "title": "IANA-managed Reserved Domains",
+          "contentCharacters": 1953,
+          "contentSha256": "f8c6e5ff2ffd0a8e083676ab10775e4fe0335d0e03b0931f5a655e09dd3dc0ac",
+          "containsExampleCom": true,
+          "containsDocumentationPurpose": true
+        }
+      }
+    ],
+    "providerStatus": {
+      "openrouter": "not-read"
+    },
+    "execution": {
+      "transport": "running-candidate-native-gateway",
+      "fixtureTransport": false,
+      "isolatedState": true,
+      "productionDatabaseUsed": false,
+      "providerCredentialsReadByScript": false,
+      "walletCappedAtBudget": true
+    },
+    "ledger": {
+      "summary": {
+        "attempts": 7,
+        "pending": 0,
+        "input": 10617,
+        "cache": 33024,
+        "output": 223,
+        "unknownCostAttempts": 0,
+        "coins": "0.272448499038",
+        "reservedCoins": "0",
+        "providerRub": "0.272448499038",
+        "knownProviderRub": "0.272448499038",
+        "providerUsd": "0.003325422",
+        "knownProviderUsd": "0.003325422",
+        "costComplete": true,
+        "rub": "0.272448499038",
+        "usd": "0.003325422",
+        "rubIncomplete": false,
+        "units": {
+          "fetches": 1,
+          "searches": 1
+        }
+      },
+      "attempts": [
+        {
+          "id": "attempt-fetch-3",
+          "operationId": "operation-fetch",
+          "at": 1795778356871,
+          "kind": "tokens",
+          "state": "settled",
+          "coins": "0.013279380036",
+          "reservedCoins": "0",
+          "provider": "DeepSeek",
+          "model": "deepseek-flash",
+          "tariff": "deepseek-2026-11-18",
+          "period": "offpeak",
+          "fxRubPerUsd": "81.929",
+          "providerRub": "0.013279380036",
+          "providerUsd": "0.000162084",
+          "receiptId": "receipt-fetch-3",
+          "evidence": "completed",
+          "usage": {
+            "input_tokens": 618,
+            "output_tokens": 67,
+            "cache_read_input_tokens": 9728,
+            "cache_creation_input_tokens": 0
+          },
+          "source": "chat.turn",
+          "billingOwner": "platform",
+          "serviceTariff": null,
+          "quantity": null,
+          "clientUnitRub": null
+        },
+        {
+          "id": "attempt-fetch-2",
+          "operationId": "operation-fetch",
+          "at": 1795778352994,
+          "kind": "web",
+          "state": "settled",
+          "coins": "0.06144675",
+          "reservedCoins": "0",
+          "provider": "DeepSeek",
+          "model": "deepseek-fetch-api",
+          "tariff": "deepseek-web-2026-11-27",
+          "period": "flat",
+          "fxRubPerUsd": "81.929",
+          "providerRub": "0.06144675",
+          "providerUsd": "0.00075",
+          "receiptId": null,
+          "evidence": "web-completed",
+          "usage": {},
+          "source": "chat.turn",
+          "billingOwner": "platform",
+          "serviceTariff": null,
+          "quantity": null,
+          "clientUnitRub": null
+        },
+        {
+          "id": "attempt-fetch-1",
+          "operationId": "operation-fetch",
+          "at": 1795778351959,
+          "kind": "tokens",
+          "state": "settled",
+          "coins": "0.012851710656",
+          "reservedCoins": "0",
+          "provider": "DeepSeek",
+          "model": "deepseek-flash",
+          "tariff": "deepseek-2026-11-18",
+          "period": "offpeak",
+          "fxRubPerUsd": "81.929",
+          "providerRub": "0.012851710656",
+          "providerUsd": "0.000156864",
+          "receiptId": "receipt-fetch-1",
+          "evidence": "completed",
+          "usage": {
+            "input_tokens": 668,
+            "output_tokens": 49,
+            "cache_read_input_tokens": 9088,
+            "cache_creation_input_tokens": 0
+          },
+          "source": "chat.turn",
+          "billingOwner": "platform",
+          "serviceTariff": null,
+          "quantity": null,
+          "clientUnitRub": null
+        },
+        {
+          "id": "attempt-search-3",
+          "operationId": "operation-search",
+          "at": 1795778347012,
+          "kind": "tokens",
+          "state": "settled",
+          "coins": "0.026924982702",
+          "reservedCoins": "0",
+          "provider": "DeepSeek",
+          "model": "deepseek-flash",
+          "tariff": "deepseek-2026-11-18",
+          "period": "offpeak",
+          "fxRubPerUsd": "81.929",
+          "providerRub": "0.026924982702",
+          "providerUsd": "0.000328638",
+          "receiptId": "receipt-search-3",
+          "evidence": "completed",
+          "usage": {
+            "input_tokens": 1845,
+            "output_tokens": 50,
+            "cache_read_input_tokens": 7296,
+            "cache_creation_input_tokens": 0
+          },
+          "source": "chat.turn",
+          "billingOwner": "platform",
+          "serviceTariff": null,
+          "quantity": null,
+          "clientUnitRub": null
+        },
+        {
+          "id": "attempt-search-2",
+          "operationId": "operation-search",
+          "at": 1795778346396,
+          "kind": "web",
+          "state": "settled",
+          "coins": "0.06144675",
+          "reservedCoins": "0",
+          "provider": "DeepSeek",
+          "model": "deepseek-search-api",
+          "tariff": "deepseek-web-2026-11-27",
+          "period": "flat",
+          "fxRubPerUsd": "81.929",
+          "providerRub": "0.06144675",
+          "providerUsd": "0.00075",
+          "receiptId": null,
+          "evidence": "web-completed",
+          "usage": {},
+          "source": "chat.turn",
+          "billingOwner": "platform",
+          "serviceTariff": null,
+          "quantity": null,
+          "clientUnitRub": null
+        },
+        {
+          "id": "attempt-search-1",
+          "operationId": "operation-search",
+          "at": 1795778345399,
+          "kind": "tokens",
+          "state": "settled",
+          "coins": "0.009539485044",
+          "reservedCoins": "0",
+          "provider": "DeepSeek",
+          "model": "deepseek-flash",
+          "tariff": "deepseek-2026-11-18",
+          "period": "offpeak",
+          "fxRubPerUsd": "81.929",
+          "providerRub": "0.009539485044",
+          "providerUsd": "0.000116436",
+          "receiptId": "receipt-search-1",
+          "evidence": "completed",
+          "usage": {
+            "input_tokens": 446,
+            "output_tokens": 48,
+            "cache_read_input_tokens": 6912,
+            "cache_creation_input_tokens": 0
+          },
+          "source": "chat.turn",
+          "billingOwner": "platform",
+          "serviceTariff": null,
+          "quantity": null,
+          "clientUnitRub": null
+        },
+        {
+          "id": "attempt-chat-1",
+          "operationId": "operation-chat",
+          "at": 1795778340572,
+          "kind": "tokens",
+          "state": "settled",
+          "coins": "0.0869594406",
+          "reservedCoins": "0",
+          "provider": "DeepSeek",
+          "model": "deepseek-flash",
+          "tariff": "deepseek-2026-11-18",
+          "period": "offpeak",
+          "fxRubPerUsd": "81.929",
+          "providerRub": "0.0869594406",
+          "providerUsd": "0.0010614",
+          "receiptId": "receipt-chat-1",
+          "evidence": "completed",
+          "usage": {
+            "input_tokens": 7040,
+            "output_tokens": 9,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0
+          },
+          "source": "chat.turn",
+          "billingOwner": "platform",
+          "serviceTariff": null,
+          "quantity": null,
+          "clientUnitRub": null
+        }
+      ],
+      "web": [
+        {
+          "operationId": "operation-search",
+          "kind": "search",
+          "status": 200,
+          "sources": [
+            {
+              "url": "https://www.iana.org/about",
+              "title": "About IANA"
+            },
+            {
+              "url": "https://www.icann.org/es/announcements/details/iana-wants-public-input-on-new-website-redesign-goal-to-make-information-easier-to-find-28-6-2007-en",
+              "title": "ITI Web ICANN"
+            },
+            {
+              "url": "https://www.icann.org/ru/announcements/details/iana-wants-public-input-on-new-website-redesign-goal-to-make-information-easier-to-find-28-6-2007-en",
+              "title": "IANA Wants Public Input on New Website | Redesign goal to make information easier to find"
+            },
+            {
+              "url": "https://www.iana.org/about/presentations/davies-wellington-aptldupd-060326.pdf?_x_tr_sch=http",
+              "title": "An introduction"
+            },
+            {
+              "url": "https://www.oxfordreference.com/display/10.1093/oi/authority.20110803100008795?print&result=28",
+              "title": "IANA"
+            },
+            {
+              "url": "https://sources.debian.org/src/doc-rfc/20201128-1/rfc2901.txt/",
+              "title": "File: rfc2901.txt - Internet address space to Regional Internet Registries (IRs) for"
+            },
+            {
+              "url": "https://www.iana.org/about/presentations/akcin-istanbul-ianaupd-20101022.pdf?_x_tr_sch=http",
+              "title": "Overview"
+            },
+            {
+              "url": "https://www.icann.org/en/system/files/files/iana-factsheet-24mar14-zh.pdf",
+              "title": "ICANN 互联网号码分配当局的职能"
+            }
+          ]
+        },
+        {
+          "operationId": "operation-fetch",
+          "kind": "fetch",
+          "status": 200,
+          "sources": []
+        }
+      ]
+    },
+    "finishedAt": "2026-11-27T11:19:18.586130+00:00"
+  },
+  "phaseLedger": [
+    {
+      "phase": "chat",
+      "operationId": "operation-chat",
+      "attempts": 1,
+      "modelAttempts": 1,
+      "webAttempts": 0,
+      "coins": "0.0869594406",
+      "providerRub": "0.0869594406",
+      "providerUsd": "0.0010614",
+      "usage": {
+        "input_tokens": 7040,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "output_tokens": 9
+      },
+      "units": {
+        "searches": 0,
+        "fetches": 0
+      }
+    },
+    {
+      "phase": "search",
+      "operationId": "operation-search",
+      "attempts": 3,
+      "modelAttempts": 2,
+      "webAttempts": 1,
+      "coins": "0.097911217746",
+      "providerRub": "0.097911217746",
+      "providerUsd": "0.001195074",
+      "usage": {
+        "input_tokens": 2291,
+        "cache_read_input_tokens": 14208,
+        "cache_creation_input_tokens": 0,
+        "output_tokens": 98
+      },
+      "units": {
+        "searches": 1,
+        "fetches": 0
+      }
+    },
+    {
+      "phase": "fetch",
+      "operationId": "operation-fetch",
+      "attempts": 3,
+      "modelAttempts": 2,
+      "webAttempts": 1,
+      "coins": "0.087577840692",
+      "providerRub": "0.087577840692",
+      "providerUsd": "0.001068948",
+      "usage": {
+        "input_tokens": 1286,
+        "cache_read_input_tokens": 18816,
+        "cache_creation_input_tokens": 0,
+        "output_tokens": 116
+      },
+      "units": {
+        "searches": 0,
+        "fetches": 1
+      }
+    }
+  ],
+  "walletAfter": {
+    "availableCoins": "4.727551500962",
+    "heldCoins": "0"
+  },
+  "initialAdminPreflight": {
+    "state": "failed",
+    "phases": [],
+    "attempts": 0,
+    "failureClass": "HTTP401 on optional administrator status; first-start AccountAccess revocation of sessions without MFA proof",
+    "noProviderDispatch": true,
+    "sourceAndAuthenticationChangedForRetry": false,
+    "nextRunOmittedOnlyOptionalAdminParameter": true
+  },
+  "hostAfter": {
+    "podmasterye-stage.service": {
+      "state": "active",
+      "samePidAsBeforeBootstrap": true,
+      "sameWorkingDirectoryAsBeforeBootstrap": true
+    },
+    "harness-prod.service": {
+      "state": "active",
+      "samePidAsBeforeBootstrap": true,
+      "sameWorkingDirectoryAsBeforeBootstrap": true
+    },
+    "podmasterye-v31-live-acceptance.service": {
+      "state": "inactive",
+      "samePidAsBeforeBootstrap": true,
+      "sameWorkingDirectoryAsBeforeBootstrap": true
+    }
+  },
+  "providerKeyMetadataCheck": {
+    "credentialContentsRead": false,
+    "credentialContentsHashed": false,
+    "deepseekMetadataUnchanged": true,
+    "openrouterConfigured": false,
+    "sameProviderDirectory": true
+  },
+  "provenance": {
+    "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+    "originalReportSha256": "c1b630c8dff48fffd1532c22c33c823c3da7ff4cb04107f816b914c83bd63d84",
+    "firstFailureReportSha256": "3beb654bf9d3a9ebee66be88b98e4ae8e7b94ef4f047102f02a297c6c1dbd030",
+    "sourceLabel": "immutable source-r3",
+    "fixtureTransport": false,
+    "fullReleaseManifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+    "fullReleaseManifestFiles": 617
+  }
+}
+

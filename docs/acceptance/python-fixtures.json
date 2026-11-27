@@ -1,0 +1,20 @@
+{
+  "packages": [
+    "python-docx==1.2.0",
+    "python-pptx==1.0.2",
+    "reportlab==4.4.4",
+    "lxml==6.1.3",
+    "xlsxwriter==3.3.4",
+    "charset-normalizer==3.5.3"
+  ],
+  "target": "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python-fixtures",
+  "wheels": {
+    "charset_normalizer-3.5.3-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl": "e5e4785d8a0adeadfbdf75f4efc357911842674651cbafd7e97f69b11ec3cbc6",
+    "lxml-6.1.3-cp312-cp312-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl": "909f4e927bb051f7740d6367285fc60cdcfdaf0258c2dba4ff5ba7eadadc250c",
+    "python_docx-1.2.0-py3-none-any.whl": "3fd478f3250fbbbfd3b94fe1e985955737c145627498896a8a6bf81f4baf66c7",
+    "python_pptx-1.0.2-py3-none-any.whl": "160838e0b8565a8b1f67947675886e9fea18aa5e795db7ae531606d68e785cba",
+    "reportlab-4.4.4-py3-none-any.whl": "299b3b0534e7202bb94ed2ddcd7179b818dcda7de9d8518a57c85a58a1ebaadb",
+    "xlsxwriter-3.3.4-py3-none-any.whl": "da62fecb24fdd0f003c874c86109b9e1245ae89533052745ab85a085eb2b04d7"
+  },
+  "sourceConstraintsSha256": "5061cdc56715934b915959d9f41fb215931aae3acf225c8d13d6537f4f192052"
+}

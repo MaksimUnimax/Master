@@ -1,0 +1,54 @@
+{
+  "successful": true,
+  "createdUtc": "2026-11-27T11:50:47.432367+00:00",
+  "archivePath": "/opt/podmasterye/backups/master-full-transfer-20261127-115047-033921/master-state-config.tar.gz",
+  "archiveSha256": "6a216c831e85bc891df85e8e3bf027a076367e301b4b4948276c7159018ed21d",
+  "archiveBytes": 92923,
+  "backupDirectoryMode": "0700",
+  "archiveMode": "0600",
+  "sourceUnchangedDuringSnapshot": true,
+  "sourceUnchangedAfterRestoreProof": true,
+  "masterProcessUnchanged": true,
+  "stateFiles": 9,
+  "configurationFiles": 4,
+  "effectiveMasterEnvironmentRetainedPrivately": true,
+  "authAndEncryptionKeysIncluded": true,
+  "providerKeysIncluded": true,
+  "sqliteDatabases": 4,
+  "sqliteTables": 101,
+  "sqliteRows": 190,
+  "sqliteIntegrityPassed": true,
+  "foreignKeyViolations": 0,
+  "logicalSqliteContentPreserved": true,
+  "restoredFileHashesMatched": true,
+  "restoreProofDirectory": "/opt/podmasterye/backups/master-full-transfer-20261127-115047-033921/restore-proof",
+  "productionServiceStopped": false,
+  "productionWrites": false,
+  "applicationOrProviderStarted": false,
+  "octoportStateCopied": false,
+  "rawBackupExported": false,
+  "individualCredentialHashesExported": false,
+  "scope": "Separate full Master state/config backup; live acceptance did not copy credentials.",
+  "exclusions": [
+    "Product source and shared runtime are separate immutable release inputs.",
+    "SQLite WAL/SHM/journal are not restored beside standalone backup-API databases."
+  ],
+  "backupDirectoryOwner": {
+    "uid": 0,
+    "gid": 0
+  },
+  "archiveOwner": {
+    "uid": 0,
+    "gid": 0
+  },
+  "productionBeforeAfter": {
+    "sourceFingerprintsEqual": true,
+    "sameMasterProcess": true,
+    "activeStateAfter": "active",
+    "serviceControlActions": 0,
+    "dataMutations": 0
+  },
+  "restoreOutcome": "passed in separate 0700 directory; byte-identical retained files and logical SQLite data; application was not started",
+  "sourceCredentialFingerprintsRemainPrivateOnAlisa": true,
+  "futureDeploymentRequirement": "Create a fresh full backup during the approved Master pause before any future deployment."
+}

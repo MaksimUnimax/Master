@@ -1,0 +1,33 @@
+{
+  "testsRun": 17,
+  "elapsedSeconds": 26.329,
+  "successful": true,
+  "testIds": [
+    "tests.test_transfer_service_billing.LedgerBoundaries.test_conflicting_duplicate_can_be_reconciled_without_double_charge",
+    "tests.test_transfer_service_billing.LedgerBoundaries.test_existing_deepseek_web_and_file_costs_are_not_duplicated_or_counted_as_tokens",
+    "tests.test_transfer_service_billing.LedgerBoundaries.test_overrun_cost_is_recorded_but_debit_is_capped",
+    "tests.test_transfer_service_billing.LedgerBoundaries.test_partial_settlement_and_duplicate_receipt",
+    "tests.test_transfer_service_billing.LedgerBoundaries.test_reservation_enforces_quota_balance_and_credential",
+    "tests.test_transfer_service_billing.LedgerBoundaries.test_unknown_holds_across_restart_and_tariff_change_is_refused",
+    "tests.test_transfer_service_billing.PriceLedger.test_client_price_and_supplier_cost_are_independent",
+    "tests.test_transfer_service_billing.PriceLedger.test_conflicting_duplicate_can_be_reconciled_without_double_charge",
+    "tests.test_transfer_service_billing.PriceLedger.test_existing_deepseek_web_and_file_costs_are_not_duplicated_or_counted_as_tokens",
+    "tests.test_transfer_service_billing.PriceLedger.test_future_service_reuses_exact_same_contract",
+    "tests.test_transfer_service_billing.PriceLedger.test_new_package_and_restart_do_not_overwrite_client_price",
+    "tests.test_transfer_service_billing.PriceLedger.test_overrun_cost_is_recorded_but_debit_is_capped",
+    "tests.test_transfer_service_billing.PriceLedger.test_partial_settlement_and_duplicate_receipt",
+    "tests.test_transfer_service_billing.PriceLedger.test_price_change_rejects_old_unreserved_quote_and_stale_editor",
+    "tests.test_transfer_service_billing.PriceLedger.test_reservation_enforces_quota_balance_and_credential",
+    "tests.test_transfer_service_billing.PriceLedger.test_unknown_holds_across_restart_and_tariff_change_is_refused",
+    "tests.test_transfer_service_billing.PriceLedger.test_zero_client_price_consumes_supplier_quota_and_cost"
+  ],
+  "failures": [],
+  "errors": [],
+  "skipped": [],
+  "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+  "sourceManifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+  "privateCodeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+  "testFileSha256": "b0ee596781469b3d50a501a7e8412ea749f7b8e3082a1fe9e089c0767c522bd2",
+  "sourceLocation": "/opt/podmasterye/candidates/functionality-transfer-v31/source-r3/products/harness-platform",
+  "testFileOutsideImmutableSource": true
+}

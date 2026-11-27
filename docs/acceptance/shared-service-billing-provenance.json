@@ -1,0 +1,49 @@
+{
+  "sourceRevision": "3ed107921b202f238a0e8abbd860f7339040f76b",
+  "sourceFiles": {
+    "test_unified_service_billing.py": "4d7fb727a4fe5b527fe74ee12a2eed55d6fc9a32bb2a559941d5a007a6fd8903",
+    "test_service_client_prices.py": "c66c4426666f4fea947e6f2f13618006b702c280c787c2f2af9d42a31b43057f"
+  },
+  "adaptedFile": "tests/test_transfer_service_billing.py",
+  "adaptedSha256": "b0ee596781469b3d50a501a7e8412ea749f7b8e3082a1fe9e089c0767c522bd2",
+  "fixtureStringMap": {
+    "fixture-parser-market": "fixture-fixture-service-ledger",
+    "parser-market": "fixture-service-ledger",
+    "parser.market": "Fixture Ledger"
+  },
+  "classes": {
+    "LedgerBoundaries": {
+      "methods": 6,
+      "originalAssertCalls": 37,
+      "unchangedAfterFixtureNormalization": 36,
+      "fieldMappedAssertCalls": 1,
+      "addedAssertCalls": 3
+    },
+    "PriceLedger": {
+      "methods": 5,
+      "originalAssertCalls": 18,
+      "unchangedAfterFixtureNormalization": 18,
+      "fieldMappedAssertCalls": 0,
+      "addedAssertCalls": 0
+    }
+  },
+  "expectedTestIds": 17,
+  "distinctScenarioMethods": 11,
+  "runtimeChanged": false,
+  "privateDerivedSource": true,
+  "assertionAdaptations": [
+    {
+      "class": "LedgerBoundaries",
+      "method": "test_conflicting_duplicate_can_be_reconciled_without_double_charge",
+      "oldField": "providerRub",
+      "newField": "knownProviderRub",
+      "exactAmountUnchanged": "0.2",
+      "addedAssertions": [
+        "providerRub is None",
+        "costComplete is False",
+        "unknownCostAttempts equals1"
+      ],
+      "reason": "FI02: unresolved conflict cannot turn the confirmed subtotal into a complete supplier expense."
+    }
+  ]
+}

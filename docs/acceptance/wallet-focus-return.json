@@ -1,0 +1,293 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-11-27T12:34:21.666798+00:00",
+  "scenario": "T07 real tab return",
+  "sourceRoot": "/opt/podmasterye/candidates/functionality-transfer-v31/source-r3",
+  "privateCodeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+  "sourceBefore": {
+    "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+    "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+    "filesVerified": 617,
+    "changedFiles": []
+  },
+  "scriptSha256": "80216935ef3203e5bac0856e4c19333a2e5c802c27f35bb51f501d2ee1b36041",
+  "browserExecutable": "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/chromium/chromium-1234/chrome-linux64/chrome",
+  "browserSha256": "0b20b130e7edd9dd51873be867761295fe0cfad490c2b9a64f95bd3cfc08fa71",
+  "manualRefreshInvoked": false,
+  "artificialVisibilityOrFocusEvents": false,
+  "playwrightDefaultFocusEmulationDisabled": true,
+  "reloadUsedForRefresh": false,
+  "sourceOrTestsModified": false,
+  "productionStateOpened": false,
+  "productionCredentialsInherited": false,
+  "paidProviderRequests": 0,
+  "environment": {
+    "HARNESS_DIALOG_ENGINE": "native",
+    "HARNESS_NODE_MODULES": "/opt/harness-prod/runtime/attachments-06f257269dd3/node_modules",
+    "PYTHONPATH": "/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python-fixtures:/opt/podmasterye/candidates/functionality-transfer-v31/testtools/python",
+    "TMPDIR": "/tmp/pm-t07-2r1gtm1p",
+    "HARNESS_PROVIDER_KEYS_DIR": null,
+    "HARNESS_WEB_ENABLED": "0",
+    "HARNESS_OPENROUTER_ENABLED": "0"
+  },
+  "headlessProbe": {
+    "headless": true,
+    "initial": {
+      "hidden": false,
+      "visibility": "visible",
+      "focused": true,
+      "events": []
+    },
+    "away": {
+      "hidden": false,
+      "visibility": "visible",
+      "focused": false,
+      "events": [
+        {
+          "type": "blur",
+          "trusted": true,
+          "state": "visible",
+          "hidden": false,
+          "focused": false,
+          "at": 202.69999992847443
+        }
+      ]
+    },
+    "returned": {
+      "hidden": false,
+      "visibility": "visible",
+      "focused": true,
+      "events": [
+        {
+          "type": "blur",
+          "trusted": true,
+          "state": "visible",
+          "hidden": false,
+          "focused": false,
+          "at": 202.69999992847443
+        },
+        {
+          "type": "focus",
+          "trusted": true,
+          "state": "visible",
+          "hidden": false,
+          "focused": true,
+          "at": 526
+        }
+      ]
+    },
+    "actualTransition": false,
+    "actualFocusTransition": true,
+    "version": "151.0.7922.34",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36"
+  },
+  "ownXvfb": {
+    "pid": 2434898,
+    "display": ":120",
+    "schedulerDisplayUsed": false,
+    "stopped": true
+  },
+  "headedProbe": {
+    "headless": false,
+    "initial": {
+      "hidden": false,
+      "visibility": "visible",
+      "focused": true,
+      "events": []
+    },
+    "away": {
+      "hidden": false,
+      "visibility": "visible",
+      "focused": false,
+      "events": [
+        {
+          "type": "blur",
+          "trusted": true,
+          "state": "visible",
+          "hidden": false,
+          "focused": false,
+          "at": 192.79999995231628
+        }
+      ]
+    },
+    "returned": {
+      "hidden": false,
+      "visibility": "visible",
+      "focused": true,
+      "events": [
+        {
+          "type": "blur",
+          "trusted": true,
+          "state": "visible",
+          "hidden": false,
+          "focused": false,
+          "at": 192.79999995231628
+        },
+        {
+          "type": "focus",
+          "trusted": true,
+          "state": "visible",
+          "hidden": false,
+          "focused": true,
+          "at": 525.5
+        }
+      ]
+    },
+    "actualTransition": false,
+    "actualFocusTransition": true,
+    "version": "151.0.7922.34",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
+  },
+  "acceptedScope": "Native browser focus return after ledger grant",
+  "visibilityTransitionVerified": false,
+  "visibilityLimitation": "Both headless and headed Chromium keep visibilityState=visible when activating another page through bring_to_front. Real trusted blur/focus occurs. The smoke accepts the window-focus return path only; hidden/visible delivery is not claimed.",
+  "mode": "headed",
+  "events": [
+    {
+      "type": "blur",
+      "trusted": true,
+      "state": "visible",
+      "hidden": false,
+      "focused": false,
+      "at": 2160.399999976158
+    },
+    {
+      "type": "focus",
+      "trusted": true,
+      "state": "visible",
+      "hidden": false,
+      "focused": true,
+      "at": 3238
+    }
+  ],
+  "balanceRequests": [
+    {
+      "phase": "native-browser-return",
+      "at": "2026-11-27T12:34:34.223896+00:00",
+      "method": "GET",
+      "path": "/api/wallet/balance",
+      "resourceType": "fetch"
+    }
+  ],
+  "balanceResponses": [
+    {
+      "phase": "native-browser-return",
+      "at": "2026-11-27T12:34:34.236656+00:00",
+      "status": 200,
+      "body": {
+        "available": "12.345678901234",
+        "reserved": "0"
+      }
+    }
+  ],
+  "externalBrowserRequests": [],
+  "initial": {
+    "hidden": false,
+    "visibility": "visible",
+    "focused": true,
+    "events": [],
+    "balanceText": "Баланс: 10,00 монет",
+    "balanceExactTitle": "10 монет"
+  },
+  "away": {
+    "hidden": false,
+    "visibility": "visible",
+    "focused": false,
+    "events": [
+      {
+        "type": "blur",
+        "trusted": true,
+        "state": "visible",
+        "hidden": false,
+        "focused": false,
+        "at": 2160.399999976158
+      }
+    ]
+  },
+  "requestsBeforeGrant": 0,
+  "grant": {
+    "amount": "2.345678901234",
+    "method": "IdentityStore.grant_coins",
+    "synthetic": true,
+    "at": "2026-11-27T12:34:33.535643+00:00"
+  },
+  "hiddenAfterGrant": {
+    "hidden": false,
+    "visibility": "visible",
+    "focused": false,
+    "events": [
+      {
+        "type": "blur",
+        "trusted": true,
+        "state": "visible",
+        "hidden": false,
+        "focused": false,
+        "at": 2160.399999976158
+      }
+    ],
+    "balanceText": "Баланс: 10,00 монет",
+    "walletText": "10,00",
+    "newBalanceRequests": 0
+  },
+  "returned": {
+    "hidden": false,
+    "visibility": "visible",
+    "focused": true,
+    "events": [
+      {
+        "type": "blur",
+        "trusted": true,
+        "state": "visible",
+        "hidden": false,
+        "focused": false,
+        "at": 2160.399999976158
+      },
+      {
+        "type": "focus",
+        "trusted": true,
+        "state": "visible",
+        "hidden": false,
+        "focused": true,
+        "at": 3238
+      }
+    ],
+    "balanceText": "Баланс: 12,35 монет",
+    "walletText": "12,35",
+    "balanceExactTitle": "12.345678901234 монет"
+  },
+  "financialIsolation": {
+    "providerAttempts": 0,
+    "usageOperations": 0,
+    "usageJournalExists": false,
+    "fixtureDatabase": "/tmp/pm-t07-2r1gtm1p/pm-ui-x5buouxi/book.sqlite3",
+    "fixtureStateDirectory": "/tmp/pm-t07-2r1gtm1p/pm-ui-x5buouxi"
+  },
+  "successful": true,
+  "testsRun": 1,
+  "failures": [],
+  "errors": [],
+  "skipped": [],
+  "sourceAfter": {
+    "manifestSha256": "7e1f14157fb50b9119277775b733da7b003e47f23bfbe732f4c5c684901e72d6",
+    "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+    "filesVerified": 617,
+    "changedFiles": []
+  },
+  "sourceUnchanged": true,
+  "finishedAt": "2026-11-27T12:34:34.963310+00:00",
+  "elapsedSeconds": 13.297,
+  "screenshots": [
+    {
+      "file": "after-return.png",
+      "sha256": "2c02decaa93d6b534064194e3193d74bd8fec28c8292994b695bfe3e5737fb17"
+    },
+    {
+      "file": "before-return.png",
+      "sha256": "2223ea7c5c945dca4a226c95deaf9c9776e2533087327c707a06e664442272d9"
+    },
+    {
+      "file": "test_real_browser_tab_return_updates_balance.png",
+      "sha256": "2c02decaa93d6b534064194e3193d74bd8fec28c8292994b695bfe3e5737fb17"
+    }
+  ]
+}

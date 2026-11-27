@@ -1,12 +1,12 @@
 # Перенос функционала Octoport в Мастерскую
 
-**Техническое задание ТЗ-ПФ-001, редакция 1.1 от 27.11.2026.**  
-Статус: согласованный состав работ; добавлен обязательный этап D0 постоянного домена и бренда. Перенос функционала и полная приёмка ещё не завершены.  
+**Техническое задание ТЗ-ПФ-001, редакция 1.2 от 27.11.2026.**  
+Статус: единый интегрированный кандидат v31. Выполненная приёмка и оставшиеся внешние блокеры перечислены в разделе 14; production не переключался.  
 Назначение: единый рабочий документ для последующего переноса функционала. Все уточнения, принятые архитектурные решения и результаты приёмки добавляются сюда с указанием редакции и соответствующих требований.
 
 ## 1. Основание и границы
 
-Исходный сравнительный аудит: [ACCOUNT_ADMIN_AUDIT_RU.md](../releases/account-audit-v28/ACCOUNT_ADMIN_AUDIT_RU.md). На момент фиксации ТЗ действуют:
+Исходный сравнительный аудит: [ACCOUNT_ADMIN_AUDIT_RU.md](../provenance/docs/ACCOUNT_ADMIN_AUDIT_RU.md). На момент фиксации ТЗ действуют:
 - Octoport: 3ed107921b202f238a0e8abbd860f7339040f76b.
 - Подмастерье: d5cb72d7f45aef3f329044ec17f3bcd728221b75.
 - Подмастерье основан на общем Harness, имеет собственное хозяйственное ядро, отдельную конфигурацию, базы, гостевую матрицу и интерфейс. Наличие общего файла на диске не означает, что возможность активирована или принята.
@@ -218,7 +218,7 @@
 
 | 1.1 | 27.11.2026 | Официальное название «Мастерская», агент «Подмастерье», домен mastersckaya.ru. Добавлен этап D0 и требования D01–D07, T36–T42. |
 
-**Текущее состояние:** ТЗ дополнено, версия v28 работает на прежнем домене. Ни один новый функциональный раздел данным документом не считается реализованным. Конкретный выбор новой структуры БД, состава общих модулей и интерфейсов должен быть обоснован после проектного обследования по A01–A07, а не предрешён временным обходным решением.
+**Историческое состояние при редакции 1.1:** ТЗ дополнено, версия v28 работала на прежнем домене. Ни один новый функциональный раздел данным документом не считается реализованным. Конкретный выбор новой структуры БД, состава общих модулей и интерфейсов должен быть обоснован после проектного обследования по A01–A07, а не предрешён временным обходным решением.
 
 ## 13. Постоянный домен и идентичность продукта — обязательный этап D0
 
@@ -268,4 +268,153 @@ D0 выполняется до публичного коммерческого �
 | T41 | D06 | Telegram Login и доставка, новый callback; проверка платёжного return/webhook и Метрики без включения неразрешённых расходов/платежей |
 | T42 | D06–D07 | Canonical и sitemap только для основного адреса, правила noindex, безопасный переход со старого адреса, резервная копия и откат; живой smoke-test всех действующих маршрутов |
 
-Фактический статус на 27.11.2026: D01 заблокирован на публичной делегации (NXDOMAIN непосредственно у .ru). Подготовка HTTP/ACME на Alisa выполнена; старый сайт сохранён. Кандидат смены имени и общего origin подготовлен отдельно от production. Нельзя считать D0 принятым до действующего HTTPS и проверки внешних интеграций. Текущие платежи, DNS регистратора и почтовый отправитель не изменены.
+Статус отдельного обследования D0 при редакции 1.1 (не новая DNS-проверка этого выпуска): D01 заблокирован на публичной делегации (NXDOMAIN непосредственно у .ru). Подготовка HTTP/ACME на Alisa выполнена; старый сайт сохранён. Кандидат смены имени и общего origin подготовлен отдельно от production. Нельзя считать D0 принятым до действующего HTTPS и проверки внешних интеграций. Текущие платежи, DNS регистратора и почтовый отправитель не изменены.
+
+
+## 14. Результат интегрированного переноса — редакция 1.2
+
+Проверенный код полного дерева: **`9fe2c75017874d0505b69086497d39c1fad72041`**, runtime SHA256:
+`93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25`. Канонический исходник и история находятся в полном Git bundle;
+для публичного Master подготовлен допустимый авторский слой. Факт публикации,
+публичный commit, финальный
+release commit и hashes документационной поставки указаны в `release.json`
+архива. Изменения отчётов и дополнительные тесты не меняют проверенный runtime.
+
+Перед сборкой и живой проверкой сопоставлены текущая Мастерская
+`2be1cf6f4e04765fea5af33bba8b9a3e32d359fe` (v30) и применимые общие изменения
+Octoport `dacb7114476cad88b34932ade4c03942a058060a`. Неприменимые рекламные
+возможности не активированы. Старые SHA из раздела 1 остаются историей аудита.
+
+Статус «Проверено в кандидате» относится к указанной изолированной приёмке.
+Он не означает production deployment, одобрение всех внешних моделей,
+реальный платёж, физическое удаление или принятие нового публичного домена.
+Полное описание среды, тестовых контрактов, диагностических неуспешных
+прогонов и реальной стоимости: [отчёт приёмки](TRANSFER_ACCEPTANCE_RU.md).
+
+### 14.1. Требования функционального переноса
+
+| ID | Статус | Результат | Конкретное доказательство | Код |
+| --- | --- | --- | --- | --- |
+| A01 | Проверено в кандидате | Общий Harness, identity, ledger, router, timer и Telegram переиспользованы; свежие v30 и применимые общие изменения Octoport объединены | Архитектура; provenance; capability, native и полный Python | `9fe2c7501787` |
+| A02 | Проверено в кандидате | UI, инструменты и расписания используют учётное ядро, единые receipts и типизированный registry | test_capability_contracts; test_workshop_timer; test_workshop_permissions_v30 | `9fe2c7501787` |
+| A03 | Проверено в кандидате | Девять версий миграций с checksum/SAVEPOINT; clean/repeat/restore и реальная обезличенная копия; точные доли сохранены | migration-r3.json; test_transfer_lifecycle; test_transfer_finance | `9fe2c7501787` |
+| A04 | Проверено в кандидате | Общие роли/сеансы/CSRF, scope, отзыв grants, защита админа, отсутствие credentials в UI; archive проверяется и на общем gateway | test_account_access; test_browser_session; test_transfer_ai_authority; test_transfer_lifecycle | `9fe2c7501787` |
+| A05 | Проверено в кандидате | Идемпотентные receipts, durable leases/fencing, unknown outcome сохраняет резерв; запрет слепого повтора | test_openrouter_recovery; test_timer; test_workshop_timer; test_transfer_finance_payments; live-r3.json | `9fe2c7501787` |
+| A06 | Проверено в кандидате | Одна навигация аккаунта, три колонки, темы/узкие экраны/клавиатура; черновик сохраняется при переходе; производительность измерена | Оба полных browser results; performance-summary.json; test_transfer_shell_ui | `9fe2c7501787` |
+| A07 | Проверено в кандидате | Активные функции имеют обработчики и evidence; закрытые внешние операции явно не приняты; полное исходное дерево в Git без постоянной patch-сборки | Архитектура; source manifest; матрица блокеров; полный Git bundle | `9fe2c7501787` |
+| AC01 | Проверено в кандидате | Единое меню: профиль, кошелёк, настройки, о сервисе, админка по роли и выход; keyboard/Escape/focus | test_transfer_shell_ui; test_transfer_finance_ui | `9fe2c7501787` |
+| AC02 | Проверено в кандидате | Профиль, штатная смена пароля, неверный пароль, отзыв старых сеансов и собственный список сессий | test_browser_session; test_transfer_finance; test_transfer_finance_ui | `9fe2c7501787` |
+| AC03 | Проверено в кандидате | Почтовая защита через действующий auth; обязательные email/TOTP администратора не отключаются | test_account_access; test_browser_session; полный браузерный admin enrollment | `9fe2c7501787` |
+| AC04 | Проверено в кандидате | Один точный кошелёк, история/резервы/пагинация, единое обновление и BigInt округление видимого итога до сотых | test_transfer_finance; test_transfer_finance_ui; test_podmasterye_balance_v28_ui; wallet-focus-return.json (настоящий возврат фокуса окна) | `9fe2c7501787` |
+| AC05 | Проверено в кандидате | Один прежний основной чат; файлы, голос, документы, контекст, streaming/stop и guest history сохранены | test_transfer_ai_history; test_podmasterye_agent_first; AgentUI; files/native regression | `9fe2c7501787` |
+| FI01 | Проверено в кандидате | Один ledger для direct DS, OR, web, media, images и зарегистрированных услуг; отдельного wallet нет | test_transfer_service_billing; test_openrouter_operations; test_transfer_finance; live-r3.json; гостевые расходы — отдельная проекция платформы в общем отчёте | `9fe2c7501787` |
+| FI02 | Проверено в кандидате | Себестоимость, тариф, FX, клиентская цена, coins, reserves и поступления разделены; неизвестные суммы не равны нулю | test_transfer_finance; test_openrouter_operations; finance report | `9fe2c7501787` |
+| FI03 | Проверено в кандидате | Резерв до dispatch по тарифу; недостаточный/точный/достаточный баланс, конкуренция; локальный учёт и отчёты бесплатны | test_openrouter_operations; test_shared_web_access; test_workshop_timer; test_transfer_finance | `9fe2c7501787` |
+| FI04 | Проверено в кандидате | Общий admin список, фильтры и атомарная сверка с evidence/version/audit без повторного списания | test_transfer_finance; test_transfer_finance_ui; test_transfer_finance_payments | `9fe2c7501787` |
+| FI05 | Проверено в кандидате | Единая финансовая проекция по аккаунтам/периодам/поставщикам/услугам, точные итоги и признак неполноты | test_transfer_finance; test_admin_statistics; finance UI | `9fe2c7501787` |
+| AI01 | Частично: внешняя приёмка | DS/OR объединены в router/gateway; direct DS живой PASS. Собственный OR key отсутствует; реальные OR-модели не объявлены принятыми | test_transfer_ai; test_openrouter_catalog/operations/recovery; live-r3.json | `9fe2c7501787` |
+| AI02 | Частично: внешняя приёмка | Write-only keys, paid/free каталог, default/effort и server capability gate работают; реальный OR catalogue/model check ожидает ключ | test_transfer_ai_http; test_transfer_ai_ui; test_openrouter_catalog | `9fe2c7501787` |
+| AI03 | Частично: внешняя приёмка | Выбор разрешённой модели на аккаунте, возврат к default и глобальная revision семантика проверены; живой OR выбор ожидает ключ | test_transfer_ai; test_transfer_ai_http; native contracts | `9fe2c7501787` |
+| AI04 | Частично: внешняя приёмка | DS/OR monitor, ручной/периодический refresh, FX/threshold/dedup реализованы; штатный backend DS fetch дал HTTP 200. Реальные OR и TG alerts не принимались | test_admin_provider_balances; test_admin_balance_alerts; test_transfer_ai_ui; balance-live-r3.json (backend fetch, не admin UI) | `9fe2c7501787` |
+| AI05 | Проверено в кандидате | Обращение/тон/подробность в общем профиле, CAS/reset, применение к следующему native turn и frozen recovery | test_transfer_ai; assistant-preferences.test.mjs; test_transfer_ai_ui | `9fe2c7501787` |
+| AI06 | Проверено в кандидате | Собственная готовая матрица, local FAQ/calculators, ID-only classifier, без новых квот и свободного гостевого агента | guest/python/browser regression; native guest retry/restart | `9fe2c7501787` |
+| AI07 | Проверено в кандидате | Обычный помощник выполнил настоящий Search и Fetch с источниками, единицами и ledger; replay не вызвал новую платную попытку | live-r3.json; test_shared_web_access; native web evidence/security tests | `9fe2c7501787` |
+| AI08 | Частично: внешняя приёмка | Built-in illustrations, model/price gate, immutable versions, owner download, stop/recovery/billing работают; внешний image provider не подключён | test_openrouter_operations/recovery; test_transfer_ai; native image contracts | `9fe2c7501787` |
+| TM01 | Проверено в кандидате | Расписания встроены в новый аккаунт и помощника; нет plugin entitlement/отдельного cron | test_workshop_timer_http; test_capability_contracts; test_workshop_timer_ui | `9fe2c7501787` |
+| TM02 | Проверено в кандидате | Один durable event contract, one-shot/daily/weekly/monthly, timezone, edit/pause/resume/cancel/manual/history | test_timer; test_workshop_timer; test_workshop_timer_ui | `9fe2c7501787` |
+| TM03 | Проверено в кандидате | Все шесть отчётов читают прежнее хозяйственное ядро, локально считают числа и не используют coins/model | test_workshop_timer; test_workshop_timer_http; timer report | `9fe2c7501787` |
+| TM04 | Частично: внешняя приёмка | App/TG/both, единая привязка, отдельный delivery status, revocation/unknown реализованы; реальная отправка адресату не выполнялась | test_workshop_timer; test_workshop_timer_native; test_workshop_timer_ui | `9fe2c7501787` |
+| TM05 | Проверено в кандидате | Типизированные учётные действия идут через общий finalizer; конкретный preview/confirmation и актуальная версия обязательны | test_workshop_timer; test_workshop_timer_http; test_capability_contracts | `9fe2c7501787` |
+| TM06 | Проверено в кандидате | Atomic claim, leases, restart, fencing, per-channel outcome, cancellation/archive и изоляция; unknown delivery не повторяется вслепую | test_timer; test_workshop_timer; test_workshop_timer_native; test_transfer_lifecycle | `9fe2c7501787` |
+| AD01 | Частично: внешняя приёмка | Checkout/гостевой выбор/receipt email/idempotent recovery/admin payments реализованы; боевой платёж и чек не приняты | test_checkout; test_transfer_finance_payments; PublicPaymentV24UI; T28 blocked | `9fe2c7501787` |
+| AD02 | Частично: внешняя приёмка | Один public-only consent-aware counter, SPA hits, withdraw и отдельная конфигурация; собственный живой счётчик/токен ожидают настройки | test_transfer_analytics; test_transfer_shell_ui; test_mastersckaya_domain_v29 | `9fe2c7501787` |
+| AD03 | Проверено в кандидате | Группировка admin, финансы/платежи, модели/ключи/балансы, расписания и read-only system state с серверными правами | test_admin_statistics; test_podmasterye_admin_v12; LayoutUI; transfer UI | `9fe2c7501787` |
+| AD04 | Проверено в кандидате | Блокировка/архив/restore с сохранением данных, отзывом session/grants, паузой заданий/интеграций и audit | test_transfer_lifecycle; test_transfer_shell_ui; test_transfer_ai_authority | `9fe2c7501787` |
+| AD05 | Заблокировано допуском/политикой | Dependency preview/version и безопасные массовые обратимые действия готовы; необратимое удаление закрыто до утверждения политики хранения | TRANSFER_DATA_POLICY_RU.md; test_transfer_lifecycle; T32 blocked | `9fe2c7501787` |
+| EX01 | Проверено в кандидате | Штатные возможности регистрируются через единый capability contract; пользовательский каталог плагинов не смонтирован | test_capability_contracts; test_workshop_timer_http; native tool set | `9fe2c7501787` |
+| EX02 | Проверено в кандидате | Рекламные bidder/parser.market/BHAPI и специфические actions Octoport не активированы; прежние интеграции Мастерской сохранены | Capability exclusions; registry; Полный guest/member regression | `9fe2c7501787` |
+
+### 14.2. Совместимость отдельного доменного этапа
+
+| ID | Статус | Результат | Конкретное доказательство | Код |
+| --- | --- | --- | --- | --- |
+| D01 | Внешняя приёмка D0 отдельно | DNS/HTTPS/ACME и redirects не изменялись | Фактическая внешняя приёмка отдельной работы D0 | `9fe2c7501787` |
+| D02 | Совместимость проверена; D0 отдельно | Единый site_identity/PODMASTERYE_PUBLIC_ORIGIN, strict invalid config, без доменов в отдельных новых модулях | test_mastersckaya_domain_v29; analytics/origin contracts | `9fe2c7501787` |
+| D03 | Совместимость проверена; D0 отдельно | Сервис Мастерская, агент Подмастерье; свежая доменная v29/v30 база сохранена | Public/auth/admin/guest browser regression; FAQ preservation | `9fe2c7501787` |
+| D04 | Совместимость проверена; D0 отдельно | Прежние accounts/workshops/chat/files/exact ledger; cookie/CSRF и повторный вход не ослаблены | Migration/restore + BrowserSession; live нового domain вне этого выпуска | `9fe2c7501787` |
+| D05 | Внешняя приёмка D0 отдельно | Действующая почта и ключи не переключались | Отдельные sender/SPF/DKIM/DMARC/delivery принимаются D0 | `9fe2c7501787` |
+| D06 | Совместимость проверена; D0 отдельно | Callbacks/SEO/Мetrika используют один origin и собственный state; payments/indexing закрыты до допуска | Domain contracts + analytics + checkout; реальные внешние настройки pending | `9fe2c7501787` |
+| D07 | Совместимость проверена; D0 отдельно | Один immutable release, provenance, backup/restore и exact-source приёмка подготовлены | Production switch/new-domain live smoke не выполнялись; bundle/runbooks | `9fe2c7501787` |
+
+### 14.3. Критерии T01–T42
+
+| ID | Статус | Результат | Конкретное доказательство | Код |
+| --- | --- | --- | --- | --- |
+| T01 | Проверено в кандидате | Общая архитектура и один authoritative write path | A01/A02; capability contracts, timer effects, архитектурный аудит | `9fe2c7501787` |
+| T02 | Проверено в кандидате | Clean/install, реальная обезличенная копия, повтор и restore | migration-r3.json: 101 существующая таблица/4 DB, 9 migrations, native 14; заполненный synthetic accounting regression | `9fe2c7501787` |
+| T03 | Проверено в кандидате | Account/workshop isolation, guest/member/admin и direct API | test_transfer_finance, lifecycle, AI authority, timer, access | `9fe2c7501787` |
+| T04 | Проверено в кандидате | Повторы, конкуренция, restart и unknown outcome | test_openrouter_recovery; test_timer; live replay; payment reconcile race | `9fe2c7501787` |
+| T05 | Проверено в кандидате | Настоящие Chromium и Opera, themes/mobile/keyboard/drafts | Полные browser JSON, каждое 260 unique tests; без UA подмены | `9fe2c7501787` |
+| T06 | Проверено в кандидате | Menu/profile/password/sessions/email/TOTP | BrowserSession, access и transfer finance UI; admin enrollment | `9fe2c7501787` |
+| T07 | Проверено в кандидате | Balance refresh, UI до сотых, точный ledger/API | Finance rounding/refresh tests; wallet-focus-return.json: actual trusted blur→focus, 0 background/1 return GET, exact API 12.345678901234 and UI 12,35; hidden→visible not separately observed | `9fe2c7501787` |
+| T08 | Проверено в кандидате | Один chat, files/voice/documents/context | AgentUI file-only/read/create/edit; history/native/attachments regression | `9fe2c7501787` |
+| T09 | Проверено в кандидате | Несколько поставщиков/услуг, tariff/FX snapshot | OR operations + service billing + finance projections; DS/Web live | `9fe2c7501787` |
+| T10 | Проверено в кандидате | Все границы баланса и бесплатный local path | OR exact/free/insufficient; concurrent reserve; timer reports no charge | `9fe2c7501787` |
+| T11 | Проверено в кандидате | Success/429/error/cancel/unknown/reconcile | OR recovery, coins/service billing, finance atomic receipt | `9fe2c7501787` |
+| T12 | Проверено в кандидате | Итоги периода и неполные метрики | Finance reporting exact sums/unknown; admin statistics | `9fe2c7501787` |
+| T13 | Частично: внешняя приёмка | Прямой DS принят; OR catalogue/config/paid/free проверены controlled transport | Live OR models pending: собственного ключа нет | `9fe2c7501787` |
+| T14 | Частично: внешняя приёмка | Native stream/stop/context/cache/tools/docs проверены; реальная совместимость всех OR models не доказана | Native77; OR native suites; actual DS/Search/Fetch; model capability gate | `9fe2c7501787` |
+| T15 | Частично: внешняя приёмка | Независимые balances, период/пороги/ошибки и TG dedup проверены | DS backend BalanceMonitor.fetch: HTTP 200, корректные CNY/USD decimal strings, без новых списаний; refresh/updatedAt/admin UI проверены fixtures. Живые OR и Telegram не приняты | `9fe2c7501787` |
+| T16 | Проверено в кандидате | Style prefs/default/revision и права | AI preference Python/native/browser contracts | `9fe2c7501787` |
+| T17 | Проверено в кандидате | Local FAQ/calculator и strict classifier ID | Guest selector, matrix, browser calculator; посторонняя тема | `9fe2c7501787` |
+| T18 | Проверено в кандидате | Нет новых квот, pagination и guest→member history | Guest messages beyond old limits; native retry/restart history | `9fe2c7501787` |
+| T19 | Проверено в кандидате | Реальный авторизованный Search/Fetch, источники и расходы | live-r3.json: 1 search, 1 fetch, 0.272448499038 RUB total, all replay no new attempt; security suites | `9fe2c7501787` |
+| T20 | Частично: внешняя приёмка | Генерация/versions/download/cancel/owner/unknown проверены fixtures | Реальный платный image provider/model pending: OR key отсутствует | `9fe2c7501787` |
+| T21 | Проверено в кандидате | Новый аккаунт получает timer без plugins; lifecycle event UI | workshop timer HTTP/browser tests | `9fe2c7501787` |
+| T22 | Проверено в кандидате | One-shot/daily/weekly/monthly/timezones/misfire/restart/claims | test_timer и workshop timer boundary cases | `9fe2c7501787` |
+| T23 | Проверено в кандидате | Шесть локальных отчётов, совпадающие с domain | Report totals and filters; model attempts/coin changes0 | `9fe2c7501787` |
+| T24 | Частично: внешняя приёмка | App/TG/both и отдельный статус доставки | Реальный native app exchange PASS; TG transport controlled, реального адресата не отправляли | `9fe2c7501787` |
+| T25 | Проверено в кандидате | Typed scheduled effect и confirmation/version/replay | Общий finalizer и receipt, unsafe/expired/archive отказ | `9fe2c7501787` |
+| T26 | Проверено в кандидате | Unknown delivery, stop/archive, partial failure, isolation | Timer leases/fencing и lifecycle regressions | `9fe2c7501787` |
+| T27 | Проверено в кандидате | Гостевой выбор суммы→login→checkout; имитация успеха/ошибок/дублей | Checkout tests, payment recovery7, PublicPayment UI | `9fe2c7501787` |
+| T28 | Заблокировано допуском/политикой | Реальный платёж, чек и сверка ЮKassa | Отдельный допуск/собственный магазин/фискальная политика отсутствуют; payments disabled | `9fe2c7501787` |
+| T29 | Частично: внешняя приёмка | Consent/public-only/SPA/withdraw/excluded admin, отдельный counter | Controlled analytics transport PASS; собственный действующий counter/token и отчёт посещений pending | `9fe2c7501787` |
+| T30 | Проверено в кандидате | Admin filters/sorts/pages10/20/50/100 и прежние формы/права | Admin statistics + finance/payments + real browser layouts | `9fe2c7501787` |
+| T31 | Проверено в кандидате | Block/archive/restore, revocations и protected/last-admin | Lifecycle Python+browser, gateway authority, timer cancellation | `9fe2c7501787` |
+| T32 | Заблокировано допуском/политикой | Политика и необратимое индивидуальное/массовое удаление | Политика не утверждена; preview/version/partial reversible batch протестированы. Общий endpoint отклоняет action=delete; необратимый исполнитель отсутствует | `9fe2c7501787` |
+| T33 | Проверено в кандидате | Новый tool/report через registry без второго engine | Capability table actual handlers; excluded advertising tools | `9fe2c7501787` |
+| T34 | Проверено в кандидате | Полная актуальная регрессия продукта и затронутого ядра | Python 519 +17 общих финансовых cases, native 77, Opera 260 и Chromium 260: все финальные наборы PASS, 0 failures/errors/skips; один runtime SHA | `9fe2c7501787` |
+| T35 | Частично: внешняя приёмка | Точный source commit, Git bundle/delta, source manifest, backup/restore, live cost и runbooks | Private canonical Git готов; full private GitHub remote требует доступной авторизации создания/публикации, public export не заменяет full tree | `9fe2c7501787` |
+| T36 | Внешняя приёмка D0 отдельно | DNS/TLS/ACME/http redirects | В этом задании DNS/Nginx/SSL не менялись; фактическая приёмка отдельного D0 | `9fe2c7501787` |
+| T37 | Совместимость проверена; D0 отдельно | Единый origin и fail-closed invalid config | test_mastersckaya_domain_v29; Telegram/analytics/SEO use shared identity | `9fe2c7501787` |
+| T38 | Совместимость проверена; D0 отдельно | Мастерская как сервис, Подмастерье как agent; v29/v30 сохранены | Auth/public/admin browser contracts; catalog/data preservation | `9fe2c7501787` |
+| T39 | Совместимость проверена; D0 отдельно | Прежние account IDs/data, cookie/Origin/CSRF; no token URL | Migration and BrowserSession PASS; настоящий вход на новом публичном HTTPS origin принимает D0 | `9fe2c7501787` |
+| T40 | Внешняя приёмка D0 отдельно | Почтовый домен, доставка и SPF/DKIM/DMARC | SMTP/DNS/mail credentials не менялись; внешний D0 отдельно | `9fe2c7501787` |
+| T41 | Совместимость проверена; D0 отдельно | Callbacks из общего origin, checkout и analytics isolation | URL/CSRF/return/Webhook controlled contracts; реальные настройки TG/ЮKassa/Метрика нового домена pending | `9fe2c7501787` |
+| T42 | Совместимость проверена; D0 отдельно | SEO/noindex/backup/restore совместимы с единым release | Existing public routes regression и restore PASS; production redirect/canonical/public smoke относятся к D0 | `9fe2c7501787` |
+
+### 14.4. Проверенные численные итоги
+
+- Python: 519 действующих test IDs и 17 дополнительных перенесённых проверок
+  общего service ledger. Native/gateway: 77. Opera: 260. Chromium: 260.
+  Во всех финальных наборах 0 failures/errors/skips. Идентичные импортированные
+  test IDs дедуплицированы; отдельные унаследованные сценарии сохранены.
+- Реальная обезличенная копия: 4 DB, 101 прежняя таблица, 9 версий миграций;
+  исходные столбцы/денежные fingerprints, repeat и restore совпали;
+  native: 1 основной chat и 14 сообщений. Заполненный хозяйственный учёт
+  дополнительно проверен fixtures, поскольку соответствующие production
+  таблицы в снимке были пустыми.
+- Живые DS/native/Search/Fetch: 7 settled attempts, 1 search и 1 fetch,
+  **0.272448499038 ₽** полного расхода;0 reserved/pending. Все 3 replay
+  вернули тот же результат без новой попытки.
+
+Оставшиеся внешние условия перечислены в
+[перечне блокеров](TRANSFER_BLOCKERS_RU.md), а не скрыты в статусе PASS.
+Следующий выпуск — единое переключение всего принятого кандидата по
+[инструкции развёртывания](TRANSFER_DEPLOYMENT_RU.md), после предусмотренных
+условий и свежей согласованной backup-точки. Промежуточные разделы в production
+не выкладывались.
+
+| Редакция | Дата | Изменение |
+| --- | --- | --- |
+|1.2|27.11.2026|Интегрированный перенос A/AC/FI/AI/TM/AD/EX, доменная совместимость, версия кода и конкретные доказательства по каждому требованию/критерию; внешние ограничения обозначены отдельно.|

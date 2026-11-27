@@ -1,0 +1,46 @@
+{
+  "successful": true,
+  "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+  "privateCodeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+  "input": "/opt/podmasterye/candidates/functionality-transfer-v31/finance-migration/verified-93da35e4/upgraded",
+  "workingCopy": "/opt/podmasterye/candidates/functionality-transfer-v31/timer-copy-smoke-r3/working",
+  "inputFilesBefore": {
+    "backup-report.json": "3734d33e4126b8cb872e87f7b7ee2ae8179c9705c9ad3bffffca0d6ce818f1f8",
+    "chats/native-chats.sqlite3": "eac3ca6701dfb155c286c3635e613167be178175c410f1ce3f449e464f6c08e9",
+    "stage.sqlite3": "21f0fc56ba61ce37fc65469c7f73beecebe7df6f67d55e6b55a69bb9eeb5c4c4",
+    "stage.sqlite3.public-faq.sqlite3": "5bb774fd9ffd927c3e9e6d356cb847e61979d32d3e6e23f140ffe4b2cd831a50",
+    "usage.jsonl": "43bbb8d2bd5071ab62d93f0d26620b1a02a8d430f43f20f6b383e2ec9710c037",
+    "web-admission.sqlite3": "d2e60838560064dfb349aadbf479baf128779b1960f1c13453e87a5575314898"
+  },
+  "inputFilesAfter": {
+    "backup-report.json": "3734d33e4126b8cb872e87f7b7ee2ae8179c9705c9ad3bffffca0d6ce818f1f8",
+    "chats/native-chats.sqlite3": "eac3ca6701dfb155c286c3635e613167be178175c410f1ce3f449e464f6c08e9",
+    "stage.sqlite3": "21f0fc56ba61ce37fc65469c7f73beecebe7df6f67d55e6b55a69bb9eeb5c4c4",
+    "stage.sqlite3.public-faq.sqlite3": "5bb774fd9ffd927c3e9e6d356cb847e61979d32d3e6e23f140ffe4b2cd831a50",
+    "usage.jsonl": "43bbb8d2bd5071ab62d93f0d26620b1a02a8d430f43f20f6b383e2ec9710c037",
+    "web-admission.sqlite3": "d2e60838560064dfb349aadbf479baf128779b1960f1c13453e87a5575314898"
+  },
+  "originalMainTables": 117,
+  "originalRowsPreserved": true,
+  "sixReports": [
+    "profit",
+    "sales",
+    "stock",
+    "purchases",
+    "production",
+    "tasks"
+  ],
+  "manualRun": {
+    "state": "done",
+    "outcome": "report",
+    "attempts": 1,
+    "chatDelivery": "sent"
+  },
+  "deliveryAdapter": "controlled in-memory timerExchange; native restart is covered by the separate actual native test",
+  "capturedChatCalls": 1,
+  "historyAssistantRows": 1,
+  "reopenPreservesRun": true,
+  "coinAttemptsUnchanged": true,
+  "networkRequests": 0,
+  "telegramCalls": 0
+}

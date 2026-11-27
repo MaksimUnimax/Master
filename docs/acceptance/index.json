@@ -1,0 +1,98 @@
+{
+  "codeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+  "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+  "files": {
+    "balance-live-r3.json": {
+      "sha256": "ce01ec2b9acf24ff7b19ef1f3db7626c143bcce786334e59db8caa8d2fe39978",
+      "bytes": 2750
+    },
+    "browser-runtime.json": {
+      "sha256": "64f907e85cd4076e1a8566b7a0ec16e4fc68f23eeb548c4b3cbe1ec39e56fdc1",
+      "bytes": 45809
+    },
+    "chromium-runtime.json": {
+      "sha256": "44f73615b2ce510511029288ddf4de1d63bb865f4984ce84dcc5fe1ed15ff43c",
+      "bytes": 10787
+    },
+    "chromium.json": {
+      "sha256": "d78c8e6093e1544dd53492df71389f02ac132bf824607266a763b0d334247204",
+      "bytes": 25222
+    },
+    "closed-backup-report.json": {
+      "sha256": "123a0d3bd9c881fce01bf5d6d98a7977f11a6a834e5596974dc19a590a3e1ca2",
+      "bytes": 2110
+    },
+    "live-r3.json": {
+      "sha256": "d502b1c30031462c9d64327ac6fe562703ab5c4358c7d0920c76106bc3e5e891",
+      "bytes": 16091
+    },
+    "migration-r3.json": {
+      "sha256": "d9fe3dff0b3fdfeb28b21fa89534ce4304dd6b7e30f133d1bb8da8091aba4ddf",
+      "bytes": 2411
+    },
+    "native-runtime.json": {
+      "sha256": "b241f12e230acee011e0ebfef110b9774847d8a495f681d51e65d3693ec51601",
+      "bytes": 3893
+    },
+    "native-summary.json": {
+      "sha256": "dcebfdc5e8f3ac51d2be1a7cf2258d1261a398649db4b453cc2c72484a55165f",
+      "bytes": 261
+    },
+    "opera-runtime.json": {
+      "sha256": "1fc6bad8dd7bee16c0c294d7ba03a2a61797bbd4cfac337958dc07c0f94e4a94",
+      "bytes": 28094
+    },
+    "opera.json": {
+      "sha256": "b676e79bfd0f49bd728601138304fb25ce09f937a9b4cb91ab6e6b6ab457d282",
+      "bytes": 25236
+    },
+    "performance-summary.json": {
+      "sha256": "3db5f6d04af2ee472fe89dcbf70d9798774c6b1c4cfa7bfb0933f454ee226f1f",
+      "bytes": 7804
+    },
+    "production-copy.json": {
+      "sha256": "e28bd9e2384cf92ef736be8463dccec0ae60b6575bfa4da36c4809ae11fb4c1b",
+      "bytes": 6548
+    },
+    "python-fixtures.json": {
+      "sha256": "c935e52952d82c4aa4c9042c9a7f515a146b36e98230c9fbc8b06b9ba6eb1552",
+      "bytes": 1147
+    },
+    "python-runtime.json": {
+      "sha256": "28f569911e58624b36cf0bec6c13e5e7e1834992e26f573eed27f53c855c5b67",
+      "bytes": 5891
+    },
+    "python.json": {
+      "sha256": "2a62ac938c0cccaf122f5dd2197b3605458561b3e3c26a2b90cc75ab7aaf12ab",
+      "bytes": 51959
+    },
+    "requirements.json": {
+      "sha256": "38380fbebdbd87b8f529ef831b017d8f8b0abed92a5c204e65ad8f84270e5c50",
+      "bytes": 25645
+    },
+    "runtime-manifest.json": {
+      "sha256": "c9a9dd1b4009f79f9feda24640a9b74df53c68d479e111ff97dc5f22b1d04ec5",
+      "bytes": 42697
+    },
+    "shared-service-billing-provenance.json": {
+      "sha256": "4fcfee6b29072fdd612e1d859a8c8b5f9a241ce36915db8db75d4ac5de5913f1",
+      "bytes": 1675
+    },
+    "shared-service-billing.json": {
+      "sha256": "39709d7065b6993a8d9ca60fcb14d912fd66387042b107cc150a95c2d707fdbb",
+      "bytes": 2602
+    },
+    "test-inventory.json": {
+      "sha256": "72c0b632d55c14218997c0356964884ab68b1beccfb4dc2a9c5b1fb67aacf9f2",
+      "bytes": 90219
+    },
+    "timer-copy-smoke.json": {
+      "sha256": "71901313e6d9ab87d3496ac0f435ba0eed2f5245b81039f0f4b0d98c9e61b0f7",
+      "bytes": 2176
+    },
+    "wallet-focus-return.json": {
+      "sha256": "f0af4135fb93385f621d3d65f8b32132a3a85a3af46792447015f7a1fdf68600",
+      "bytes": 8191
+    }
+  }
+}
