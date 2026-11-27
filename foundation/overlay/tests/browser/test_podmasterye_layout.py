@@ -158,6 +158,9 @@ class LayoutUI(previous.IndependentUI):
         p.get_by_role("button",name="Показать",exact=True).click();expect(p.locator(".stats-table").first).to_contain_text("Пользователи не найдены")
         self.assertFalse(p.get_by_role("button",name="Удалить выбранные").count())
     def test_layout_all_member_tabs_and_checkout(self):
+        from unittest.mock import patch
+        import os
+        self.enterContext(patch.dict(os.environ,{"PODMASTERYE_MULTI_WORKSHOP":"1"}))
         self.sign_in();p=self.page
         # Populate with the same deterministic demonstration data used in the product.
         self.nav("settings");p.locator("#workshop-demo").click();expect(p.locator("#workshop-caption")).to_contain_text("Демонстрационная");self.ready()
@@ -202,14 +205,16 @@ class LayoutUI(previous.IndependentUI):
         expect(helper).to_be_visible()
         history=p.locator("#messages").inner_text()
         width_before=work.bounding_box()["width"]
+        expect(p.locator("#close-helper")).to_have_text("Свернуть")
         p.locator("#close-helper").click();expect(helper).not_to_be_visible()
         self.assertGreater(work.bounding_box()["width"],width_before+250)
         expect(p.locator("#toggle-helper")).to_have_attribute("aria-expanded","false")
         self.shot("assistant-first-collapsed")
         p.reload();self.ready();expect(helper).not_to_be_visible()
-        p.locator("#expand-work").click();expect(helper).to_be_visible();expect(work).not_to_be_visible()
+        expect(p.locator("#expand-work")).to_have_text("Помощник")
+        p.locator("#expand-work").click();expect(helper).to_be_visible();expect(work).to_be_visible()
+        expect(p.locator("#expand-work")).to_have_text("Свернуть")
         expect(p.locator("#messages")).to_have_text(history, use_inner_text=True)
-        p.locator("#close-helper").click();expect(work).to_be_visible();expect(helper).to_be_visible()
         p.locator("#toggle-nav").click();expect(nav).not_to_be_visible()
         p.locator("#toggle-helper").click();expect(helper).not_to_be_visible()
         self.assertAlmostEqual(work.bounding_box()["width"],1440,delta=2)
@@ -218,6 +223,7 @@ class LayoutUI(previous.IndependentUI):
         p.locator("#assistant-form textarea").fill("Черновик для проверки")
         expect(p.locator("#expand-work")).to_have_text("Свернуть")
         p.locator("#expand-work").click();expect(helper).to_be_visible();expect(work).not_to_be_visible()
+        expect(p.locator("#close-helper")).to_have_text("Мастерская")
         expect(p.locator("#assistant-form textarea")).to_have_value("Черновик для проверки")
         p.reload();self.ready();expect(helper).to_be_visible();expect(work).not_to_be_visible()
         p.locator("#close-helper").click();expect(helper).to_be_visible();expect(work).to_be_visible()

@@ -18,14 +18,14 @@ function current(){return list?.workshops.find(w=>w.id===window.PMWorkshopId);}
 async function initWorkshops(){
  list=await api('/api/workshops');
  const requested=new URLSearchParams(location.search).get('workshop');
- const valid=list.workshops.find(w=>w.id===requested&&!w.archived);
+ const valid=list.multipleEnabled?list.workshops.find(w=>w.id===requested&&!w.archived):null;
  window.PMWorkshopId=(valid||list.workshops.find(w=>w.id===list.default&&!w.archived)||list.workshops.find(w=>!w.archived)).id;
  const select=q('#workshop-select');
  if(select){select.replaceChildren(...list.workshops.filter(w=>!w.archived).map(w=>new Option(w.name+(w.demo?' · демо':''),w.id)));select.value=window.PMWorkshopId;select.onchange=()=>switchTo(select.value);}
  const name=q('#workshop-caption');if(name)name.textContent=current()?.name||'Мастерская';
  return window.PMWorkshopId;
 }
-function switchTo(w){if(!w)return;location.href='/app/?workshop='+encodeURIComponent(w);}
+function switchTo(w){if(!w||!list?.multipleEnabled)return;location.href='/app/?workshop='+encodeURIComponent(w);}
 function navigateExtra(name,reveal=true){
  if(name==='integrations')loadSources().catch(e=>textStatus('#source-status',e.message));
  if(name==='settings')renderWorkshopSettings();
@@ -36,7 +36,7 @@ async function changeWorkshop(action,args){
  const result=await post('/api/workshops/change',{requestId:crypto.randomUUID(),action,arguments:args});
  if(action==='create'||action==='demo')switchTo(result.id);
  else if(action==='archive'&&result.id===window.PMWorkshopId)switchTo(list.default);
- else{list=await api('/api/workshops');const select=q('#workshop-select');select.replaceChildren(...list.workshops.filter(w=>!w.archived).map(w=>new Option(w.name+(w.demo?' · демо':''),w.id)));select.value=window.PMWorkshopId;renderWorkshopSettings();if(action==='update'){q('#workshop-caption').textContent=result.name;const o=Array.from(q('#workshop-select').options).find(x=>x.value===result.id);if(o)o.textContent=result.name+(result.demo?' · демо':'');}await window.PMAccounting.refresh();}
+ else{list=await api('/api/workshops');const select=q('#workshop-select');if(select){select.replaceChildren(...list.workshops.filter(w=>!w.archived).map(w=>new Option(w.name+(w.demo?' · демо':''),w.id)));select.value=window.PMWorkshopId;}renderWorkshopSettings();if(action==='update'){q('#workshop-caption').textContent=result.name;}await window.PMAccounting.refresh();}
 }
 function renderWorkshopSettings(populate=true){
  const w=current();if(!w)return;
@@ -66,7 +66,15 @@ function syncPanes(){
  document.body.dataset.pmSurface=panes.surface;
  const visible=helperVisible();
  b.setAttribute('aria-expanded',String(visible));b.setAttribute('aria-label',visible?'Свернуть помощника':'Открыть помощника');b.title=visible?'Свернуть помощника':'Открыть помощника';
- q('#close-helper').setAttribute('aria-expanded',String(workVisible()));
+ const close=q('#close-helper');
+ close.textContent=workVisible()?'Свернуть':'Мастерская';
+ close.setAttribute('aria-label',workVisible()?'Свернуть помощника':'Открыть мастерскую');
+ close.title=close.getAttribute('aria-label');
+ close.setAttribute('aria-expanded',String(workVisible()));
+ const expand=q('#expand-work');
+ expand.textContent=visible?'Свернуть':'Помощник';
+ expand.setAttribute('aria-label',visible?'Свернуть мастерскую':'Открыть помощника');
+ expand.setAttribute('aria-expanded',String(visible));
  q('#toggle-nav').setAttribute('aria-expanded',String(panes.navOpen));
 }
 function persistPanes(){
@@ -109,7 +117,7 @@ function initLayout(){
   q('#close-nav').onclick=()=>{if(panes.navOpen)toggleNav();};
   helper.onclick=()=>{if(helperVisible())showWork(true);else showHelper();};
   close.onclick=()=>showWork(workVisible());
-  expand.onclick=hideWork;
+  expand.onclick=()=>{if(helperVisible())hideWork();else showHelper();};
   compactLayout.addEventListener('change',()=>{
    if(compactLayout.matches&&panes.surface==='split')panes.surface='assistant';
    else if(!compactLayout.matches&&panes.surface==='assistant')panes.surface=localStorage.getItem('pm-surface')==='assistant'?'assistant':'split';

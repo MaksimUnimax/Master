@@ -98,7 +98,7 @@ class IndependentUI(unittest.TestCase):
         return got.value.json()
     def call(self,path,data=None,*,headers=None,expected=200,workshop=True):
         if workshop and path.startswith(("/api/accounting","/api/production","/api/integrations")):
-            wid=self.page.locator("#workshop-select").input_value()
+            wid=self.page.evaluate("window.PMWorkshopId")
             path+=("&" if "?" in path else "?")+urlencode({"workshop":wid})
         request_headers={"Origin":self.origin,**(headers or {})}
         res=self.ctx.request.get(path,headers=request_headers) if data is None else self.ctx.request.post(path,data=data,headers=request_headers)
@@ -248,6 +248,7 @@ class IndependentUI(unittest.TestCase):
         p.locator("#toggle-helper").click();expect(p.locator("aside")).to_be_visible();p.locator("#close-helper").click()
 
     def test_06_themes_colors_and_workshop_restore(self):
+        self.enterContext(patch.dict(os.environ,{"PODMASTERYE_MULTI_WORKSHOP":"1"}))
         self.sign_in();p=self.page
         original=p.locator("#workshop-select").input_value()
         self.nav("settings")

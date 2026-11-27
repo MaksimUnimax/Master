@@ -177,7 +177,13 @@ body[data-mode="member"] .layout>nav .pm-nav-header{flex:none;position:sticky;to
 body[data-mode="member"] .layout>nav .pm-nav-header button{font-size:12px;padding:5px 8px;min-width:0}
 
 body[data-mode="member"][data-pm-surface="work"] .layout>main .pm-work-header{background:var(--bg)}
-body[data-mode="member"] #close-helper{font-size:13px;min-width:0;padding:6px 10px;width:auto;height:auto}
+/* The three panel controls use one geometry in every layout and theme. */
+body[data-mode="member"] .layout :is(#close-nav,#close-helper,#expand-work){
+ display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;
+ box-sizing:border-box;width:116px;max-width:100%;height:36px;min-height:36px;
+ min-width:0;padding:0 10px;font-size:13px;line-height:1.2;font-weight:550;
+ border-radius:10px;white-space:nowrap;
+}
 .pm-live-turn{padding:12px 2px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
 .pm-live-turn .pm-live-text{margin-top:8px;color:var(--ink);line-height:1.6}
 .pm-thinking-dots{display:inline-flex;gap:1px}

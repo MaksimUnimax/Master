@@ -97,8 +97,8 @@ class AgentUI(unittest.TestCase):
             page.locator("#book-confirm").click()
             expect(page.locator("#book-dialog")).not_to_be_visible()
             ask("Тест заполнения мастерской")
-            expect(page.locator('#workshop-create [name=name]')).to_have_value("Новая мастерская")
-            expect(page.locator('#workshop-create [name=description]')).to_have_value("Проверка")
+            expect(page.locator('#workshop-settings [name=name]')).to_have_value("Название мастерской")
+            expect(page.locator('#workshop-settings [name=description]')).to_have_value("Проверка")
             import io
             from openpyxl import Workbook
             b=Workbook();b.active.append(["Маркер",714598]);source=io.BytesIO();b.save(source)

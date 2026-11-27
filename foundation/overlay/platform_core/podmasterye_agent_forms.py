@@ -18,8 +18,14 @@ def init(db):
             chat TEXT NOT NULL REFERENCES chats(chat_id) ON DELETE CASCADE,
             rid TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY(workspace,chat,rid))""")
 
+def active_extra():
+    return {k:v for k,v in EXTRA.items() if k!="workshop_create" or workshops.multiple_enabled()}
+
+def active_names():
+    return [*("book."+op for op in book.FIELDS),*active_extra()]
+
 def catalog(forms=None):
-    full={"accounting":book.forms(),"other":{k:{"page":page,"fields":fields} for k,(page,fields) in EXTRA.items()},"pages":sorted(PAGES)}
+    full={"accounting":book.forms(),"other":{k:{"page":page,"fields":fields} for k,(page,fields) in active_extra().items()},"pages":sorted(PAGES)}
     if forms is not None:
         full["accounting"]={k:v for k,v in full["accounting"].items() if "book."+k in forms}
         full["other"]={k:v for k,v in full["other"].items() if k in forms}
@@ -28,7 +34,7 @@ def catalog(forms=None):
 def _fields(name):
     if name.startswith("book.") and name[5:] in book.FIELDS:
         return {f["name"]:f["type"] for f in book.forms()[name[5:]]["fields"]}
-    if name in EXTRA:return EXTRA[name][1]
+    if name in active_extra():return EXTRA[name][1]
     raise ValueError("Unknown form")
 
 def _entity(db,w,t,v):
@@ -80,7 +86,7 @@ def normalize(db,w,name,args):
 
 def schema(forms=None):
     return {"type":"object","properties":{
-        "form":{"type":"string","enum":forms if forms is not None else [*("book."+op for op in book.FIELDS),*EXTRA]},
+        "form":{"type":"string","enum":[f for f in active_names() if forms is None or f in forms]},
         "arguments":{"type":"object","additionalProperties":{"type":["string","integer","boolean","null"]}},
         "page":{"type":"string","enum":sorted(PAGES)}
     },"required":["form","arguments"],"additionalProperties":False}

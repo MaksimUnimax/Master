@@ -19,7 +19,7 @@ class ProductionTools:
             "production_state":Capability("production_state","Получить текущие материалы, изделия и материальную себестоимость из БД.",{"type":"object","properties":{},"additionalProperties":False},self.snapshot),
             "accounting_report":Capability("accounting_report","Получить рассчитанный сервером отчёт: summary, stock, sales, planning, finance, journal. Укажите даты периода; ограничьте детализацию.",matrix.report_schema(),self.accounting_report),
             "prepare_accounting":Capability("prepare_accounting",matrix.operation_description(),matrix.operation_schema(),self.prepare_accounting,effect="edit"),
-            "form_catalog":Capability("form_catalog","Без параметров — перечень доступных форм. С параметром form — точные поля выбранной формы, типы, требования и значения по умолчанию.",{"type":"object","properties":{"form":{"type":"string","enum":[*("book."+op for op in book.FIELDS),*agent.EXTRA]}},"additionalProperties":False},self.form_catalog),
+            "form_catalog":Capability("form_catalog","Без параметров — перечень доступных форм. С параметром form — точные поля выбранной формы, типы, требования и значения по умолчанию.",{"type":"object","properties":{"form":{"type":"string","enum":agent.active_names()}},"additionalProperties":False},self.form_catalog),
             "current_form":Capability("current_form","Получить текущий пользовательский черновик формы для дополнения.",agent.empty_schema(),self.current_form),
             "prepare_form":Capability("prepare_form","Заполнить известные поля формы, включая неполные данные. Не сохраняет запись. Имена полей см. form_catalog.",agent.schema(),self.prepare_form,effect="edit"),
             "prepare_recipe":Capability("prepare_recipe","Подготовить форму материала и рецептуры. Не сохраняет изделие без подтверждения пользователя. Количество в упаковке и расход на изделие — штуки, цена всей упаковки необязательна.",domain.RECIPE_SCHEMA,self.prepare),
@@ -70,7 +70,7 @@ class ProductionTools:
             self.authorize(self.store._db)
             form=args.get("form")
             if form:return agent.catalog([form])
-            return {"forms":[{"form":"book."+k,"label":v["title"]} for k,v in book.forms().items()]+[{"form":k,"page":v[0]} for k,v in agent.EXTRA.items()]}
+            return {"forms":[{"form":"book."+k,"label":v["title"]} for k,v in book.forms().items()]+[{"form":k,"page":v[0]} for k,v in agent.active_extra().items()]}
     def current_form(self,scope,args):
         with self.store._lock:
             self.authorize(self.store._db)

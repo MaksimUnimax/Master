@@ -6,6 +6,7 @@ once to a business workshop; all agent calls keep the original account scope for
 authentication, usage and coins.
 """
 import json
+import os
 from uuid import uuid4
 from .identity import _principal
 from .storage import Scope,_bind_chat
@@ -30,6 +31,10 @@ SCHEMA=(
  account TEXT NOT NULL REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
  rid TEXT NOT NULL, args TEXT NOT NULL, result TEXT NOT NULL, PRIMARY KEY(account,rid))""",
 )
+def multiple_enabled():
+    """Only an explicit operator opt-in exposes the preserved multi-workshop feature."""
+    return os.getenv("PODMASTERYE_MULTI_WORKSHOP","0")=="1"
+
 def init(db):
     for s in SCHEMA:db.execute(s)
 def metadata(db,w):
@@ -46,7 +51,7 @@ def resolve(db,account,requested=None,*,include_archived=False):
         if row and row[0] and not include_archived:raise Conflict("Мастерская в архиве.")
         return w
     row=db.execute("SELECT archived FROM pm_workshops WHERE account=? AND id=?",(account,w)).fetchone()
-    if not row:raise ValueError("Мастерская недоступна.")
+    if not row or not multiple_enabled():raise ValueError("Мастерская недоступна.")
     if row[0] and not include_archived:raise Conflict("Мастерская в архиве.")
     return w
 def chat_workspace(db,scope):
@@ -58,13 +63,15 @@ def list_for_user(store,token):
     with store._write() as db:
         _,a=_principal(db,token);ensure(db,a)
         result=[]
-        for w, in db.execute("SELECT id FROM pm_workshops WHERE account=? ORDER BY archived,demo,normalized",(a,)):
+        multiple=multiple_enabled()
+        query="SELECT id FROM pm_workshops WHERE account=? ORDER BY archived,demo,normalized" if multiple else "SELECT id FROM pm_workshops WHERE account=? AND id=account"
+        for w, in db.execute(query,(a,)):
             r=metadata(db,w)
             if not r["archived"]:
                 info=book.report(db,w,view="summary")["summary"]
                 r.update(revenue=info["revenue"],profit=info["net_profit"],sales=info["sales_quantity"])
             result.append(r)
-        return {"default":a,"workshops":result}
+        return {"default":a,"workshops":result,"multipleEnabled":multiple}
 def change(store,token,rid,action,args):
     from . import podmasterye_book as book
     key_id(rid)
@@ -75,6 +82,9 @@ def change(store,token,rid,action,args):
     raw=encode([action,args])
     with store._write() as db:
         actor,a=_principal(db,token);ensure(db,a)
+        if not multiple_enabled():
+            if action!="update":raise Conflict("Сейчас доступна одна мастерская.")
+            if args.get("id",a)!=a:raise Conflict("Сейчас доступна только основная мастерская.")
         old=db.execute("SELECT args,result FROM pm_workshop_requests WHERE account=? AND rid=?",(a,rid)).fetchone()
         if old:
             if old[0]!=raw:raise Conflict("Идентификатор запроса уже использован.")

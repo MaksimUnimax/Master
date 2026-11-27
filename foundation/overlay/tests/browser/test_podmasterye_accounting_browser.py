@@ -17,6 +17,7 @@ from tests.auth_fixture import email_opted_out
 P="fixture-browser-password"
 class AccountingBrowser(unittest.TestCase):
     def test_accounting_workflow(self):
+        self.enterContext(patch.dict(os.environ,{"PODMASTERYE_MULTI_WORKSHOP":"1"}))
         root=Path(self.enterContext(tempfile.TemporaryDirectory()))
         self.enterContext(patch.dict(os.environ,{"HARNESS_OFFLINE_MODEL":"0","HARNESS_USAGE_JOURNAL":str(root/"usage.jsonl")}))
         os.environ.pop("HARNESS_MODEL_GATEWAY_URL",None)

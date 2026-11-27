@@ -234,6 +234,7 @@ class Accounting(unittest.TestCase):
         return self.call("/api/workshops/change",{"requestId":rid or uuid4().hex,"action":action,"arguments":args},h)
 
     def test_multiple_workshops_and_demo_isolation(self):
+        self.enterContext(patch.dict(os.environ,{"PODMASTERYE_MULTI_WORKSHOP":"1"}))
         self.seed()
         root=self.client.get("/api/workshops",headers=self.h).json()["default"]
         r=self.workshop("create",{"name":"Вторая","hourly_rate":"450"},rid="new-workshop")
@@ -247,7 +248,7 @@ class Accounting(unittest.TestCase):
         # Explicit recipe API is the deterministic fallback for an unmatched phrase.
         r=self.call("/api/production/recipe?workshop="+w,{"requestId":"w-manual","recipe":{"material":"Нить","product":"Свеча","pack_quantity":10,"usage_quantity":2,"pack_price":"100","unit":"шт"}})
         self.assertEqual(r.status_code,200,r.text)
-        r=self.call("/api/chats/"+ch+"/turns",{"requestId":"w-report","text":"сколько нити осталось"})
+        r=self.call("/api/chats/"+ch+"/turns",{"requestId":"w-report","text":"сколько материала Нить осталось"})
         self.assertEqual(r.status_code,200,r.text);self.assertEqual(r.json()["workshop"],w)
         self.assertEqual(self.report(workshop=w)["materials"][0]["name"],"Нить")
         self.assertEqual(self.report()["materials"][0]["name"],"Бусины")

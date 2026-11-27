@@ -78,7 +78,7 @@ function initAgent(){
 async function applyAgentDraft(d){
  if(d.workshop!==window.PMWorkshopId)throw Error('Черновик другой мастерской.');
  if(agentForms[d.form]){
-  const [selector,keys]=agentForms[d.form],f=$(selector);
+  const [selector,keys]=agentForms[d.form],f=$(selector);if(!f)return;
   for(const [k,v] of Object.entries(d.arguments)){if(!keys.includes(k))continue;const e=f.elements[k];if(e.type==='checkbox')e.checked=v;else e.value=v;}
   f.scrollIntoView({block:'nearest'});
  }else if(agentControls[d.form]){

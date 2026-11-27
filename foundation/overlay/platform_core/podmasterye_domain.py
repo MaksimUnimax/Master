@@ -249,6 +249,8 @@ def complete(store,scope,token,rid,result):
 def history(store,token,scope,limit):
     with store._lock:
         db=store._db; assert_scope(db,token,scope)
+        from . import podmasterye_workshops as workshops
+        workshops.chat_workspace(db,scope)
         rows=db.execute("SELECT rid,text,result FROM pm_turns WHERE workspace=? AND chat=? AND result IS NOT NULL ORDER BY rowid DESC LIMIT ?",
                        (scope.workspace_id,scope.chat_id,limit)).fetchall()
         guest_rows=db.execute("""SELECT t.request_id,t.text,t.answer FROM guest_turns t

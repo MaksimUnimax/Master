@@ -10,23 +10,22 @@ class OwnerV18UI(IndependentUI):
     def test_owner_navigation_and_telegram(self):
         self.sign_in()
         p=self.page
-        expect(p.locator("#close-helper")).to_have_text("Мастерская")
+        expect(p.locator("#close-helper")).to_have_text("Свернуть")
         p.locator("#close-helper").click()
         expect(p.locator("#assistant-pane")).not_to_be_visible()
         expect(p.locator(".pm-work-header strong")).to_have_text("Мастерская")
-        self.nav("settings")
+        self.nav("integrations")
         p.set_viewport_size({"width": 1100, "height": 550})
         p.evaluate("document.querySelector('#work-pane').scrollTop=100000")
         self.assertGreater(p.locator("#work-pane").evaluate("e=>e.scrollTop"),0)
         expect(p.locator("#expand-work")).to_be_in_viewport()
+        expect(p.locator("#expand-work")).to_have_text("Помощник")
         p.locator("#expand-work").click()
         expect(p.locator("#assistant-pane")).to_be_visible()
-        expect(p.locator("#work-pane")).not_to_be_visible()
-        p.locator("#close-helper").click()
         expect(p.locator("#work-pane")).to_be_visible()
-        expect(p.locator("#assistant-pane")).to_be_visible()
+        expect(p.locator("#expand-work")).to_have_text("Свернуть")
         self.nav("integrations")
-        wid=p.locator("#workshop-select").input_value()
+        wid=p.evaluate("window.PMWorkshopId")
         cfg=telegram_api.Config("123456789",None,"123456789:fixture-token-not-real-123456789",None,"example_fixture_bot")
         with patch.object(self.app.state.telegram,"config",cfg):
             def callback():

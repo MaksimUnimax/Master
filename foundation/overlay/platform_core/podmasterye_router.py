@@ -229,6 +229,9 @@ def choose(db,scope,rid,w,text,ctx,view=None,*,attachments=False,has_files=False
     def fallback(reason):
         return None,{"reason":reason,"candidateIds":rank(t,cat),"contract":"production-tools-v2"}
     if attachments:return fallback("attachment")
+    from . import podmasterye_workshops as workshops
+    if not ctx and not workshops.multiple_enabled() and re.fullmatch(r"(?:(?:создай|создать|добавь|добавить|открой|открыть|заведи|завести) (?:новую |вторую |еще одну |другую |демонстрационную )?мастерскую|(?:переключи|переключись|перейди|переключиться|перейти) (?:на |в )(?:другую|вторую|новую) мастерскую|(?:как создать|можно ли создать) (?:новую |вторую |еще одну )?мастерскую)",t):
+        return result("Сейчас в аккаунте доступна одна мастерская. Её название и настройки можно изменить в разделе «Настройки».", "single_workshop"),{}
     if ctx:
         d=local_context(db,scope,rid,w,text,ctx)
         if d:return d,{}
