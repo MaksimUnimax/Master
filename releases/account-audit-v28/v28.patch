@@ -1,0 +1,49 @@
+--- a/products/harness-platform/native/web/podmasterye.js
++++ b/products/harness-platform/native/web/podmasterye.js
+@@ -50,9 +50,20 @@
+ function navigate(name,reveal=true){for(const el of document.querySelectorAll('[data-panel]'))el.hidden=el.dataset.panel!==name;for(const el of document.querySelectorAll('[data-page]'))el.classList.toggle('active',el.dataset.page===name);const pager=$('#event-pager');if(pager)pager.hidden=!['stock','purchases','manufacture','sales','expenses','journal','workers','assets'].includes(name);const filters=$('#accounting-filters');if(filters)filters.hidden=['admin','wallet','settings','integrations','tasks'].includes(name);window.PMExtras?.navigate(name,reveal);if(name==='integrations'){refreshTelegram();window.PMMarket?.load();}}
+ function table(host,cols,values){host.replaceChildren();const t=document.createElement('table'),h=t.createTHead().insertRow();for(const c of cols){const th=document.createElement('th');th.textContent=c;h.append(th);}const b=t.createTBody();for(const vals of values){const r=b.insertRow();for(const v of vals)r.insertCell().textContent=v??'Не указано';}host.append(t);}
+ async function refresh(ui){return window.PMAccounting.refresh(ui);}
++// Display only. Round the server's exact decimal coin string to hundredths
++// without converting its twelve fractional digits to binary floating point.
++const coinAmount=new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
++function formatCoins(value){
++  const raw=String(value??'');
++  if(!/^\d{1,7}(?:\.\d{1,12})?$/.test(raw))return '—';
++  const [whole,fraction='']=raw.split('.');
++  const digits=fraction.padEnd(3,'0');
++  const cents=BigInt(whole)*100n+BigInt(digits.slice(0,2))+(digits[2]>='5'?1n:0n);
++  return coinAmount.format(Number(cents)/100);
++}
+ async function wallet(){
+-  const w=await api('/api/wallet');$('#balance-label').textContent='Баланс: '+w.available+' монет';
+-  $('#wallet-info').textContent='Доступно '+w.available+' · в резерве '+w.reserved+' · цена монеты '+w.salePrice.rubPerCoin+' ₽';
++  const w=await api('/api/wallet');$('#balance-label').textContent='Баланс: '+formatCoins(w.available)+' монет';
++  $('#wallet-info').textContent='Доступно '+formatCoins(w.available)+' · в резерве '+formatCoins(w.reserved)+' · цена монеты '+w.salePrice.rubPerCoin+' ₽';
+   table($('#wallet-history'),['Списание, монет','Статус'],w.charges.map(c=>[c.coins,c.pending?'В обработке':'Учтено']));
+ }
+ let recipeProposal=null;
+--- /dev/null
++++ b/products/harness-platform/tests/browser/test_podmasterye_balance_v28_ui.py
+@@ -0,0 +1,21 @@
++"""Only display is rounded; exact ledger and API amounts survive."""
++from decimal import Decimal, ROUND_HALF_UP
++from playwright.sync_api import expect
++from test_podmasterye_independent_ui import IndependentUI
++
++class BalanceV28UI(IndependentUI):
++    def test_balance_rounding_preserves_exact_ledger(self):
++        identity=self.app.state.identity
++        identity.grant_coins(self.login,"9.54317045032","balance-fixture-v28","Local browser fixture")
++        self.sign_in()
++        p=self.page
++        raw=p.request.get("/api/wallet").json()["available"]
++        self.assertEqual(Decimal(raw)%1,Decimal("0.54317045032"))
++        shown=format(Decimal(raw).quantize(Decimal("0.01"),rounding=ROUND_HALF_UP),"f").replace(".",",")
++        expect(p.locator("#balance-label")).to_have_text("Баланс: "+shown+" монет")
++        p.locator('[data-page="wallet"]').click()
++        expect(p.locator("#wallet-info")).to_contain_text("Доступно "+shown)
++        self.assertEqual(p.request.get("/api/wallet/balance").json()["available"],raw)
++        p.reload()
++        expect(p.locator("#balance-label")).to_have_text("Баланс: "+shown+" монет")
++        self.assertEqual(p.request.get("/api/wallet").json()["available"],raw)

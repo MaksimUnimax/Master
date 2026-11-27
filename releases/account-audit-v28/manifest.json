@@ -1,0 +1,15 @@
+{
+  "base_deployed_release": "c161e2b6378d25f649ec6be9da1ee2bb5451a8fe",
+  "changed_files": [
+    {
+      "path": "products/harness-platform/native/web/podmasterye.js",
+      "old_sha256": "00381e9cbee0dd3ae0c7fd8d10cc6299724c817ed8cc87e6cc1693553663979d",
+      "new_sha256": "9bf8d6175d56ae76820b9194227cd2ba3be043937e98f9d5c4c2f8263d8c5ea0"
+    },
+    {
+      "path": "products/harness-platform/tests/browser/test_podmasterye_balance_v28_ui.py",
+      "old_sha256": null,
+      "new_sha256": "261e13baaa732de96da065f5cfdb5c1b7c6de263417e2cea5e955e4c237db55f"
+    }
+  ]
+}

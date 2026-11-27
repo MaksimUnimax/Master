@@ -1,0 +1,6 @@
+test_balance_rounding_preserves_exact_ledger (tests.browser.test_podmasterye_balance_v28_ui.BalanceV28UI.test_balance_rounding_preserves_exact_ledger) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 5.020s
+
+OK
