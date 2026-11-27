@@ -1,0 +1,25 @@
+{
+  "base_deployed_release": "be19c71b420113812747a40286c51847d0a97249",
+  "changed_files": [
+    {
+      "path": "products/harness-platform/native/web/podmasterye-public-calculator.js",
+      "old_sha256": "6512a74ddd9d7835d3f367de35ec4a16f668abed33fe11be4729050286676274",
+      "new_sha256": "f827e2e68d5b60af9704517bd9f5d5a1fc961f3ed6dc1114166e58f4bca71a3d"
+    },
+    {
+      "path": "products/harness-platform/native/web/podmasterye-public.css",
+      "old_sha256": "90cc833b960ff03a1296e5721a3f909757e04b02217cbb0b945f9e1e66cbb5ac",
+      "new_sha256": "85c77b554ef17e53ae549657eb387a2d03393fea215420b715394c0d2f3eb98d"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_public_calculators.py",
+      "old_sha256": "cc29a5972694ea2f9e0504401c9b290f6dc0bee34e6fb8e3654ca654b1d14e13",
+      "new_sha256": "74892ca348f6e570254df41fc522ce38280743225d06670b849a02130dad35d5"
+    },
+    {
+      "path": "products/harness-platform/tests/browser/test_podmasterye_sliders_v27_ui.py",
+      "old_sha256": null,
+      "new_sha256": "661cb1d931c7bf1c46103b10b06999bbdc9bd12cd5b4f96938baaacec6c4c2e9"
+    }
+  ]
+}
