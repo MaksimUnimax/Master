@@ -133,7 +133,7 @@ def routes(token_for,body):
         try:return JSONResponse(await run_in_threadpool(imports.calculator,fields))
         except ValueError as e:raise HTTPException(400,str(e)) from None
     async def calculator_profit(req):
-        fields=await body(req,"revenue","cost","expenses")
+        fields=await body(req,optional=("revenue","cost","expenses","mode",*imports.PROFIT_UNIT_FIELDS))
         try:return JSONResponse(await run_in_threadpool(imports.profit_calculator,fields))
         except ValueError as e:raise HTTPException(400,str(e)) from None
     async def calculator_save(req):

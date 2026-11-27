@@ -19,9 +19,126 @@
   for(const [k,v,suffix] of rows){const r=el('tr');r.append(el('td',k),el('td',v==null?'—':v+suffix));tbody.append(r);}
   table.append(tbody);host.replaceChildren(table);
  }
+ function mountProfit(root,api){
+  const unitKeys=['units','unit_price','unit_cost','commission_percent','delivery_unit','packing_unit','other_unit','advertising','fixed_expenses','taxes'];
+  const periodKeys=['revenue','cost','expenses'],keys=unitKeys.concat(periodKeys);
+  const form=root.querySelector('#calc-form'),result=root.querySelector('#calc-result'),status=root.querySelector('#calc-status'),summary=root.querySelector('#profit-summary');
+  const find=s=>root.querySelector(s),saved=load('profit');
+  // Keep the exact decimal strings produced by the server, including very large sums.
+  const format=v=>String(v).replace(/\B(?=(\d{3})+(?!\d)\.)/g,'\u202f').replace('.',',');
+  const rub=v=>v==null?'—':format(v)+' ₽';
+  const pct=v=>v==null?'—':format(v)+'%';
+  let active=true,generation=0,timer=null,request=null,importRequest=null,mode='units';
+  function payload(){
+   const a=Object.fromEntries((mode==='units'?unitKeys:periodKeys).map(k=>[k,form.elements[k].value]));
+   return mode==='units'?{mode:'units',...a}:a;
+  }
+  function persist(){store('profit',{mode,...Object.fromEntries(keys.map(k=>[k,form.elements[k].value]))});}
+  function paint(r){
+   const set=(id,v)=>{find('#'+id).textContent=v;};
+   set('profit-main-value',rub(r?.profit_rub));set('profit-summary-revenue',rub(r?.revenue_rub));set('profit-summary-cost',rub(r?.total_cost_rub));set('profit-summary-margin',pct(r?.margin_percent));
+   set('profit-summary-extra-label',mode==='units'?'Прибыль на штуку':'Рентабельность затрат');
+   set('profit-summary-extra',mode==='units'?rub(r?.unit_profit_rub):pct(r?.return_on_cost_percent));
+   summary.dataset.sign=!r?'neutral':Number(r.profit_rub)>0?'positive':Number(r.profit_rub)<0?'negative':'neutral';
+   const revenue=Number(r?.revenue_rub||0),cost=Number(r?.total_cost_rub||0),profit=Number(r?.profit_rub||0);
+   const max=Math.max(revenue,cost),bar=find('#profit-bar'),caption=find('#profit-bar-caption');
+   bar.hidden=caption.hidden=!r||max<=0;
+   if(!bar.hidden){
+    find('#profit-bar-cost').style.width=(cost/max*100)+'%';
+    find('#profit-bar-gain').style.width=(Math.max(0,profit)/max*100)+'%';
+    caption.textContent=profit<0?'Затраты превышают выручку на '+rub(r.profit_rub.replace(/^-/ ,'')):'Распределение выручки: затраты '+rub(r.total_cost_rub)+' · прибыль '+rub(r.profit_rub);
+   }
+  }
+  function invalidate(){
+   generation++;clearTimeout(timer);request?.abort();request=null;importRequest?.abort();importRequest=null;
+   find('#profit-import-cost').disabled=false;result.replaceChildren();status.textContent='';paint(null);return generation;
+  }
+  function selectMode(m){
+   if(!['units','period'].includes(m))return false;
+   mode=m;
+   for(const f of form.querySelectorAll('[data-profit-fields]'))f.disabled=f.hidden=f.dataset.profitFields!==m;
+   for(const b of root.querySelectorAll('[data-profit-mode]'))b.setAttribute('aria-pressed',String(b.dataset.profitMode===m));
+   return true;
+  }
+  function schedule(){
+   invalidate();persist();if(form.checkValidity())timer=setTimeout(calculate,200);
+  }
+  function detail(r){
+   makeTable(result,mode==='units'?[
+    ['Выручка',r.revenue_rub,' ₽'],['Себестоимость продаж',r.cost_rub,' ₽'],['Валовая прибыль',r.gross_profit_rub,' ₽'],
+    ['Комиссия и эквайринг',r.commission_rub,' ₽'],['Доставка',r.delivery_rub,' ₽'],['Упаковка',r.packing_rub,' ₽'],
+    ['Другие расходы на изделия',r.other_variable_rub,' ₽'],['Маржинальный доход',r.contribution_rub,' ₽'],
+    ['Реклама',r.advertising_rub,' ₽'],['Постоянные расходы',r.fixed_expenses_rub,' ₽'],['Налоги',r.taxes_rub,' ₽'],
+    ['Общие затраты',r.total_cost_rub,' ₽'],['Прибыль по введённым данным',r.profit_rub,' ₽'],
+    ['Прибыль на штуку',r.unit_profit_rub,' ₽'],['Маржа',r.margin_percent,'%'],['Рентабельность затрат',r.return_on_cost_percent,'%']
+   ]:[
+    ['Валовая прибыль',r.gross_profit_rub,' ₽'],['Общие затраты',r.total_cost_rub,' ₽'],
+    ['Прибыль по введённым данным',r.profit_rub,' ₽'],['Маржа',r.margin_percent,'%'],['Рентабельность затрат',r.return_on_cost_percent,'%']
+   ]);
+   if(mode==='units'){
+    const box=el('section');box.className='pm-profit-detail';box.append(el('h3','Безубыточность'));
+    const table=el('div');makeTable(table,[
+     ['Минимальный объём продаж',r.break_even_units,' шт.'],['Минимальная цена при заданном объёме',r.break_even_price_rub,' ₽']
+    ]);box.append(table);
+    box.append(el('p',r.break_even_units===null?'При заданной цене и расходах увеличение объёма не покрывает затраты. Измените цену или расходы.':'Оценка при неизменной цене, ставке комиссии, удельных затратах и общей сумме расходов за период. Налоговые суммы не пересчитываются автоматически.'));
+    result.append(box);
+   }
+  }
+  async function calculate(){
+   if(!active)return false;
+   const n=invalidate();persist();
+   if(!form.checkValidity()){status.textContent='Заполните обязательные поля.';return false;}
+   const c=new AbortController();request=c;status.textContent='Выполняем расчёт…';
+   try{
+    const r=await api('/api/calculator/profit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload()),signal:c.signal});
+    if(!active||n!==generation||c.signal.aborted)return false;
+    paint(r);detail(r);status.textContent='Расчёт выполнен без ИИ. Монеты не расходуются.';return true;
+   }catch(e){if(active&&n===generation&&!c.signal.aborted)status.textContent=e.message;return false;}
+  }
+  for(const b of root.querySelectorAll('[data-profit-mode]'))b.onclick=()=>{selectMode(b.dataset.profitMode);schedule();};
+  form.oninput=schedule;form.onsubmit=e=>{e.preventDefault();void calculate();};
+  find('#profit-example').onclick=()=>{
+   selectMode('units');
+   const example={units:'100',unit_price:'500',unit_cost:'180',commission_percent:'10',delivery_unit:'40',packing_unit:'10',other_unit:'0',advertising:'2000',fixed_expenses:'3000',taxes:'0'};
+   for(const [k,v] of Object.entries(example))form.elements[k].value=v;
+   void calculate();
+  };
+  find('#profit-import-cost').onclick=async()=>{
+   const a=load('calculator');if(!a){status.textContent='Сначала заполните калькулятор себестоимости.';return;}
+   const n=invalidate(),c=new AbortController();importRequest=c;
+   const b=find('#profit-import-cost');b.disabled=true;status.textContent='Проверяем расчёт себестоимости…';
+   try{
+    const r=await api('/api/calculator',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(a),signal:c.signal});
+    if(!active||n!==generation||c.signal.aborted)return;
+    if(typeof r.full_cost_rub!=='string')throw Error('Себестоимость недоступна.');
+    form.elements.unit_cost.value=r.full_cost_rub;
+    // Restore result only from the server; the draft cannot provide a price by itself.
+    selectMode('units');schedule();
+   }catch(e){if(active&&n===generation&&!c.signal.aborted)status.textContent='Проверьте калькулятор себестоимости: '+e.message;}
+   finally{if(active&&n===generation)b.disabled=false;}
+  };
+  if(saved){
+   for(const k of keys)if(typeof saved[k]==='string')form.elements[k].value=saved[k];
+   // Preserve existing users' v25 period drafts without losing a value.
+   selectMode(saved.mode==='period'||(!saved.mode&&(saved.revenue||saved.cost))?'period':'units');
+  }else selectMode('units');
+  schedule();
+  return {panel:'profit',dispose(){active=false;clearTimeout(timer);request?.abort();importRequest?.abort();persist();},async apply(a){
+   if(!active||!a||a.panel!=='profit')return false;
+   if(a.action==='open')return true;
+   if(a.action==='help'){const guide=find('#calc-guide');const d=guide.querySelector('.pm-calc-commands');if(d)d.open=true;guide.scrollIntoView({block:'start'});return true;}
+   if(a.action==='set'&&keys.includes(a.field)&&typeof a.value==='string'){
+    selectMode(unitKeys.includes(a.field)?'units':'period');form.elements[a.field].value=a.value;schedule();
+    form.elements[a.field].scrollIntoView({block:'nearest'});return true;
+   }
+   if(a.action==='calculate'){const ok=await calculate();(ok?summary:status).scrollIntoView({block:'nearest'});return ok;}
+   return false;
+  }};
+ }
  function mount({openPanel,api}){
   current?.dispose();current=null;
   const root=q('[data-calculator]');if(!root)return;
+  if(root.dataset.calculator==='profit'){current=mountProfit(root,api);return;}
   const panel=root.dataset.calculator,form=root.querySelector('#calc-form'),rows=root.querySelector('#calc-rows'),result=root.querySelector('#calc-result'),status=root.querySelector('#calc-status'),save=root.querySelector('#calc-save');
   if(!FIELDS[panel]||!form||!result||!status)return;
   let active=true,timer=null,request=null,generation=0,calculation=null,saveRid=null;

@@ -143,3 +143,38 @@ body[data-mode="public"][data-public-surface="chat"] #public-menu [data-public-c
 .pm-calc-registration h2{font-size:18px;margin:0 0 9px}
 .pm-calc-registration p{font-size:14px;line-height:1.6}
 @media(max-width:360px){.pm-calc-fields,.pm-calc-material.calc-line{grid-template-columns:minmax(0,1fr)}}
+
+/* Profit calculator: readable, compact unit economics in the existing side pane. */
+.pm-profit-page .pm-public-hero{margin-bottom:10px}
+.pm-profit-page .pm-public-lead{font-size:14px;line-height:1.5}
+.pm-profit-modes{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:4px;background:var(--rail);border:1px solid var(--line);border-radius:10px;margin:0 0 12px}
+.pm-profit-modes button{min-width:0;min-height:36px;line-height:1.2;background:transparent;color:var(--muted);border:1px solid transparent;border-radius:7px;padding:7px;font-size:13px;white-space:normal}
+.pm-profit-modes button[aria-pressed=true]{background:var(--panel);border-color:var(--line);color:var(--ink);font-weight:650}
+.pm-profit-summary{padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);margin:0 0 12px;min-width:0}
+.pm-profit-summary .pm-profit-label{display:block;font-size:12px;color:var(--muted);font-weight:600;margin:0 0 5px}
+#profit-main-value{display:block;color:var(--ink);font-size:clamp(22px,2.4vw,34px);letter-spacing:-.045em;line-height:1.2;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.pm-profit-summary[data-sign=positive] #profit-main-value{color:var(--accent)}
+.pm-profit-summary[data-sign=negative] #profit-main-value{color:var(--danger)}
+.pm-profit-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 8px;margin-top:13px;padding-top:12px;border-top:1px solid var(--line)}
+.pm-profit-kpis span{display:block;font-size:11px;line-height:1.3;color:var(--muted);margin-bottom:5px}
+.pm-profit-kpis strong{display:block;font-size:15px;font-variant-numeric:tabular-nums;line-height:1.25;overflow-wrap:anywhere}
+.pm-profit-bar{height:8px;border-radius:4px;display:flex;overflow:hidden;background:var(--line);margin-top:15px}
+.pm-profit-bar[hidden]{display:none}
+#profit-bar-cost{background:#86938b;height:100%}
+#profit-bar-gain{background:var(--accent);height:100%}
+#profit-bar-caption{font-size:11px;margin-top:7px;line-height:1.4}
+.pm-profit-form fieldset{display:flex;flex-direction:column;gap:10px;min-width:0;min-inline-size:0;padding:0;margin:0;border:0}
+.pm-profit-form fieldset[hidden]{display:none}
+.pm-profit-section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;border-top:1px solid var(--line);padding-top:13px}
+.pm-profit-section-head:first-child{border-top:0;margin-top:0;padding-top:0}
+.pm-profit-section-head h2{margin:0;font-size:15px}
+.pm-profit-section-head span{font-size:11px;text-align:right;color:var(--muted)}
+.pm-profit-section-head button,#profit-import-cost{font-size:12px;min-height:32px;white-space:normal;height:auto;padding:7px 10px;line-height:1.3}
+#profit-import-cost{align-self:flex-start}
+.pm-profit-sales label:last-child{grid-column:1/-1}
+.pm-profit-form .hint{font-size:12px}
+.pm-profit-form .pm-calc-fields input{font-variant-numeric:tabular-nums}
+.pm-profit-page .pm-profit-detail{margin-top:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.pm-profit-page .pm-profit-detail h3{font-size:14px;margin:0 0 8px}
+.pm-profit-page .pm-profit-detail p{font-size:12px;color:var(--muted);line-height:1.5;margin:8px 0 0}
+@media(max-width:360px){.pm-profit-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.pm-profit-section-head{flex-wrap:wrap}}

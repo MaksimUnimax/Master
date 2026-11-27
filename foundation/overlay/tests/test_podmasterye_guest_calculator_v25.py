@@ -17,7 +17,7 @@ class GuestCalculatorV25(PublicV22):
         self.assertEqual(r.status_code,200,r.text)
         return r.json()
     def test_matrix_examples_and_polite_forms(self):
-        self.assertEqual(len(commands.matrix()),16)
+        self.assertEqual(len(commands.matrix()),26)
         for r in commands.matrix():
             for message in (r["example"],"Пожалуйста, "+r["example"]+"!"):
                 with self.subTest(message=message):

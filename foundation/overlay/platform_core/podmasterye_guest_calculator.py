@@ -35,8 +35,13 @@ def match(message):
                 f=r["field"];v=data["value"].strip()
                 if f=="product_name":v=clean_name(v)
                 elif f=="minutes":v=format(calc.number(v,525600,2),"f")
+                elif f=="units":
+                    if not re.fullmatch(r"\d{1,10}",v) or int(v)>10**9:raise ValueError("Укажите целое количество продаж.")
+                    v=str(int(v))
+                elif f=="commission_percent":v=format(calc.number(v,100,2),"f")
                 else:v=money(minor(v))
                 a.update(field=f,value=v)
+                if "mode" in r:a["mode"]=r["mode"]
             elif r["action"]=="material":
                 name=clean_name(data["name"]);unit=data["unit"].lower()
                 q=calc.number(data["quantity"]);pack=calc.number(data.get("pack_quantity") or "1")
@@ -48,7 +53,7 @@ def match(message):
         return r["reply"],a
     # Calculator-related free-form instructions must not invoke a paid selector
     # or perform approximate field extraction. Only exact templates may mutate.
-    if re.search(r"\b(?:калькулятор\w*|рассчитай\w*|посчитай\w*|материал\s*:|изделие\s*:|цена продажи\s*:|стоимость часа\s*:|себестоимость продаж\s*:|выручка\s*:|прочие расходы\s*:|время(?: изготовления)?\s*:)",text,re.I):
+    if re.search(r"\b(?:калькулятор\w*|рассчитай\w*|посчитай\w*|материал\s*:|изделие\s*:|цена продажи\s*:|стоимость часа\s*:|себестоимость продаж\s*:|выручка\s*:|прочие расходы\s*:|время(?: изготовления)?\s*:|количество продаж\s*:|цена за штуку\s*:|себестоимость единицы\s*:|комиссия\s*:|доставка за штуку\s*:|упаковка за штуку\s*:|другие расходы за штуку\s*:|реклама\s*:|постоянные расходы\s*:|налоги\s*:)",text,re.I):
         return ("Для бесплатного расчёта используйте форму или точные команды из инструкции: «Открой калькулятор себестоимости», «Как пользоваться калькулятором», «Открой калькулятор прибыли». Сложные задачи и учёт мастерской доступны после регистрации.",None)
     return None
 

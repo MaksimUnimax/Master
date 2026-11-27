@@ -6,7 +6,7 @@ import io
 import json
 import re
 import zipfile
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP, ROUND_CEILING, localcontext
 from uuid import uuid4
 from .identity import _principal
 from .podmasterye_domain import Conflict,clean_name,encode,key_id,_save
@@ -170,7 +170,51 @@ def calculator(a):
         "profit_rub":decimal2(sale-full),"margin_percent":decimal2(gross*100/sale) if sale else None,
         "full_margin_percent":decimal2((sale-full)*100/sale) if sale else None,"markup_percent":decimal2((sale-full)*100/full) if full else None,
         "income_per_hour_rub":decimal2(gross*60/minutes) if minutes else None}
+PROFIT_UNIT_FIELDS=("units","unit_price","unit_cost","commission_percent","delivery_unit","packing_unit","other_unit","advertising","fixed_expenses","taxes")
+
+def profit_units(args):
+    if set(args)!={"mode",*PROFIT_UNIT_FIELDS} or args["mode"]!="units":
+        raise ValueError("Некорректные поля расчёта по изделиям.")
+    raw=args["units"]
+    if not isinstance(raw,str) or not re.fullmatch(r"\d{1,10}",raw) or int(raw)>10**9:
+        raise ValueError("Укажите целое количество продаж от 0 до 1 000 000 000.")
+    n=int(raw)
+    values={k:Decimal(book.money(book.minor(args[k]))) for k in PROFIT_UNIT_FIELDS if k not in ("units","commission_percent")}
+    pct=number(args["commission_percent"],100,2)/100
+    # Use exact Decimal values and round the total commission only once, to kopecks.
+    with localcontext() as ctx:
+        ctx.prec=48
+        price=values["unit_price"];unit_cost=values["unit_cost"]
+        revenue=price*n;cogs=unit_cost*n
+        commission=(revenue*pct).quantize(Decimal(".01"),rounding=ROUND_HALF_UP)
+        delivery=values["delivery_unit"]*n;packing=values["packing_unit"]*n
+        other=values["other_unit"]*n
+        fixed=values["advertising"]+values["fixed_expenses"]+values["taxes"]
+        variable=cogs+commission+delivery+packing+other
+        total=variable+fixed;gross=revenue-cogs;contribution=revenue-variable;profit=revenue-total
+        base=unit_cost+values["delivery_unit"]+values["packing_unit"]+values["other_unit"]
+        per=price*(1-pct)-base
+        # Conservative theoretical break-even, rounded upward; no divide by zero.
+        # Taxes and all period costs are fixed at the supplied scenario values.
+        be_units=(str(int((fixed/per).to_integral_value(rounding=ROUND_CEILING))) if per>0 else
+                  "0" if per==0 and fixed==0 else None)
+        be_price=(format(((base+fixed/n)/(1-pct)).quantize(Decimal(".01"),rounding=ROUND_CEILING),"f")
+                  if n and pct<1 else None)
+        return {"mode":"units","units":n,"revenue_rub":decimal2(revenue),"cost_rub":decimal2(cogs),
+            "gross_profit_rub":decimal2(gross),"commission_rub":decimal2(commission),
+            "delivery_rub":decimal2(delivery),"packing_rub":decimal2(packing),"other_variable_rub":decimal2(other),
+            "advertising_rub":decimal2(values["advertising"]),"fixed_expenses_rub":decimal2(values["fixed_expenses"]),
+            "taxes_rub":decimal2(values["taxes"]),"variable_cost_rub":decimal2(variable),
+            "contribution_rub":decimal2(contribution),"fixed_total_rub":decimal2(fixed),
+            "total_cost_rub":decimal2(total),"profit_rub":decimal2(profit),
+            "unit_profit_rub":decimal2(profit/n) if n else None,
+            "margin_percent":decimal2(profit*100/revenue) if revenue else None,
+            "return_on_cost_percent":decimal2(profit*100/total) if total else None,
+            "break_even_units":be_units,"break_even_price_rub":be_price}
+
 def profit_calculator(args):
+    if isinstance(args,dict) and "mode" in args:
+        return profit_units(args)
     if not isinstance(args,dict) or set(args)!={"revenue","cost","expenses"}:raise ValueError("Некорректные поля расчёта прибыли.")
     revenue,cost,expenses=(Decimal(book.money(book.minor(args[k]))) for k in ("revenue","cost","expenses"))
     gross=revenue-cost;total=cost+expenses;profit=revenue-total
