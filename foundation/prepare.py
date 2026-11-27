@@ -409,6 +409,8 @@ def render(faq, key, cards):
     shutil.copytree(HERE/"overlay",root,dirs_exist_ok=True)
     from owner_v18 import apply
     apply(root)
+    from owner_v19 import apply as apply_v19
+    apply_v19(root)
     (dest/"PODMASTERYE_SOURCE").write_text(PIN+"\n")
     print("Prepared private candidate:",root)
 if __name__=="__main__": main()

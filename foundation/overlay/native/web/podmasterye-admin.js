@@ -1,6 +1,10 @@
 'use strict';
 const $=s=>document.querySelector(s);
+const initialData=(()=>{try{return JSON.parse($('#pm-admin-initial')?.textContent||'{}');}catch{return {};}})();
 async function api(url,options={}){
+ if(Object.keys(options).length===0&&Object.prototype.hasOwnProperty.call(initialData,url)){
+  const value=initialData[url];delete initialData[url];return value;
+ }
  const r=await fetch(url,{credentials:'same-origin',cache:'no-store',...options});
  const d=await r.json().catch(()=>({}));
  if(!r.ok)throw Error(d.error||d.detail||'Ошибка запроса (HTTP '+r.status+')');

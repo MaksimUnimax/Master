@@ -15,6 +15,17 @@ def require_admin(db,token):
     actor,_=_principal(db,token)
     if not db.execute("SELECT 1 FROM identity_admins WHERE actor_id=?",(actor,)).fetchone():raise HTTPException(403,"Требуются права администратора.")
 
+def status(state,token):
+    identity=state.identity
+    with identity._lock:
+        require_admin(identity._db,token)
+        _,account=_principal(identity._db,token)
+        cfg=state.telegram.config
+        binding=state.telegram.status(identity._db,account)
+        return {"configured":bool(cfg),"auth_mode":"oidc" if cfg and cfg.secret else "widget",
+                "bot_username":cfg.username if cfg else None,"bot_id":cfg.bot if cfg else None,
+                "token_saved":bool(cfg),"linked":binding["linked"],"callback":tg.CALLBACK,"origin":tg.SITE_ORIGIN}
+
 def configuration(fields):
     token=fields.get("bot_token");mode=fields.get("auth_mode")
     if not isinstance(token,str) or not re.fullmatch(r"[1-9][0-9]{0,15}:[A-Za-z0-9_-]{20,}",token):raise ValueError("Некорректный токен бота.")
@@ -43,8 +54,7 @@ def routes(token_for,body):
         state=req.app.state;identity=state.identity;token=token_for(req,allow_cookie=True)
         with identity._lock:require_admin(identity._db,token)
         if req.method=="GET":
-            cfg=state.telegram.config
-            return JSONResponse({"configured":bool(cfg),"auth_mode":"oidc" if cfg and cfg.secret else "widget","callback":tg.CALLBACK,"origin":tg.SITE_ORIGIN})
+            return JSONResponse(status(state,token))
         fields=await body(req,"bot_token","auth_mode",optional=("bot_username","client_secret"))
         data,cfg=configuration(fields)
         with identity._write() as db:
@@ -56,5 +66,5 @@ def routes(token_for,body):
             private_write(path,json.dumps(data).encode())
             db.execute("DELETE FROM telegram_integration_consents")
             state.telegram.config=cfg
-        return JSONResponse({"configured":True,"auth_mode":fields["auth_mode"],"callback":tg.CALLBACK,"origin":tg.SITE_ORIGIN})
+        return JSONResponse(status(state,token))
     return [Route("/api/admin/podmasterye/telegram-config",config,methods=["GET","POST"])]

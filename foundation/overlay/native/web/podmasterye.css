@@ -100,6 +100,9 @@ body[data-mode="member"] .layout>main .table-scroll{min-width:0;overflow:auto}
 /* A rail occupies a real grid column; switching surfaces never changes its state. */
 body[data-mode="member"][data-pm-nav="closed"] .layout{grid-template-columns:minmax(0,1.35fr) minmax(360px,1fr);grid-template-areas:"assistant work"}
 body[data-mode="member"][data-pm-nav="closed"] .layout>nav{display:none}
+body[data-mode="member"][data-pm-surface="assistant"] .layout{grid-template-columns:var(--pm-nav-width) minmax(0,1fr);grid-template-areas:"navigation assistant"}
+body[data-mode="member"][data-pm-surface="assistant"] .layout>main{display:none}
+body[data-mode="member"][data-pm-nav="closed"][data-pm-surface="assistant"] .layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"assistant"}
 body[data-mode="member"][data-pm-surface="work"] .layout{grid-template-columns:var(--pm-nav-width) minmax(0,1fr);grid-template-areas:"navigation work"}
 body[data-mode="member"][data-pm-surface="work"] .layout>aside{display:none}
 body[data-mode="member"][data-pm-surface="work"] .layout>main{padding:24px clamp(20px,3vw,42px) 34px;border-left:0;background:var(--bg)}
@@ -170,6 +173,9 @@ body[data-mode="member"][data-pm-surface="work"] .layout>main .metric-grid{grid-
 
 /* Persistent surface navigation; the header stays within its scroll container. */
 body[data-mode="member"] .layout>main .pm-work-header{position:sticky;top:0;z-index:5;background:var(--panel);padding:10px 0 12px}
+body[data-mode="member"] .layout>nav .pm-nav-header{flex:none;position:sticky;top:0;z-index:6;background:var(--rail);display:flex;justify-content:space-between;align-items:center;gap:5px;flex-wrap:wrap;padding:5px 2px 8px;border-bottom:1px solid var(--line);margin-bottom:4px;font-size:13px}
+body[data-mode="member"] .layout>nav .pm-nav-header button{font-size:12px;padding:5px 8px;min-width:0}
+
 body[data-mode="member"][data-pm-surface="work"] .layout>main .pm-work-header{background:var(--bg)}
 body[data-mode="member"] #close-helper{font-size:13px;min-width:0;padding:6px 10px;width:auto;height:auto}
 .pm-live-turn{padding:12px 2px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}

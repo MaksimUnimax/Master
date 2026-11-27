@@ -53,13 +53,16 @@ def usage(identity,token):
     result["media"]=[{"mode":model.removeprefix("deepseek-"),"attempts":count,"pending":pending,"quantity":qty,"unit":"seconds" if model=="deepseek-asr" else "pages","rub":coins.display(cost)} for model,count,pending,qty,cost in media]
     return result
 
+def usage_payload(state,token):
+    r=usage(state.identity,token)
+    r["configured"]=bool(provider_keys.read("deepseek"))
+    r["gateway"]=bool(state.worker.gateway)
+    return r
+
 def routes(token_for,body):
     async def admin(req):
         token=token_for(req,allow_cookie=True);state=req.app.state
-        r=await run_in_threadpool(usage,state.identity,token)
-        r["configured"]=bool(provider_keys.read("deepseek"))
-        r["gateway"]=bool(state.worker.gateway)
-        return JSONResponse(r)
+        return JSONResponse(await run_in_threadpool(usage_payload,state,token))
     async def telegram(req):
         state=req.app.state;identity=state.identity;token=token_for(req,allow_cookie=True)
         action=None

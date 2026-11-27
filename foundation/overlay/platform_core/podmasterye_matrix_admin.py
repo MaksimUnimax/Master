@@ -97,19 +97,27 @@ def stats(db):
             "costRub":{"p50":coins.display(percentile(costs,.5)) if costs else None,"p95":coins.display(percentile(costs,.95)) if costs else None},
             "legacyTurns":db.execute("SELECT count(*) FROM pm_turns").fetchone()[0]-n}
 
+def catalog_snapshot(identity,token):
+    with identity._lock:
+        require(identity._db,token)
+        return {"version":router.VERSION,"rows":rows(identity._db)}
+
+def stats_snapshot(identity,token):
+    with identity._lock:
+        require(identity._db,token)
+        return stats(identity._db)
+
 def routes(token_for,body):
     async def catalog(req):
         identity=req.app.state.identity;t=token_for(req,allow_cookie=True)
-        with identity._lock:
-            require(identity._db,t)
-            return JSONResponse({"version":router.VERSION,"rows":rows(identity._db)})
+        from starlette.concurrency import run_in_threadpool
+        return JSONResponse(await run_in_threadpool(catalog_snapshot,identity,t))
     async def update(req):
         identity=req.app.state.identity;t=token_for(req,allow_cookie=True)
         a=await body(req,"revision","aliases","negatives")
         return JSONResponse(edit(identity,t,req.path_params["id"],a["revision"],a["aliases"],a["negatives"]))
     async def statistics(req):
         identity=req.app.state.identity;t=token_for(req,allow_cookie=True)
-        with identity._lock:
-            require(identity._db,t)
-            return JSONResponse(stats(identity._db))
+        from starlette.concurrency import run_in_threadpool
+        return JSONResponse(await run_in_threadpool(stats_snapshot,identity,t))
     return [Route("/api/admin/matrix",catalog),Route("/api/admin/matrix/stats",statistics),Route("/api/admin/matrix/{id}",update,methods=["POST"])]

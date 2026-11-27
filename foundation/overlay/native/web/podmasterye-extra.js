@@ -30,7 +30,7 @@ function navigateExtra(name,reveal=true){
  if(name==='integrations')loadSources().catch(e=>textStatus('#source-status',e.message));
  if(name==='settings')renderWorkshopSettings();
  if(name==='products'||name==='materials')document.body.classList.toggle('pm-catalog-page',true);else document.body.classList.remove('pm-catalog-page');
- if(reveal&&matchMedia('(max-width:960px)').matches)showWork();
+ if(reveal)showWork();
 }
 async function changeWorkshop(action,args){
  const result=await post('/api/workshops/change',{requestId:crypto.randomUUID(),action,arguments:args});
@@ -53,36 +53,47 @@ function setTheme(mode){window.PMTheme.set(mode);}
 const compactLayout=matchMedia('(max-width:960px)');
 let panes=null;
 function initialPanes(){
+ const saved=localStorage.getItem('pm-surface');
+ const desktop=['assistant','work','split'].includes(saved)?saved:localStorage.getItem('pm-helper-hidden')==='1'?'work':'split';
  return {navOpen:compactLayout.matches?false:localStorage.getItem('pm-nav-hidden')!=='1',
-         surface:compactLayout.matches?'assistant':localStorage.getItem('pm-helper-hidden')==='1'?'work':'split'};
+         surface:compactLayout.matches?'assistant':desktop};
 }
 function helperVisible(){return panes?.surface!=='work';}
+function workVisible(){return panes?.surface!=='assistant';}
 function syncPanes(){
  const b=q('#toggle-helper');if(!b||!panes)return;
  document.body.dataset.pmNav=panes.navOpen?'open':'closed';
  document.body.dataset.pmSurface=panes.surface;
  const visible=helperVisible();
  b.setAttribute('aria-expanded',String(visible));b.setAttribute('aria-label',visible?'Свернуть помощника':'Открыть помощника');b.title=visible?'Свернуть помощника':'Открыть помощника';
- q('#expand-work').textContent=visible?'На весь экран':'К помощнику';
+ q('#close-helper').setAttribute('aria-expanded',String(workVisible()));
  q('#toggle-nav').setAttribute('aria-expanded',String(panes.navOpen));
- if(visible){const messages=q('#messages');if(messages)messages.scrollTop=messages.scrollHeight;}
 }
 function persistPanes(){
  if(!compactLayout.matches&&panes){
   localStorage.setItem('pm-nav-hidden',panes.navOpen?'0':'1');
+  localStorage.setItem('pm-surface',panes.surface);
   localStorage.setItem('pm-helper-hidden',panes.surface==='work'?'1':'0');
  }
 }
+function setSurface(surface){
+ if(!panes)return;
+ panes.surface=surface;persistPanes();syncPanes();
+}
 function showWork(collapse=false){
  if(!panes)return;
- if(compactLayout.matches||collapse){panes.surface='work';persistPanes();}
- syncPanes();
+ if(compactLayout.matches||collapse)setSurface('work');
+ else if(!workVisible())setSurface('split');
+ else syncPanes();
 }
 function showHelper(){
  if(!panes)return;
- panes.surface=compactLayout.matches?'assistant':'split';
- persistPanes();syncPanes();
+ if(compactLayout.matches)setSurface('assistant');
+ else if(!helperVisible())setSurface('split');
+ else syncPanes();
 }
+function hideWork(){setSurface('assistant');}
+function toggleNav(){panes.navOpen=!panes.navOpen;persistPanes();syncPanes();}
 function initLayout(){
  const consent=q('#cookie-choice');if(consent&&!localStorage.getItem('pm-cookie-choice')&&document.body.dataset.mode!=='member'){
    consent.hidden=false;
@@ -94,13 +105,14 @@ function initLayout(){
  const nav=q('#toggle-nav'),helper=q('#toggle-helper'),close=q('#close-helper'),expand=q('#expand-work');
  if(nav){
   panes=initialPanes();
-  nav.onclick=()=>{panes.navOpen=!panes.navOpen;persistPanes();syncPanes();};
+  nav.onclick=toggleNav;
+  q('#close-nav').onclick=()=>{if(panes.navOpen)toggleNav();};
   helper.onclick=()=>{if(helperVisible())showWork(true);else showHelper();};
-  close.onclick=()=>showWork(true);
-  expand.onclick=()=>{if(!helperVisible())showHelper();else showWork(true);};
+  close.onclick=()=>showWork(workVisible());
+  expand.onclick=hideWork;
   compactLayout.addEventListener('change',()=>{
    if(compactLayout.matches&&panes.surface==='split')panes.surface='assistant';
-   else if(!compactLayout.matches&&panes.surface==='assistant')panes.surface='split';
+   else if(!compactLayout.matches&&panes.surface==='assistant')panes.surface=localStorage.getItem('pm-surface')==='assistant'?'assistant':'split';
    syncPanes();
   });
   syncPanes();
