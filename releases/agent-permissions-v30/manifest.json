@@ -1,0 +1,135 @@
+{
+  "base_release": "7869be44e3b613e31adc60ad8f5abc62a15bd791",
+  "changed_files": [
+    {
+      "path": "products/harness-platform/native/chat-worker.mjs",
+      "old_sha256": "db6d86a5a66823ee4f5ef022f6456d1d4388d20ded11b15ec921dfd8709a5827",
+      "new_sha256": "04349199689ccdcf41e1b83e41c5e7743f912077d4a93fbc920bf488617a5722"
+    },
+    {
+      "path": "products/harness-platform/native/podmasterye-mcp.mjs",
+      "old_sha256": "b3ce0f469acb5c819108bc73abd1997804ae4f9ac8ddc2f6f5bc5613713fbc78",
+      "new_sha256": "8129e350c29cdca65d593b8bbc20c53c02bc5c036b80d6f264295fe7155efbd8"
+    },
+    {
+      "path": "products/harness-platform/native/web/podmasterye-extra.js",
+      "old_sha256": "d966cb36dbec37d06b998b931701d9b03fa9ab0cdc0817b96c09397226cdbaa2",
+      "new_sha256": "67630ff3423c84c94e7c6217e64da4a37378a8c94828d5eb0b93c70b914f3770"
+    },
+    {
+      "path": "products/harness-platform/native/web/podmasterye.js",
+      "old_sha256": "8943830cbfe9f61bbdd365868f7b8a51910f90ff2751aeccead5f09715a87095",
+      "new_sha256": "64b6195750a97d9b28b4a2b3be21658d6366cf7e5c1d9bbac500b0450ffbec58"
+    },
+    {
+      "path": "products/harness-platform/native/web-mount.mjs",
+      "old_sha256": "c5d4a5e6513d5449ebdc147d5c64cb6d2d4df825bad232452e8074061a6d0ee7",
+      "new_sha256": "405e89ac1c06c89e87f0e06d36971082eb1eb12630cbec1e84f9f2c841c7cbb4"
+    },
+    {
+      "path": "products/harness-platform/native/workshop-dialog-policy.mjs",
+      "old_sha256": "4b792dfcad2669d2d3c764a2d01dfde6c5a29940b81763dfd72071b3a382de34",
+      "new_sha256": "18a72cb6fd6424e548b9ab76b8982776fd15707058306349cdec2fe6efe9ddfb"
+    },
+    {
+      "path": "products/harness-platform/platform_core/chat_worker.py",
+      "old_sha256": "27c2b656db91393d864f8a878563d29fd2420e6a592d0675416baab5b805c60c",
+      "new_sha256": "eb734b7d48e047f87ba7dd155c0ffadc281a7b05d7cee5029ae9a37653efa2ca"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_agent_actions.py",
+      "old_sha256": "470dc6da3e60d3c29c3b0cbe2822f21adc26eeaaebb7e6d34340f0e4bf2dae11",
+      "new_sha256": "e6ec62b9295a7ce16fa3e9b2f71cd70ef1ae5e8865f5e859a369a2c7da820b11"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_agent_forms.py",
+      "old_sha256": "74d05bbbdf6b67e57402c1bebafb131666e9971c8f46b47d77eb16bb912c4356",
+      "new_sha256": "39e753a921a59e4708f028c8b4ab1b0f9e1fe756e989b6d15fbfdace4a7670f7"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_chat_context.py",
+      "old_sha256": "80c4bc6fd973dc6cc969cc35b9f2d453cf801b0801898261f6577a34407f3f86",
+      "new_sha256": "382b9d4fcd09446caab6726e9f1d7bf37184bc4e7fb06fc259f3262c518e2615"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_domain.py",
+      "old_sha256": "c228a13c96024d2a5cfee503c7a3444d53cc6cf0e62dd71d2ed56a22dd2dad0e",
+      "new_sha256": "cf91502ce3a498609878468acee1fa714b4136771dc778c7f73f5a512d3436de"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_matrix.py",
+      "old_sha256": "9c852c42e5e6840858cbe7f3e9642d8121df38a6e317d7d89120452f2ad00db5",
+      "new_sha256": "704b497eed08ae7132adbd36d582112fbd6bb579a6056e1a2ac819419cf61370"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_mcp.py",
+      "old_sha256": "d348a403c80206a8373723fc3c2540f98c51e68045648723b26ae7ef81763de8",
+      "new_sha256": "a7577bdd12671c1fd7986c08007595e3edfce4020e3a652b5a87438176e3ac1a"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_public_catalog.json",
+      "old_sha256": "f9abc231b1482a13512ce0744599e17ca2e0500d69836c7862bb86e169ecbd06",
+      "new_sha256": "d1f4e75a500602045db4c2ef59ba39240abb02b27dfa30824be36793f52c3577"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_public_pages.py",
+      "old_sha256": "95c38f80ca34a55f665ac615cabc3205fbd3611d799572a6b882a192cf3b1dfe",
+      "new_sha256": "288e1208c21e14c8ff72427608bc782111b60ffa0b3bb4e35269a7bbc1f737f1"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_scoped.py",
+      "old_sha256": "637c34fb75bee9e8322ac7fa942e08eb72684b0531f92ccf82fd56e750bcbf45",
+      "new_sha256": "a4aa19e52b91077d6eb0ac68bccc8e4033eecec918173e418c43d784d0367b3a"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_service_faq.json",
+      "old_sha256": "cc460c0504b99ae7306dbdc732394c56ef3f122d3e92e7fdc12c7ff01847b86b",
+      "new_sha256": "cd32604eee1d83de24924a0d613d6db2b453d94ac7bcba99eee16afe2e56fe14"
+    },
+    {
+      "path": "products/harness-platform/platform_core/public_faq.json",
+      "old_sha256": "86197f079e20cc7635a57c5caf950d65a1dbaa9a48beb43ccfae4e1d22859a14",
+      "new_sha256": "fde8ce70d7c60b78dbfadad605476ec8e1ba4ff4d5b7d539dba5992845770841"
+    },
+    {
+      "path": "products/harness-platform/platform_core/web_access.py",
+      "old_sha256": "030998371b8840bbfa314a1fa42cf76522e004977b00a1053559cbc5c8cf019c",
+      "new_sha256": "fb57c11c0b84607fb071f650f694934ee0bc9ffd28124b41ac51e3c29ceb9199"
+    },
+    {
+      "path": "products/harness-platform/platform_core/web_ui.py",
+      "old_sha256": "a4aaf373d02815b6c3035d4dc2d9faafa60af63bd7990c8d34e79c3de06b480d",
+      "new_sha256": "a37af961369063c491ab1baa4c48201fd0cf05a11792419793df38699d02f26b"
+    },
+    {
+      "path": "products/harness-platform/platform_core/workshop_web_topics.py",
+      "old_sha256": null,
+      "new_sha256": "675eb697648f8dc8c16215c7e5bdb80467e7edc7da7ee5e0927b975abcb1ae92"
+    },
+    {
+      "path": "products/harness-platform/platform_core/workshop_write_permissions.py",
+      "old_sha256": null,
+      "new_sha256": "b55b28ead516e77991270c6d61c0c43921770049389504a5b71ff1ae954a372f"
+    },
+    {
+      "path": "products/harness-platform/tests/browser/test_workshop_permissions_v30_ui.py",
+      "old_sha256": null,
+      "new_sha256": "d16c62f583aaf6cdc7c01b236c8df1211faebb3f5888fa982d17e4dd3b82fddf"
+    },
+    {
+      "path": "products/harness-platform/tests/podmasterye_gateway.mjs",
+      "old_sha256": "272a39814da7ad0ec9bc56288f9190e353bc7f5e8bda979587fc22bb5e0c5154",
+      "new_sha256": "b6ff75efd7ef5a220d9fecbc35d8a7de8ec6d60fc645aa12819981d3d138522e"
+    },
+    {
+      "path": "products/harness-platform/tests/shared-web-gateway.mjs",
+      "old_sha256": "e66832f065a51696879eb1c8f0b1b054261b993772d91907dfc96cbf273586ee",
+      "new_sha256": "0a6e54a12a0ca25c6ccb8487ac48ab9ffcf4ad1ae4281b4a9c3f6019f7c695be"
+    },
+    {
+      "path": "products/harness-platform/tests/test_workshop_permissions_v30.py",
+      "old_sha256": null,
+      "new_sha256": "c9ad2239888c8c0338b76f6041755199cdbd76eab4231fc14915f9d4f770e911"
+    }
+  ]
+}
