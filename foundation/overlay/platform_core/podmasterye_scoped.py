@@ -132,6 +132,10 @@ def routes(token_for,body):
         fields=await body(req,"name","items","sale_price","minutes","hourly_rate")
         try:return JSONResponse(await run_in_threadpool(imports.calculator,fields))
         except ValueError as e:raise HTTPException(400,str(e)) from None
+    async def calculator_profit(req):
+        fields=await body(req,"revenue","cost","expenses")
+        try:return JSONResponse(await run_in_threadpool(imports.profit_calculator,fields))
+        except ValueError as e:raise HTTPException(400,str(e)) from None
     async def calculator_save(req):
         token=token_for(req,allow_cookie=True);fields=await body(req,"requestId","calculation")
         try:return JSONResponse(await run_in_threadpool(imports.save_calculator,req.app.state.identity,token,req.query_params.get("workshop"),fields["requestId"],fields["calculation"]))
@@ -225,6 +229,7 @@ def routes(token_for,body):
         Route("/api/materials/import/preview",import_preview,methods=["POST"]),
         Route("/api/materials/import/commit",import_commit,methods=["POST"]),
         Route("/api/calculator",calculator,methods=["POST"]),
+        Route("/api/calculator/profit",calculator_profit,methods=["POST"]),
         Route("/api/calculator/save",calculator_save,methods=["POST"]),
         Route("/api/workshops/change",workshop_change,methods=["POST"]),
         Route("/api/workshops/chat",workshop_chat,methods=["POST"]),

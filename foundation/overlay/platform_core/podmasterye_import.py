@@ -149,16 +149,20 @@ def calculator(a):
     if not isinstance(items,list) or not 1<=len(items)<=50:raise ValueError("От 1 до 50 строк материалов.")
     seen=set();materials=Decimal(0);out=[]
     for row in items:
-        if not isinstance(row,dict) or set(row)!={"name","quantity","unit","price"}:raise ValueError("Некорректная строка материала.")
+        if not isinstance(row,dict) or not {"name","quantity","unit","price"}<=row.keys()<={"name","quantity","unit","price","pack_quantity"}:raise ValueError("Некорректная строка материала.")
         n=clean_name(row["name"])
         if n.casefold() in seen:raise ValueError("Объедините повторяющийся материал.")
         seen.add(n.casefold())
         u=row["unit"]
-        if u not in CALC_UNITS:raise ValueError("Неизвестная единица.")
+        if not isinstance(u,str) or u not in CALC_UNITS:raise ValueError("Неизвестная единица.")
         qty=number(row["quantity"]);price=Decimal(book.money(book.minor(row["price"])))
         if qty<=0:raise ValueError("Количество должно быть больше нуля.")
-        value=qty*price;materials+=value
-        out.append({"name":n,"quantity":format(qty,"f"),"unit":u,"price":decimal2(price),"cost_rub":decimal2(value)})
+        pack=number(row.get("pack_quantity","1"))
+        if pack<=0:raise ValueError("Количество в упаковке должно быть больше нуля.")
+        value=qty*price/pack;materials+=value
+        line={"name":n,"quantity":format(qty,"f"),"unit":u,"price":decimal2(price),"cost_rub":decimal2(value)}
+        if "pack_quantity" in row:line["pack_quantity"]=format(pack,"f")
+        out.append(line)
     sale=Decimal(book.money(book.minor(a["sale_price"])));minutes=number(a["minutes"],525600,2);hour=Decimal(book.money(book.minor(a["hourly_rate"])))
     labor=minutes*hour/60;gross=sale-materials;full=materials+labor
     return {"name":name,"items":out,"sale_price":decimal2(sale),"minutes":format(minutes,"f"),"hourly_rate":decimal2(hour),
@@ -166,6 +170,15 @@ def calculator(a):
         "profit_rub":decimal2(sale-full),"margin_percent":decimal2(gross*100/sale) if sale else None,
         "full_margin_percent":decimal2((sale-full)*100/sale) if sale else None,"markup_percent":decimal2((sale-full)*100/full) if full else None,
         "income_per_hour_rub":decimal2(gross*60/minutes) if minutes else None}
+def profit_calculator(args):
+    if not isinstance(args,dict) or set(args)!={"revenue","cost","expenses"}:raise ValueError("Некорректные поля расчёта прибыли.")
+    revenue,cost,expenses=(Decimal(book.money(book.minor(args[k]))) for k in ("revenue","cost","expenses"))
+    gross=revenue-cost;total=cost+expenses;profit=revenue-total
+    return {"revenue_rub":decimal2(revenue),"cost_rub":decimal2(cost),"expenses_rub":decimal2(expenses),
+            "gross_profit_rub":decimal2(gross),"total_cost_rub":decimal2(total),"profit_rub":decimal2(profit),
+            "margin_percent":decimal2(profit*100/revenue) if revenue else None,
+            "return_on_cost_percent":decimal2(profit*100/total) if total else None}
+
 def save_calculator(store,token,workshop,rid,args):
     key_id(rid);c=calculator(args)
     raw=encode(args)
@@ -179,8 +192,11 @@ def save_calculator(store,token,workshop,rid,args):
             raise Conflict("Изделие уже существует. Выберите другое название.")
         pid=None
         for i,line in enumerate(c["items"]):
-            unit,pack=CALC_UNITS[line["unit"]];usage=Decimal(line["quantity"])*pack
+            unit,factor=CALC_UNITS[line["unit"]];usage=Decimal(line["quantity"])*factor
+            pack_value=Decimal(line.get("pack_quantity","1"))*factor
             if usage!=usage.to_integral_value() or usage>10**9:raise ValueError("Расход должен выражаться целым числом базовых единиц.")
+            if pack_value!=pack_value.to_integral_value() or not 1<=pack_value<=10**9:raise ValueError("Упаковка должна выражаться целым числом базовых единиц.")
+            pack=int(pack_value)
             prior=db.execute("SELECT unit,pack,price FROM pm_materials WHERE workspace=? AND normalized=?",(w,line["name"].casefold())).fetchone()
             if prior and (prior[0]!=unit or prior[1]!=pack or prior[2] is None or Decimal(prior[2])!=Decimal(line["price"])):
                 raise Conflict("Материал уже есть с другими параметрами: "+line["name"])

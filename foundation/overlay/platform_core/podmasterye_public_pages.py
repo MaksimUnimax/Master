@@ -19,8 +19,12 @@ CONTACT = "OpenScripts@yandex.com"
 SUPPORT = "support@octoport.ru"
 
 PAGES = {
-    "about": ("/about/", "Описание", "Программа учёта производства и себестоимости для мастерской",
-              "Подмастерье — учёт материалов, рецептур, закупок, склада, производства, продаж и прибыли для небольших мастерских с ИИ-помощником."),
+    "about": ("/about/", "Описание", "Программа для расчёта себестоимости продукции и учёта производства",
+              "Подмастерье — онлайн-сервис для расчёта себестоимости изделий, учёта материалов, закупок, склада, производства, продаж и прибыли небольших мастерских."),
+    "calculator": ("/kalkulyator", "Калькулятор", "Калькулятор себестоимости изделия онлайн бесплатно",
+              "Рассчитайте себестоимость продукции: материалы, цена упаковки, расход, труд, прибыль, маржа и наценка. Бесплатно, без регистрации и ИИ."),
+    "profit": ("/kalkulyator-pribyli/", "Калькулятор прибыли", "Калькулятор прибыли онлайн",
+              "Бесплатный расчёт прибыли от продаж по выручке, себестоимости и расходам. Маржа и рентабельность затрат по введённым данным."),
     "support": ("/support", "Поддержка", "Поддержка Подмастерья",
                 "Помощь с регистрацией, учётом мастерской, файлами и работой помощника. Как сообщить об ошибке."),
     "contacts": ("/contacts", "Контакты", "Контакты и реквизиты Подмастерья",
@@ -34,7 +38,7 @@ PAGES = {
     "login": ("/login", "Вход", "Вход в Подмастерье", "Войдите в личный кабинет мастерской."),
     "register": ("/register", "Регистрация", "Регистрация в Подмастерье", "Создайте аккаунт мастерской."),
 }
-INDEXABLE = ("about", "support", "contacts", "payment", "faq", "privacy")
+INDEXABLE = ("about", "calculator", "profit", "support", "contacts", "payment", "faq", "privacy")
 
 def origin():
     raw = os.getenv("PODMASTERYE_PUBLIC_ORIGIN", "").rstrip("/")
@@ -86,12 +90,14 @@ def about():
         groups.append('<section class="pm-public-section"><h2>'+group+'</h2>'+items+'</section>')
     return """<header class="pm-public-hero"><p class="pm-public-kicker">Учёт малого производства</p>
       <h1>Подмастерье — программа учёта производства и себестоимости</h1>
-      <p class="pm-public-lead">Материалы, рецептуры, склад, закупки, производство, продажи, расходы и прибыль — в одной мастерской. Работайте через понятные формы или поручайте задачи помощнику в чате.</p>
-      <div class="pm-public-actions">"""+link("register","Создать мастерскую","pm-public-primary")+"""<a href="/kalkulyator" class="pm-public-secondary">Калькулятор себестоимости</a></div></header>
+      <p class="pm-public-lead">Подмастерье — онлайн-программа для расчёта себестоимости продукции и управленческого учёта малого производства. Материалы, рецептуры, склад, закупки, выпуск, продажи и прибыль — в одной мастерской. Работайте через формы или поручайте задачи помощнику.</p>
+      <div class="pm-public-actions">"""+link("register","Создать мастерскую","pm-public-primary")+"""<a href="/kalkulyator" data-public-panel="calculator" class="pm-public-secondary">Калькулятор себестоимости</a></div></header>
       <section class="pm-public-section"><h2>Для кого предназначен сервис</h2><p>Для мастеров, небольших производств, ремесленных мастерских, производителей украшений, сувениров, изделий ручной работы и других товаров. Ведите управленческий учёт своей мастерской: от закупки сырья до расчёта прибыли с продажи.</p></section>
       <section class="pm-public-section"><h2>Как начать работу</h2><ol><li>Создайте аккаунт и внесите материалы, упаковки и закупочные цены.</li><li>Добавьте изделия и рецептуры: сколько материалов уходит на единицу продукции.</li><li>Учитывайте закупки, выпуск, продажи и расходы. Сверяйте остатки и финансовые результаты.</li></ol></section>"""+ "".join(groups)+"""
       <section class="pm-public-section"><h2>Помощник и документы</h2><p>В личном кабинете помощник получает отчёты из учётного ядра, готовит записи и сохраняет их после подтверждения пользователя. Он может создавать XLSX, DOCX, PPTX, PDF, CSV, TXT, JSON и ZIP, а также новые версии созданных им файлов.</p>
-      <p>Гостевой помощник отвечает только на вопросы о сервисе. Доступ к учёту, файлам и голосовому вводу появляется после регистрации. Интернет-поиск помощника пока не подключён.</p></section>
+      <p>Гостевой помощник отвечает на вопросы о сервисе и управляет бесплатными калькуляторами по точным шаблонам. Доступ к учёту мастерской, файлам и голосовому вводу появляется после регистрации. Интернет-поиск пока не подключён.</p></section>
+      <section class="pm-public-section" id="handmade"><h2>Расчёт себестоимости изделий и учёт ручной работы</h2><p>Программа помогает рассчитать затраты на материалы по нормам расхода, учитывать закупочные упаковки, выпуск продукции, продажи и фактические расходы. Подходит мастерам украшений, швейных изделий, свечей и домашним кондитерам. Сравнивайте себестоимость изделия с ценой продажи и оценивайте прибыль; управленческий учёт не заменяет обязательную бухгалтерскую отчётность.</p>
+      <p>Начните с бесплатного <a href="/kalkulyator" data-public-panel="calculator">калькулятора себестоимости</a> или <a href="/kalkulyator-pribyli/" data-public-panel="profit">калькулятора прибыли</a>. Зарегистрируйтесь, чтобы сохранить рецептуры и вести постоянный учёт материалов, себестоимости и продаж.</p></section>
       <section class="pm-public-section"><h2>Стоимость работы</h2><p>Ручной учёт и локальные программные расчёты не расходуют монеты. Запросы к ИИ и платная обработка файлов оплачиваются по фактическому расходу.</p>"""+link("payment","Подробнее об оплате")+"</section>"
 
 async def payment_content(request, signed_in):
@@ -185,7 +191,7 @@ def shell(key, content, *, status=200, is_member=False):
         account = link("login","Вход")+link("register","Регистрация")
         assistant = f"""<aside class="pm-public-assistant" aria-label="Помощник" id="public-chat-pane">
         <div class="assistant-header"><h2>Помощник</h2><button type="button" id="public-open-info" class="secondary">Описание</button></div>
-        <div class="assistant-intro" id="guest-intro"><h2>С чего начнём?</h2><p>Расскажу, что умеет Подмастерье, как вести учёт мастерской и сколько стоит работа сервиса.</p></div>
+        <div class="assistant-intro" id="guest-intro"><h2>С чего начнём?</h2><p>Расскажу о сервисе и помогу заполнить бесплатный калькулятор. Например, напишите «Открой калькулятор себестоимости».</p></div>
         <div class="messages" id="guest-messages" aria-live="polite"></div>
         <p id="guest-quota" class="hint" role="status">Доступно до {GUEST_MESSAGE_LIMIT} бесплатных сообщений.</p>
         <form id="guest-form" class="composer" aria-label="Гостевой чат">
@@ -197,20 +203,24 @@ def shell(key, content, *, status=200, is_member=False):
     public_css = asset_version("podmasterye-public.css")
     script = asset_version("podmasterye-public.js")
     theme = asset_version("podmasterye-theme.js")
+    calc_script=asset_version("podmasterye-public-calculator.js")
     return HTMLResponse(f"""<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{escape(title)} · Подмастерье</title>{meta}
       <script src="/assets/podmasterye-theme.js?v={theme}"></script><link rel="stylesheet" href="/assets/podmasterye.css?v={css}"><link rel="stylesheet" href="/assets/podmasterye-public.css?v={public_css}"></head>
       <body data-mode="public" data-public-key="{key}" data-public-surface="{'info' if is_member else 'split'}">
-      <header class="top"><button type="button" class="icon-btn" id="public-menu-toggle" aria-label="Развернуть меню" title="Развернуть меню" aria-controls="public-menu" aria-expanded="false"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button><a class="pm-brand" href="/" aria-label="Подмастерье"><span class="brand-mark" aria-hidden="true">П</span><b>Подмастерье</b></a><span class="spacer"></span><a href="/kalkulyator">Калькулятор</a><button type="button" class="icon-btn" data-pm-theme aria-label="Сменить тему">◐</button></header>
-      <div class="layout pm-public-layout"><nav id="public-menu" aria-label="Разделы Подмастерья"><div class="pm-nav-header"><strong>Меню</strong></div>{helper_nav}<div class="nav-group">О сервисе</div>{''.join(nav)}<div class="nav-group">Аккаунт</div>{account}<div class="nav-group">Инструменты</div><a href="/kalkulyator">Калькулятор</a></nav>{assistant}
+      <header class="top"><button type="button" class="icon-btn" id="public-menu-toggle" aria-label="Развернуть меню" title="Развернуть меню" aria-controls="public-menu" aria-expanded="false"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button><a class="pm-brand" href="/" aria-label="Подмастерье"><span class="brand-mark" aria-hidden="true">П</span><b>Подмастерье</b></a><span class="spacer"></span>{link("calculator","Калькулятор")}<button type="button" class="icon-btn" data-pm-theme aria-label="Сменить тему">◐</button></header>
+      <div class="layout pm-public-layout"><nav id="public-menu" aria-label="Разделы Подмастерья"><div class="pm-nav-header"><strong>Меню</strong></div>{helper_nav}<div class="nav-group">О сервисе</div>{''.join(nav)}<div class="nav-group">Аккаунт</div>{account}<div class="nav-group">Инструменты</div>{link("calculator","Калькулятор себестоимости")}{link("profit")}</nav>{assistant}
       <main id="public-info-pane" aria-label="Информация о сервисе"><div class="pm-work-header"><strong id="public-panel-title">{escape(PAGES[key][1])}</strong><button id="public-open-chat" type="button" class="secondary">Помощник</button></div>
       <div id="public-info-content" data-panel-key="{key}">{content}{footer()}</div></main></div>
       <div id="cookie-choice" class="cookie-choice" hidden><p>Мы используем необходимые cookie для входа и сохранения контекста. Необязательная аналитика отключена.</p>{link("privacy","Подробнее")}<button type="button" id="cookie-accept">Понятно</button><button type="button" class="secondary" id="cookie-decline">Только необходимые</button></div>
-      <script defer src="/assets/podmasterye-public.js?v={script}"></script></body></html>""",status_code=status,headers={**HEADERS,"X-Robots-Tag":robots,"Vary":"X-PM-Panel"})
+      <script defer src="/assets/podmasterye-public-calculator.js?v={calc_script}"></script><script defer src="/assets/podmasterye-public.js?v={script}"></script></body></html>""",status_code=status,headers={**HEADERS,"X-Robots-Tag":robots,"Vary":"X-PM-Panel"})
 
 async def page(request, key):
     member = await signed_in(request)
     if key=="payment":
         content=await payment_content(request, member)
+    elif key in ("calculator","profit"):
+        from .podmasterye_public_calculators import cost_content,profit_content
+        content=(cost_content if key=="calculator" else profit_content)(member)
     elif key=="faq":
         content=await run_in_threadpool(faq,request.app.state.identity)
     else:

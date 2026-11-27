@@ -188,7 +188,7 @@ class IndependentUI(unittest.TestCase):
         expect(p.locator("#calc-result tbody tr").filter(has_text="Доход в час")).to_contain_text("350.00 ₽")
         p.locator('[name="sale_price"]').fill("900")
         expect(p.locator("#calc-result tbody tr").filter(has_text="Прибыль после учёта труда")).to_contain_text("300.00 ₽")
-        row2.get_by_role("button",name="×",exact=True).click()
+        row2.get_by_role("button",name="Удалить материал",exact=True).click()
         expect(p.locator("#calc-result tbody tr").filter(has_text="Материалы")).to_contain_text("200.00 ₽")
         row.locator('[name="quantity"]').fill("0")
         expect(p.locator("#calc-save")).to_be_disabled()

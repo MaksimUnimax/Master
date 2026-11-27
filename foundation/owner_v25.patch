@@ -1,0 +1,24 @@
+--- a/platform_core/guest_registration.py
++++ b/platform_core/guest_registration.py
+@@ -22 +22 @@
+-from . import guest_activity, guest_selector
++from . import guest_activity, guest_selector, podmasterye_guest_calculator as guest_calculator
+@@ -57,0 +58 @@
++                db.execute(guest_calculator.SCHEMA)
+@@ -182 +183 @@
+-                return {"turns":rows,"nextBefore":cursor,"offset":offset,
++                return {"turns":guest_calculator.attach(db,chat,rows),"nextBefore":cursor,"offset":offset,
+--- a/platform_core/guest_selector.py
++++ b/platform_core/guest_selector.py
+@@ -22,0 +23 @@
++from . import podmasterye_guest_calculator as guest_calculator
+@@ -203,0 +205,9 @@
++        # Exact public calculator templates are evaluated before FAQ and before
++        # any optional paid intent selector. Interrupted classifier requests
++        # are not repurposed as a new action on replay.
++        command=guest_calculator.match(text) if not old else None
++        if command is not None:
++            answer,action=command
++            save(db,chat,rid,text,"calculator",answer,False,cards)
++            guest_calculator.remember(db,chat,rid,action)
++            return

@@ -4,8 +4,8 @@
  const q=s=>document.querySelector(s),body=document.body,info=q('#public-info-pane'),content=q('#public-info-content');
  if(!info||!content)return;
  const compact=matchMedia('(max-width:960px)'),menu=q('#public-menu'),toggle=q('#public-menu-toggle');
- const chat=q('#public-chat-pane'),allowed=new Set(['about','support','contacts','payment','faq','privacy','login','register']);
- const staticKeys=new Set(['about','support','contacts','privacy']),panelCache=new Map();
+ const chat=q('#public-chat-pane'),allowed=new Set(['about','calculator','profit','support','contacts','payment','faq','privacy','login','register']);
+ const staticKeys=new Set(['about','calculator','profit','support','contacts','privacy']),panelCache=new Map();
  const initialKey=body.dataset.publicKey;
  function head(selector,attr){return document.head.querySelector(selector)?.getAttribute(attr)||'';}
  if(staticKeys.has(initialKey)&&!location.search)panelCache.set(initialKey,{
@@ -14,11 +14,11 @@
  });
  let seq=0,controller=null,guestSession=null,sessionPromise=null;
  let paymentCount='100',paymentController=null,paymentTimer=null;
- const routes={about:'/about/',support:'/support',contacts:'/contacts',payment:'/payment',faq:'/faq',privacy:'/privacy',login:'/login',register:'/register'};
+ const routes={about:'/about/',calculator:'/kalkulyator',profit:'/kalkulyator-pribyli/',support:'/support',contacts:'/contacts',payment:'/payment',faq:'/faq',privacy:'/privacy',login:'/login',register:'/register'};
  function mode(name){
   body.dataset.publicSurface=name;
   const left=q('#public-open-info'),right=q('#public-open-chat');
-  if(left)left.textContent=name==='split'?'Свернуть':'Описание';
+  if(left)left.textContent=name==='split'?'Свернуть':q('#public-panel-title').textContent;
   if(right)right.textContent=name==='split'?'Свернуть':'Помощник';
  }
  function nav(open){body.dataset.publicNav=open?'open':'closed';toggle.setAttribute('aria-expanded',String(open));const label=open?'Свернуть меню':'Развернуть меню';toggle.setAttribute('aria-label',label);toggle.title=label;}
@@ -111,8 +111,9 @@
    const template=document.createElement('template');template.innerHTML=data.html;
    if(template.content.querySelector('script,iframe,object,embed')||[...template.content.querySelectorAll('*')].some(el=>[...el.attributes].some(a=>/^on/i.test(a.name))))throw Error('Недопустимое содержимое страницы.');
    if(cacheable)panelCache.set(key,data);
+   window.PMPublicCalculator.unmount();
    content.replaceChildren(template.content);content.dataset.panelKey=key;
-   body.dataset.publicKey=key;q('#public-panel-title').textContent=data.label;content.scrollTop=0;updateNav(key);
+   body.dataset.publicKey=key;q('#public-panel-title').textContent=data.label;content.scrollTop=0;updateNav(key);mode(body.dataset.publicSurface);
    document.title=data.title;
    for(const [selector,attr,value] of [
     ['meta[name="description"]','content',data.description],['meta[name="robots"]','content',data.robots],
@@ -121,7 +122,7 @@
     const previous=document.head.querySelector(selector);if(previous&&typeof value==='string')previous.setAttribute(attr,value);
    }
    if(push&&location.pathname+location.search!==dest)history.pushState({panel:key},'',dest);
-   prepareRegistration();preparePayment();
+   prepareRegistration();preparePayment();window.PMPublicCalculator.mount({openPanel,api});return true;
   }catch(err){if(!signal.aborted&&n===seq)location.assign(dest);}
   finally{if(n===seq)info.removeAttribute('aria-busy');}
  }
@@ -135,7 +136,7 @@
  });
  history.replaceState({panel:body.dataset.publicKey},'',location.href);
  addEventListener('popstate',()=>{const key=history.state?.panel||Object.keys(routes).find(k=>routes[k]===location.pathname)||(location.pathname==='/'?'about':null);if(key)openPanel(key,{push:false,url:location.pathname+location.search});else location.reload();});
- prepareRegistration();preparePayment();
+ prepareRegistration();preparePayment();window.PMPublicCalculator.mount({openPanel,api});
  const f=q('#guest-form');if(!f)return;
  const input=f.elements.text,send=f.querySelector('button[type=submit]'),box=q('#guest-messages'),quota=q('#guest-quota'),status=q('#guest-status'),limit=q('#guest-limit'),intro=q('#guest-intro');
  let remaining=0,busy=false,ready=false,pending=null,temporary=null;
@@ -153,21 +154,42 @@
   intro.hidden=!!data.turns.length;scroll();controls();
  }
  async function refresh(){const data=await api('/guest/chats/'+encodeURIComponent(guestSession.chat)+'/events');render(data);return data;}
+ const appliedActions=new Set();
+ async function applyAction(data,rid){
+  const action=data.turns?.find(t=>t.requestId===rid)?.calculatorAction;
+  if(!action||!['calculator','profit'].includes(action.panel)||appliedActions.has(rid))return;
+  appliedActions.add(rid);
+  if(content.dataset.panelKey!==action.panel){
+   const opened=await openPanel(action.panel);
+   if(!opened)return;
+  }
+  mode(compact.matches?'info':'split');
+  if(!await window.PMPublicCalculator.apply(action)){
+   const note=q('#calc-status');if(note&&!note.textContent)note.textContent='Не удалось выполнить команду. Проверьте поля калькулятора.';
+  }
+ }
  f.onsubmit=async e=>{
   e.preventDefault();const txt=input.value.trim();if(!ready||busy||!remaining||!txt)return;
   if(!pending||pending.text!==txt)pending={text:txt,request_id:crypto.randomUUID()};
   busy=true;controls();intro.hidden=true;temporary=row(txt,'user');scroll();status.textContent='Подмастерье думает…';
   try{
    const data=await api('/guest/chats/'+encodeURIComponent(guestSession.chat)+'/turns?state=1',{method:'POST',headers:{Accept:'application/json'},body:new URLSearchParams(pending)});
-   pending=null;input.value='';resize();status.textContent='Подмастерье отвечает…';
-   if(data.quota&&Array.isArray(data.turns))render(data);else await refresh();
-   status.textContent='';
+   const rid=pending.request_id;pending=null;input.value='';resize();status.textContent='Подмастерье отвечает…';
+   let state=data;if(data.quota&&Array.isArray(data.turns))render(data);else state=await refresh();
+   await applyAction(state,rid);status.textContent='';
   }catch(err){
    temporary?.remove();status.textContent=err.message;
-   try{const data=await refresh();if(pending&&data.turns.some(t=>t.requestId===pending.request_id)){pending=null;input.value='';resize();}}catch{}
-  }finally{temporary=null;busy=false;controls();if(!input.disabled)input.focus();}
+   try{const data=await refresh();if(pending&&data.turns.some(t=>t.requestId===pending.request_id)){const rid=pending.request_id;pending=null;input.value='';resize();await applyAction(data,rid);status.textContent='';}}catch{}
+  }finally{temporary=null;busy=false;controls();if(!input.disabled&&input.offsetParent)input.focus();}
  };
  input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&!e.repeat){e.preventDefault();if(!send.disabled)f.requestSubmit(send);}});
  input.addEventListener('input',resize);
+ content.addEventListener('click',e=>{
+  const b=e.target.closest('[data-calc-command]');if(!b)return;
+  if(!ready||busy||remaining===0){q('#calc-status').textContent='Лимит чата или ожидание. Заполните калькулятор вручную либо зарегистрируйтесь.';return;}
+  // The example is a draft, not an automatic chat submission.
+  input.value=b.dataset.calcCommand;resize();
+  mode(compact.matches?'chat':'split');if(compact.matches)nav(false);input.focus();
+ });
  session().then(async data=>{if(data.quota&&Array.isArray(data.turns))render(data);else await refresh();ready=true;controls();resize();}).catch(e=>{status.textContent='Не удалось открыть гостевой чат. Обновите страницу. '+e.message;});
 })();

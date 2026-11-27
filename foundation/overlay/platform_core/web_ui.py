@@ -100,8 +100,8 @@ async def page(request,*,panel="",error="",status=200):
     <section data-panel="wallet" hidden><h2>Баланс</h2><p id="wallet-info"></p><button data-buy-coins>Купить монеты</button><h3>История списаний</h3><div id="wallet-history"></div></section></main>
 </div>''',member=True,admin=admin,status=status)
 
-async def calculator_page(request):
-    return document("Калькулятор себестоимости", public_header('<a href="/app/">Моя мастерская</a>')+"""<main class="calc-page"><h1>Калькулятор себестоимости изделия</h1><p>Рассчитайте материалы, труд и прибыль бесплатно, без обращения к ИИ.</p><form id="calc-form" class="panel"><label>Название изделия<input name="product_name" required maxlength="120" placeholder="Например, браслет"></label><h3>Материалы</h3><div id="calc-rows"></div><button id="calc-add" type="button" class="secondary">Добавить материал</button><h3 class="section-subtitle">Цена и труд</h3><div class="fields"><label>Цена продажи, ₽<input name="sale_price" inputmode="decimal" required value="0"></label><label>Время изготовления, мин<input name="minutes" inputmode="decimal" required value="0"></label><label>Стоимость часа, ₽<input name="hourly_rate" inputmode="decimal" required value="0"></label></div><button>Рассчитать</button></form><p id="calc-status" role="status"></p><div id="calc-result" class="calc-result"></div><button id="calc-save" type="button" disabled>Сохранить в мастерскую</button><p class="hint">Расчёт не записывает складские движения. Для сохранения нужна регистрация; ставку труда настройте в мастерской.</p><a href="/privacy">О данных и cookie</a></main>""")
+async def calculator_alias(request):
+    return RedirectResponse("/kalkulyator",status_code=301,headers=_PRIVATE_HEADERS)
 
 @lru_cache(maxsize=64)
 def asset_version(name):
@@ -113,7 +113,7 @@ def version_asset_urls(html):
 
 async def asset(request):
     name=request.path_params["name"]
-    if name not in ("podmasterye-public.js","podmasterye-public.css","podmasterye.js","podmasterye-composer.js","live-turn.js","file-cost.js","file-drafts.js","voice.js","podmasterye-market-links.js","podmasterye-matrix-admin.js","podmasterye-admin.js","podmasterye-admin.css","admin-visits.js","podmasterye-accounting.js","podmasterye-extra.js","podmasterye-theme.js","podmasterye.css","checkout.js","checkout.css","payment-return.js","theme.js","appearance.css","admin.css","presence.js","admin-statistics.js"): raise HTTPException(404)
+    if name not in ("podmasterye-public-calculator.js","podmasterye-public.js","podmasterye-public.css","podmasterye.js","podmasterye-composer.js","live-turn.js","file-cost.js","file-drafts.js","voice.js","podmasterye-market-links.js","podmasterye-matrix-admin.js","podmasterye-admin.js","podmasterye-admin.css","admin-visits.js","podmasterye-accounting.js","podmasterye-extra.js","podmasterye-theme.js","podmasterye.css","checkout.js","checkout.css","payment-return.js","theme.js","appearance.css","admin.css","presence.js","admin-statistics.js"): raise HTTPException(404)
     headers=dict(_PRIVATE_HEADERS)
     if request.query_params.get("v")==asset_version(name):
         headers["Cache-Control"]="private, max-age=31536000, immutable"
@@ -127,6 +127,6 @@ def web_routes():
       *(Route(public_pages.PAGES[k][0],partial(public_pages.page,key=k)) for k in public_pages.INDEXABLE),
       Route("/about",partial(public_pages.page,key="about")),
       Route("/robots.txt",public_pages.robots),Route("/sitemap.xml",public_pages.sitemap),
-      Route("/kalkulyator",calculator_page),Route("/calculator",calculator_page),Route("/app/",page),Route("/app/chats/{chat_id}",page),
+      Route("/calculator",calculator_alias),Route("/app/",page),Route("/app/chats/{chat_id}",page),
       Route("/payment/return",payment_return),Route("/assets/{name}",asset),
       Route("/ui-assets/project/{name}",asset),Route("/about/styles.css",style)]
