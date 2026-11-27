@@ -185,9 +185,28 @@ async function initGuest(){
     return;
   }
   const f=$('#guest-form');if(!f)return;
-  const g=await api('/guest/session',{method:'POST'});
-  f.onsubmit=async e=>{e.preventDefault();const txt=f.elements.text.value.trim(),b=f.querySelector('button');if(!txt)return;b.disabled=true;row($('#guest-messages'),txt,'user');f.elements.text.value='';
-    try{await api('/guest/chats/'+encodeURIComponent(g.chat)+'/turns',{method:'POST',headers:{Accept:'application/json'},body:new URLSearchParams({text:txt,request_id:crypto.randomUUID()})});
-    const result=await api('/guest/chats/'+encodeURIComponent(g.chat)+'/events');const last=result.turns.at(-1);if(last)row($('#guest-messages'),last.answer??last.text??'Ответ получен.');}catch(err){row($('#guest-messages'),err.message);}finally{b.disabled=false;}};
+  const b=f.querySelector('button'),input=f.elements.text,box=$('#guest-messages'),quota=$('#guest-quota'),status=$('#guest-status'),limit=$('#guest-limit');
+  let remaining=0,busy=false,pending=null;
+  const g=await api('/guest/session',{method:'POST'}),url='/guest/chats/'+encodeURIComponent(g.chat);
+  function controls(){b.disabled=busy||remaining===0;input.disabled=busy||remaining===0;limit.hidden=remaining!==0;}
+  async function history(){
+    const result=await api(url+'/events');
+    remaining=result.quota.remaining;
+    quota.textContent='Бесплатных сообщений осталось: '+remaining+' из '+result.quota.limit+'.';
+    box.replaceChildren();
+    for(const t of result.turns){row(box,t.text,'user');row(box,t.answer);}
+    controls();
+  }
+  await history();
+  f.onsubmit=async e=>{
+    e.preventDefault();const txt=input.value.trim();if(!txt||busy||!remaining)return;
+    if(!pending||pending.text!==txt)pending={text:txt,request_id:crypto.randomUUID()};
+    busy=true;controls();status.textContent='Обрабатываю…';
+    try{
+      await api(url+'/turns',{method:'POST',headers:{Accept:'application/json'},body:new URLSearchParams(pending)});
+      pending=null;input.value='';await history();status.textContent='';
+    }catch(err){status.textContent=err.message;await history().catch(()=>{});}
+    finally{busy=false;controls();}
+  };
 }
 (member?initMember():initGuest()).catch(err=>{const box=$('#assistant-status')||$('#guest-messages');if(box)box.textContent=err.message;});
