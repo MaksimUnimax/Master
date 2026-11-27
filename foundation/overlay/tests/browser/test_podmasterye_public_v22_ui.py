@@ -1,0 +1,78 @@
+"""Browser acceptance for three-surface public UI, navigation and existing guest agent."""
+from playwright.sync_api import expect
+from test_podmasterye_independent_ui import IndependentUI
+from uuid import uuid4
+
+class PublicV22UI(IndependentUI):
+    def test_public_layout_navigation_and_registration(self):
+        p=self.page
+        p.goto("/")
+        p.locator("#cookie-decline").click()
+        expect(p.locator("#guest-quota")).to_contain_text("12 из 12")
+        nav=p.locator("#public-menu");chat=p.locator("#public-chat-pane");info=p.locator("#public-info-pane")
+        for el in (nav,chat,info):expect(el).to_be_visible()
+        self.assertLess(nav.bounding_box()["x"],chat.bounding_box()["x"])
+        self.assertLess(chat.bounding_box()["x"],info.bounding_box()["x"])
+        field=p.locator("#guest-input")
+        field.fill("Что ты умеешь?");field.press("Enter")
+        expect(p.locator("#guest-quota")).to_contain_text("11 из 12")
+        expect(p.locator("#guest-messages")).to_contain_text("17. Telegram")
+        field.fill("Несохранённый вопрос")
+        p.evaluate("window.__publicChatNode=document.getElementById('guest-messages')")
+        for key,heading in (("payment","Оплата работы Подмастерья"),("contacts","Контакты и реквизиты"),("support","Поддержка Подмастерья"),("about","Подмастерье — программа учёта производства и себестоимости"),("login","Вход"),("register","Регистрация")):
+            nav.locator('a[data-public-panel="'+key+'"]').click()
+            expect(info.locator("h1")).to_have_text(heading)
+            expect(p.locator("#guest-quota")).to_contain_text("11 из 12")
+            expect(field).to_have_value("Несохранённый вопрос")
+            self.assertTrue(p.evaluate("window.__publicChatNode===document.getElementById('guest-messages')"))
+            expect(nav.locator('a[data-public-panel="'+key+'"]')).to_have_attribute("aria-current","page")
+        p.go_back()
+        expect(info.locator("h1")).to_have_text("Вход")
+        p.go_forward()
+        expect(info.locator("h1")).to_have_text("Регистрация")
+        nav.locator('a[data-public-panel="about"]').click()
+        expect(info.locator("h1")).to_contain_text("программа учёта производства")
+        for shade in ("light","dark"):
+            p.evaluate("(v)=>window.PMTheme.set(v)",shade)
+            for width in (1440,1100,960,820,390,320):
+                p.set_viewport_size({"width":width,"height":844})
+                if width<=960:
+                    expect(info).to_be_visible()
+                    self.assertAlmostEqual(info.bounding_box()["width"],width,delta=2)
+                    p.locator("#public-open-chat").click()
+                    expect(chat).to_be_visible();expect(info).not_to_be_visible()
+                    p.locator("#public-open-info").click()
+                    expect(info).to_be_visible();expect(chat).not_to_be_visible()
+                    p.locator("#public-menu-toggle").click();expect(nav).to_be_visible()
+                    nav.locator('a[data-public-panel="contacts"]').click()
+                    expect(info.locator("h1")).to_have_text("Контакты и реквизиты")
+                    expect(nav).not_to_be_visible()
+                    p.locator("#public-menu-toggle").click()
+                    nav.locator('a[data-public-panel="about"]').click()
+                    expect(info.locator("h1")).to_contain_text("программа учёта производства")
+                else:
+                    for el in (nav,chat,info):expect(el).to_be_visible()
+                    p.locator("#public-open-chat").click();expect(info).not_to_be_visible()
+                    p.locator("#public-open-info").click();expect(info).to_be_visible()
+                    p.locator("#public-open-info").click();expect(chat).not_to_be_visible()
+                    p.locator("#public-open-chat").click();expect(chat).to_be_visible()
+                self.assertLessEqual(p.evaluate("document.documentElement.scrollWidth * Number(getComputedStyle(document.documentElement).zoom)"),width+1)
+                p.screenshot(path=str(self.evidence/f"public-v22-{width}-{shade}.png"),animations="disabled")
+        p.set_viewport_size({"width":1440,"height":900})
+        expect(chat).to_be_visible()
+        field.fill("Сколько стоит монета?");field.press("Enter")
+        expect(p.locator("#guest-quota")).to_contain_text("10 из 12")
+        nav.locator('a[data-public-panel="register"]').click()
+        expect(info.locator("h1")).to_have_text("Регистрация")
+        name="v22_"+uuid4().hex[:12];email=name+"@example.test"
+        info.get_by_label("Логин",exact=True).fill(name)
+        info.get_by_label("Почта",exact=True).fill(email)
+        info.get_by_label("Пароль",exact=True).fill("local-fixture-password")
+        info.get_by_role("button",name="Создать аккаунт",exact=True).click()
+        expect(p.get_by_role("heading",name="Проверьте почту")).to_be_visible()
+        p.get_by_label("Код из письма",exact=True).fill(self.inbox[email])
+        p.get_by_role("button",name="Продолжить").click()
+        self.ready()
+        expect(p.locator("#messages")).to_contain_text("Сколько стоит монета?")
+        self.assertEqual(p.locator("#guest-form").count(),0)
+        self.assertFalse(self.errors,self.errors)

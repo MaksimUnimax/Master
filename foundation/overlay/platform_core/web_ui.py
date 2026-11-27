@@ -11,6 +11,8 @@ from .browser_session import browser_token,_PRIVATE_HEADERS
 from .identity import AuthenticationError,ChatUnavailable
 from .checkout import checkout_routes
 from .podmasterye_workshops import multiple_enabled
+from . import podmasterye_public_pages as public_pages
+from functools import partial
 from native.file_formats import format_groups, supported_extensions
 
 UI=Path(__file__).resolve().parents[1]/"native/web"
@@ -20,7 +22,7 @@ def document(title,body,*,member=False,admin=False,status=200):
     return HTMLResponse(f'''<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
       <title>{escape(title)} · Подмастерье</title><script src="/assets/podmasterye-theme.js"></script><link rel="stylesheet" href="/assets/podmasterye.css"><link rel="stylesheet" href="/ui-assets/project/checkout.css"></head>
       <body class="{'' if member else 'pm-simple'}" data-mode="{'member' if member else 'guest'}" data-admin="{int(admin)}">{body}
-      <div id="cookie-choice" class="cookie-choice" hidden><p>Мы используем необходимые cookie для входа и сохранения контекста. Необязательная аналитика отключена.</p><a href="/privacy">Подробнее</a><button type="button" id="cookie-accept">Понятно</button><button type="button" class="secondary" id="cookie-decline">Только необходимые</button></div><script defer src="/assets/podmasterye-extra.js"></script><script defer src="/assets/podmasterye-accounting.js"></script><script defer src="/assets/podmasterye.js"></script><script defer src="/assets/podmasterye-market-links.js"></script><script defer src="/assets/presence.js"></script><script defer src="/ui-assets/project/checkout.js"></script></body></html>''',status_code=status,headers=HEADERS)
+      <div id="cookie-choice" class="cookie-choice" hidden><p>Мы используем необходимые cookie для входа и сохранения контекста. Необязательная аналитика отключена.</p><a href="/privacy">Подробнее</a><button type="button" id="cookie-accept">Понятно</button><button type="button" class="secondary" id="cookie-decline">Только необходимые</button></div><script defer src="/assets/podmasterye-extra.js"></script><script defer src="/assets/podmasterye-accounting.js"></script><script defer src="/assets/podmasterye.js"></script><script defer src="/assets/podmasterye-market-links.js"></script><script defer src="/assets/presence.js"></script><script defer src="/ui-assets/project/checkout.js"></script></body></html>''',status_code=status,headers={**HEADERS,"X-Robots-Tag":"noindex, nofollow"})
 
 SIMPLE_HEADERS={**_PRIVATE_HEADERS,"Referrer-Policy":"same-origin",
  "Content-Security-Policy":"default-src 'none'; script-src 'self'; style-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"}
@@ -32,7 +34,7 @@ def simple_document(title,body,*,status=200,script=""):
     return HTMLResponse(f"""<!doctype html><html lang="ru"><head><meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1"><title>{escape(title)} · Подмастерье</title>
       <script src="/assets/podmasterye-theme.js"></script><link rel="stylesheet" href="/assets/podmasterye.css"></head>
-      <body class="pm-simple" data-mode="standalone">{public_header()}{body}{script}</body></html>""",status_code=status,headers=SIMPLE_HEADERS)
+      <body class="pm-simple" data-mode="standalone">{public_header()}{body}{script}</body></html>""",status_code=status,headers={**SIMPLE_HEADERS,"X-Robots-Tag":"noindex, nofollow"})
 
 def auth_document(title,body,*,status=200,footer=""):
     return simple_document(title,'<main class="pm-auth-main"><div class="pm-auth-wrap"><section id="public-auth" class="pm-auth-card" aria-labelledby="step-title"><h1 id="step-title">'+escape(title)+'</h1>'+body+'</section><p class="pm-auth-foot">'+(footer or 'Подмастерье · Безопасный вход')+'</p></div></main>',status=status)
@@ -57,11 +59,10 @@ async def page(request,*,panel="",error="",status=200):
             form='''<form method="post" action="/register"><label>Логин<input name="login" autocomplete="username" required></label><label>Почта<input name="email" type="email" autocomplete="email" required></label><label>Пароль<input name="password" type="password" autocomplete="new-password" required></label><button disabled>Создать аккаунт</button><p id="registration-status" role="status" class="hint">Подготавливаем регистрацию…</p></form><a class="pm-auth-back" href="/login">Войти</a>'''
         else:
             form='''<form method="post" action="/login"><label>Логин<input name="login" autocomplete="username" required></label><label>Пароль<input name="password" type="password" autocomplete="current-password" required></label><label class="check"><input type="checkbox" name="remember"> Запомнить меня</label><button>Войти</button></form><form method="post" action="/register/start"><button class="secondary">Создать аккаунт</button></form>'''
-        if request.url.path=="/login" or register or panel=="login":
-            title="Регистрация" if register else "Вход"
-            desc="Создайте аккаунт для учёта своей мастерской." if register else "Войдите, чтобы продолжить работу в мастерской."
-            return document(title,public_header('<a href="/kalkulyator">Калькулятор</a>')+f'<main class="pm-auth-main"><div class="pm-auth-wrap"><section id="public-auth" class="pm-auth-card"><h1>{title}</h1><p class="auth-desc">{desc}</p>{msg}{form}</section><p class="pm-auth-foot"><a href="/privacy">Данные и cookie</a> · <a href="/faq">Помощь</a></p></div></main>',status=status)
-        return document("Вход",f'''<header class="top"><span class="brand-mark" aria-hidden="true">П</span><b>Подмастерье</b><span class="spacer"></span><a href="/kalkulyator">Калькулятор</a><button type="button" class="icon-btn" id="theme-quick" aria-label="Сменить тему">◐</button></header><main class="landing"><section><h1>С чего начнём?</h1><p>Управляйте мастерской простыми словами. Материалы, закупки, склад, производство, продажи и прибыль — в одном кабинете.</p><div class="links"><a href="/kalkulyator">Рассчитать себестоимость изделия →</a><a href="/privacy">О данных и cookie</a><a href="/faq">Частые вопросы</a></div><div id="guest-messages" class="messages"></div><p id="guest-quota" class="hint" role="status"></p><p id="guest-status" role="status"></p><p id="guest-limit" hidden>Бесплатные сообщения закончились. <a href="/register">Создать аккаунт</a> или <a href="/login">войти</a>, чтобы продолжить.</p><form id="guest-form"><label>Вопрос о сервисе<input name="text" required maxlength="1200" placeholder="Сколько стоит работа?"></label><button>Спросить</button></form></section><section id="public-auth" class="pm-auth-card"><h2>{'Регистрация' if register else 'Вход'}</h2>{msg}{form}</section></main>''',status=status)
+        if request.url.path=="/login" or register or panel=="login" or request.query_params.get("account")=="wallet":
+            key="register" if register else "login"
+            return public_pages.shell(key,public_pages.auth_content(key,form,error),status=status)
+        return await public_pages.page(request,"about")
     if admin and request.query_params.get("section")=="admin":return RedirectResponse("/admin",303,headers=_PRIVATE_HEADERS)
     admin_nav='<a class="pm-admin-link" href="/admin">Администрирование</a>' if admin else ''
     multiple=multiple_enabled()
@@ -102,17 +103,6 @@ async def page(request,*,panel="",error="",status=200):
 async def calculator_page(request):
     return document("Калькулятор себестоимости", public_header('<a href="/app/">Моя мастерская</a>')+"""<main class="calc-page"><h1>Калькулятор себестоимости изделия</h1><p>Рассчитайте материалы, труд и прибыль бесплатно, без обращения к ИИ.</p><form id="calc-form" class="panel"><label>Название изделия<input name="product_name" required maxlength="120" placeholder="Например, браслет"></label><h3>Материалы</h3><div id="calc-rows"></div><button id="calc-add" type="button" class="secondary">Добавить материал</button><h3 class="section-subtitle">Цена и труд</h3><div class="fields"><label>Цена продажи, ₽<input name="sale_price" inputmode="decimal" required value="0"></label><label>Время изготовления, мин<input name="minutes" inputmode="decimal" required value="0"></label><label>Стоимость часа, ₽<input name="hourly_rate" inputmode="decimal" required value="0"></label></div><button>Рассчитать</button></form><p id="calc-status" role="status"></p><div id="calc-result" class="calc-result"></div><button id="calc-save" type="button" disabled>Сохранить в мастерскую</button><p class="hint">Расчёт не записывает складские движения. Для сохранения нужна регистрация; ставку труда настройте в мастерской.</p><a href="/privacy">О данных и cookie</a></main>""")
 
-async def faq_page(request):
-    from .podmasterye_matrix import ITEMS
-    answers=[]
-    for item in ITEMS:
-        if item.get("intent")=="faq" and item.get("answer") and item.get("aliases"):
-            answers.append("<details class='settings-card'><summary>"+escape(item["aliases"][0].capitalize())+"</summary><p>"+escape(item["answer"])+"</p></details>")
-    return document("Частые вопросы", public_header('<a href="/">Главная</a>')+"<main class='calc-page'><h1>Частые вопросы</h1>"+"".join(answers)+"</main>")
-
-async def privacy_page(request):
-    return document("О данных и cookie", public_header('<a href="/">Главная</a>')+"""<main class="calc-page"><h1>Данные и cookie</h1><p>Это тестовый стенд. Не вводите коммерческие сведения и реальные ключи до настройки рабочего окружения.</p><p>Сервис использует необходимые cookie для входа, подтверждения регистрации и сохранения гостевого контекста. Учётные данные и история мастерской хранятся на сервере; локальные предпочтения оформления сохраняются в браузере. Калькулятор выполняется без ИИ. Запросы помощника могут передавать выбранные сведения модели, когда модель подключена.</p><p>На стенде не подключены платёжные реквизиты и нет рекламной аналитики. Это информационное описание текущего режима, а не окончательная политика публичного сервиса.</p><a href="/">Вернуться</a></main>""")
-
 @lru_cache(maxsize=64)
 def asset_version(name):
     return sha256((UI/name).read_bytes()).hexdigest()[:24]
@@ -123,7 +113,7 @@ def version_asset_urls(html):
 
 async def asset(request):
     name=request.path_params["name"]
-    if name not in ("podmasterye.js","podmasterye-composer.js","live-turn.js","file-cost.js","file-drafts.js","voice.js","podmasterye-market-links.js","podmasterye-matrix-admin.js","podmasterye-admin.js","podmasterye-admin.css","admin-visits.js","podmasterye-accounting.js","podmasterye-extra.js","podmasterye-theme.js","podmasterye.css","checkout.js","checkout.css","payment-return.js","theme.js","appearance.css","admin.css","presence.js","admin-statistics.js"): raise HTTPException(404)
+    if name not in ("podmasterye-public.js","podmasterye-public.css","podmasterye.js","podmasterye-composer.js","live-turn.js","file-cost.js","file-drafts.js","voice.js","podmasterye-market-links.js","podmasterye-matrix-admin.js","podmasterye-admin.js","podmasterye-admin.css","admin-visits.js","podmasterye-accounting.js","podmasterye-extra.js","podmasterye-theme.js","podmasterye.css","checkout.js","checkout.css","payment-return.js","theme.js","appearance.css","admin.css","presence.js","admin-statistics.js"): raise HTTPException(404)
     headers=dict(_PRIVATE_HEADERS)
     if request.query_params.get("v")==asset_version(name):
         headers["Cache-Control"]="private, max-age=31536000, immutable"
@@ -132,9 +122,11 @@ async def style(request):
     return FileResponse(UI/"podmasterye.css",media_type="text/css",headers=_PRIVATE_HEADERS)
 async def payment_return(request):
     return simple_document("Возврат к оплате",'<main class="pm-auth-main"><div class="pm-auth-wrap"><section class="pm-auth-card"><h1>Возвращаемся в кошелёк</h1><p class="auth-desc">Проверим состояние платежа. Если переход не произошёл, воспользуйтесь ссылкой.</p><a class="pm-auth-back" href="/?account=wallet&amp;resume=1">Вернуться в кошелёк</a></section></div></main>',script='<script defer src="/ui-assets/project/payment-return.js"></script>')
-async def payment(request):
-    return RedirectResponse("/?account=wallet&resume=1#buy-coins",303,headers=_PRIVATE_HEADERS)
 def web_routes():
-    return [*checkout_routes(),Route("/",page),Route("/kalkulyator",calculator_page),Route("/calculator",calculator_page),Route("/privacy",privacy_page),Route("/faq",faq_page),Route("/app/",page),Route("/app/chats/{chat_id}",page),
-      Route("/payment",payment),Route("/payment/return",payment_return),Route("/assets/{name}",asset),
+    return [*checkout_routes(),Route("/",page),
+      *(Route(public_pages.PAGES[k][0],partial(public_pages.page,key=k)) for k in public_pages.INDEXABLE),
+      Route("/about",partial(public_pages.page,key="about")),
+      Route("/robots.txt",public_pages.robots),Route("/sitemap.xml",public_pages.sitemap),
+      Route("/kalkulyator",calculator_page),Route("/calculator",calculator_page),Route("/app/",page),Route("/app/chats/{chat_id}",page),
+      Route("/payment/return",payment_return),Route("/assets/{name}",asset),
       Route("/ui-assets/project/{name}",asset),Route("/about/styles.css",style)]

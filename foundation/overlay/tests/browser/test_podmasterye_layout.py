@@ -33,8 +33,12 @@ class LayoutUI(previous.IndependentUI):
             self.set_mode(mode,width)
             expect(p.locator(".pm-auth-card")).to_be_visible()
             b=p.locator(".pm-auth-card").bounding_box()
-            self.assertLessEqual(b["width"],340.5)
-            self.assertAlmostEqual(b["x"]+b["width"]/2,width/2,delta=3)
+            self.assertLessEqual(b["width"],385 if p.locator('body[data-mode="public"]').count() else 340.5)
+            if p.locator('body[data-mode="public"]').count():
+                pane=p.locator("#public-info-pane").bounding_box()
+                self.assertGreaterEqual(b["x"],pane["x"]-1)
+                self.assertLessEqual(b["x"]+b["width"],pane["x"]+pane["width"]+1)
+            else:self.assertAlmostEqual(b["x"]+b["width"]/2,width/2,delta=3)
             for field in p.locator(".pm-auth-card input:not([type=checkbox]):visible, .pm-auth-card form button:visible").all():
                 f=field.bounding_box()
                 self.assertGreaterEqual(f["x"],b["x"]+8)
@@ -43,7 +47,7 @@ class LayoutUI(previous.IndependentUI):
             self.shot(f"{label}-{width}-{mode}",".pm-auth-card")
     def test_layout_public(self):
         p=self.page
-        for path,label,selector in (("/","home",".landing"),("/kalkulyator","calculator",".calc-page"),("/calculator","calculator-alias",".calc-page"),("/faq","faq",".calc-page"),("/privacy","privacy",".calc-page")):
+        for path,label,selector in (("/","home","#public-info-pane"),("/kalkulyator","calculator",".calc-page"),("/calculator","calculator-alias",".calc-page"),("/faq","faq","#public-info-pane"),("/privacy","privacy","#public-info-pane")):
             self.assertEqual(p.goto(path).status,200)
             if p.locator("#cookie-choice").is_visible():p.locator("#cookie-decline").click()
             for width,mode in ((1440,"light"),(1440,"dark"),(390,"light"),(390,"dark"),(320,"dark")):

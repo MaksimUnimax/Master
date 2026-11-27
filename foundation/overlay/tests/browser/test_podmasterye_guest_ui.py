@@ -6,7 +6,7 @@ class GuestUI(IndependentUI):
     def test_guest_catalog_quota_and_reload(self):
         p=self.page;p.goto("/")
         if p.locator("#cookie-choice").is_visible():p.locator("#cookie-decline").click()
-        q=p.locator("#guest-quota");f=p.locator("#guest-form");field=f.locator("input[name=text]")
+        q=p.locator("#guest-quota");f=p.locator("#guest-form");field=f.locator("textarea[name=text]")
         expect(q).to_contain_text("12 из 12")
         self.assertEqual(p.locator("#attachment-picker,#attach-file,.octo-voice").count(),0)
         for i in range(12):

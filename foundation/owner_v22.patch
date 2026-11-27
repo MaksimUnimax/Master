@@ -1,0 +1,10 @@
+--- a/platform_core/guest_billing.py
++++ b/platform_core/guest_billing.py
+@@ -57 +57,2 @@
+-        if os.getenv("YOOKASSA_PILOT_ONLY") == "1":
++        from .checkout import merchant
++        if os.getenv("YOOKASSA_PILOT_ONLY") == "1" or merchant() is None:
+--- a/platform_core/guest_selector.py
++++ b/platform_core/guest_selector.py
+@@ -28,0 +29 @@
++    "support":"Как обратиться в поддержку Подмастерья", "contacts":"Публичные контакты и реквизиты исполнителя",

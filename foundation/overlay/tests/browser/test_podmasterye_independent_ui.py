@@ -166,6 +166,8 @@ class IndependentUI(unittest.TestCase):
         self.assertEqual(p.evaluate("localStorage.getItem('pm-cookie-choice')"),"acknowledged")
         p.set_viewport_size({"width":390,"height":844})
         self.assertLessEqual(p.evaluate("document.documentElement.scrollWidth * Number(getComputedStyle(document.documentElement).zoom)"),390)
+        p.locator("#public-menu-toggle").click()
+        p.locator('nav a[data-public-panel="login"]').click()
         expect(p.get_by_role("button",name="Войти",exact=True)).to_be_visible()
 
     def test_02_calculator_validation_live_recalculation(self):
@@ -210,7 +212,8 @@ class IndependentUI(unittest.TestCase):
 
     def test_04_registration_codes_logout_and_invalid_login(self):
         p=self.page;p.goto("/");p.locator("#cookie-decline").click()
-        p.get_by_role("button",name="Создать аккаунт",exact=True).click()
+        p.locator('nav a[data-public-panel="register"]').click()
+        expect(p.locator("#public-info-pane h1")).to_have_text("Регистрация")
         name="new_"+uuid4().hex[:12];address=name+"@example.test"
         p.get_by_label("Логин",exact=True).fill(name);p.get_by_label("Почта",exact=True).fill(address);p.get_by_label("Пароль",exact=True).fill(P)
         p.get_by_role("button",name="Создать аккаунт",exact=True).click()
@@ -224,10 +227,15 @@ class IndependentUI(unittest.TestCase):
         p.goto("/app/");expect(p.get_by_role("button",name="Войти",exact=True)).to_be_visible()
         p.get_by_label("Логин",exact=True).fill(name);p.get_by_label("Пароль",exact=True).fill("incorrect-password");p.get_by_role("button",name="Войти",exact=True).click()
         expect(p.get_by_role("alert")).to_be_visible()
+        # The registration mail and the next login share the real 60-second
+        # email throttle. Check the refusal, then advance only the fixture clock.
         p.get_by_label("Логин",exact=True).fill(name);p.get_by_label("Пароль",exact=True).fill(P);p.get_by_role("button",name="Войти",exact=True).click()
-        expect(p.get_by_role("heading",name="Проверьте почту")).to_be_visible()
-        p.get_by_label("Код из письма",exact=True).fill(self.inbox[address]);p.get_by_role("button",name="Продолжить").click()
-        self.ready()
+        expect(p.get_by_role("alert")).to_contain_text("Слишком много попыток")
+        with patch.object(self.app.state.account_access,"clock",lambda:time.time()+61):
+            p.get_by_label("Логин",exact=True).fill(name);p.get_by_label("Пароль",exact=True).fill(P);p.get_by_role("button",name="Войти",exact=True).click()
+            expect(p.get_by_role("heading",name="Проверьте почту")).to_be_visible()
+            p.get_by_label("Код из письма",exact=True).fill(self.inbox[address]);p.get_by_role("button",name="Продолжить").click()
+            self.ready()
 
     def test_05_all_tabs_empty_and_responsive(self):
         self.sign_in();p=self.page
