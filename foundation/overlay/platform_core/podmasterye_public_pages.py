@@ -3,7 +3,7 @@ import os
 from html import escape
 from urllib.parse import urlsplit
 from starlette.concurrency import run_in_threadpool
-from starlette.responses import HTMLResponse, RedirectResponse, Response
+from starlette.responses import HTMLResponse, RedirectResponse, Response, JSONResponse
 from .browser_session import browser_token, _PRIVATE_HEADERS
 from .identity import AuthenticationError
 from . import checkout, coins
@@ -155,6 +155,16 @@ def auth_content(key, form, error=""):
     msg = '<p class="error" role="alert">'+escape(error)+'</p>' if error else ""
     return f'<section class="pm-public-auth"><h1>{title}</h1><p class="pm-public-lead">{"Создайте аккаунт и начните вести учёт мастерской." if key=="register" else "Откройте свой личный кабинет."}</p>{msg}<div class="pm-auth-card" id="public-auth">{form}</div><p class="hint">{link("privacy","О данных и cookie")}</p></section>'
 
+def panel_response(request,key,content,*,status=200,is_member=False):
+    if request.method=="GET" and request.headers.get("X-PM-Panel")=="1":
+        path,label,title,desc=PAGES[key]
+        robots="index, follow" if indexing() and key in INDEXABLE else "noindex, follow"
+        return JSONResponse({"key":key,"label":label,"title":title+" · Подмастерье",
+            "description":desc,"robots":robots,"canonical":origin()+path,
+            "member":is_member,"html":content+footer()},status_code=status,
+            headers={**_PRIVATE_HEADERS,"X-Robots-Tag":robots,"Vary":"X-PM-Panel"})
+    return shell(key,content,status=status,is_member=is_member)
+
 def shell(key, content, *, status=200, is_member=False):
     from .web_ui import asset_version, HEADERS
     title, robots, meta = metadata(key)
@@ -181,13 +191,13 @@ def shell(key, content, *, status=200, is_member=False):
     theme = asset_version("podmasterye-theme.js")
     return HTMLResponse(f"""<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{escape(title)} · Подмастерье</title>{meta}
       <script src="/assets/podmasterye-theme.js?v={theme}"></script><link rel="stylesheet" href="/assets/podmasterye.css?v={css}"><link rel="stylesheet" href="/assets/podmasterye-public.css?v={public_css}"></head>
-      <body data-mode="public" data-public-key="{key}" data-public-surface="info">
-      <header class="top"><button type="button" class="icon-btn" id="public-menu-toggle" aria-label="Меню" aria-controls="public-menu" aria-expanded="false"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button><a class="pm-brand" href="/" aria-label="Подмастерье"><span class="brand-mark" aria-hidden="true">П</span><b>Подмастерье</b></a><span class="spacer"></span><a href="/kalkulyator">Калькулятор</a><button type="button" class="icon-btn" data-pm-theme aria-label="Сменить тему">◐</button></header>
-      <div class="layout pm-public-layout"><nav id="public-menu" aria-label="Разделы Подмастерья"><div class="pm-nav-header"><strong>Меню</strong><button id="public-menu-close" type="button" class="secondary">Свернуть</button></div><a href="/about/" data-public-chat>Помощник</a><div class="nav-group">О сервисе</div>{''.join(nav)}<div class="nav-group">Аккаунт</div>{account}<div class="nav-group">Инструменты</div><a href="/kalkulyator">Калькулятор</a></nav>{assistant}
+      <body data-mode="public" data-public-key="{key}" data-public-surface="{'info' if is_member else 'split'}">
+      <header class="top"><button type="button" class="icon-btn" id="public-menu-toggle" aria-label="Развернуть меню" title="Развернуть меню" aria-controls="public-menu" aria-expanded="false"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button><a class="pm-brand" href="/" aria-label="Подмастерье"><span class="brand-mark" aria-hidden="true">П</span><b>Подмастерье</b></a><span class="spacer"></span><a href="/kalkulyator">Калькулятор</a><button type="button" class="icon-btn" data-pm-theme aria-label="Сменить тему">◐</button></header>
+      <div class="layout pm-public-layout"><nav id="public-menu" aria-label="Разделы Подмастерья"><div class="pm-nav-header"><strong>Меню</strong></div><a href="/about/" data-public-chat>Помощник</a><div class="nav-group">О сервисе</div>{''.join(nav)}<div class="nav-group">Аккаунт</div>{account}<div class="nav-group">Инструменты</div><a href="/kalkulyator">Калькулятор</a></nav>{assistant}
       <main id="public-info-pane" aria-label="Информация о сервисе"><div class="pm-work-header"><strong id="public-panel-title">{escape(PAGES[key][1])}</strong><button id="public-open-chat" type="button" class="secondary">Помощник</button></div>
       <div id="public-info-content" data-panel-key="{key}">{content}{footer()}</div></main></div>
       <div id="cookie-choice" class="cookie-choice" hidden><p>Мы используем необходимые cookie для входа и сохранения контекста. Необязательная аналитика отключена.</p>{link("privacy","Подробнее")}<button type="button" id="cookie-accept">Понятно</button><button type="button" class="secondary" id="cookie-decline">Только необходимые</button></div>
-      <script defer src="/assets/podmasterye-public.js?v={script}"></script></body></html>""",status_code=status,headers={**HEADERS,"X-Robots-Tag":robots})
+      <script defer src="/assets/podmasterye-public.js?v={script}"></script></body></html>""",status_code=status,headers={**HEADERS,"X-Robots-Tag":robots,"Vary":"X-PM-Panel"})
 
 async def page(request, key):
     member = await signed_in(request)
@@ -197,7 +207,7 @@ async def page(request, key):
         content=await run_in_threadpool(faq,request.app.state.identity)
     else:
         content={"about":about,"support":support,"contacts":contacts,"privacy":privacy}[key]()
-    return shell(key, content, is_member=member)
+    return panel_response(request,key,content,is_member=member)
 
 async def robots(request):
     if not indexing():

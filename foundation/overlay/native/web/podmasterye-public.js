@@ -5,6 +5,13 @@
  if(!info||!content)return;
  const compact=matchMedia('(max-width:960px)'),menu=q('#public-menu'),toggle=q('#public-menu-toggle');
  const chat=q('#public-chat-pane'),allowed=new Set(['about','support','contacts','payment','faq','privacy','login','register']);
+ const staticKeys=new Set(['about','support','contacts','privacy']),panelCache=new Map();
+ const initialKey=body.dataset.publicKey;
+ function head(selector,attr){return document.head.querySelector(selector)?.getAttribute(attr)||'';}
+ if(staticKeys.has(initialKey)&&!location.search)panelCache.set(initialKey,{
+  key:initialKey,label:q('#public-panel-title').textContent,title:document.title,member:!chat,html:content.innerHTML,
+  description:head('meta[name="description"]','content'),robots:head('meta[name="robots"]','content'),canonical:head('link[rel="canonical"]','href')
+ });
  let seq=0,controller=null,guestSession=null,sessionPromise=null;
  const routes={about:'/about/',support:'/support',contacts:'/contacts',payment:'/payment',faq:'/faq',privacy:'/privacy',login:'/login',register:'/register'};
  function mode(name){
@@ -13,10 +20,9 @@
   if(left)left.textContent=name==='split'?'Свернуть':'Описание';
   if(right)right.textContent=name==='split'?'Свернуть':'Помощник';
  }
- function nav(open){body.dataset.publicNav=open?'open':'closed';toggle.setAttribute('aria-expanded',String(open));}
+ function nav(open){body.dataset.publicNav=open?'open':'closed';toggle.setAttribute('aria-expanded',String(open));const label=open?'Свернуть меню':'Развернуть меню';toggle.setAttribute('aria-label',label);toggle.title=label;}
  nav(!compact.matches);mode(compact.matches||!chat?'info':'split');
  toggle.onclick=()=>nav(body.dataset.publicNav!=='open');
- q('#public-menu-close').onclick=()=>nav(false);
  compact.addEventListener('change',()=>{nav(!compact.matches);mode(compact.matches||!chat?'info':'split');});
  function showChat(){if(chat){mode(compact.matches?'chat':body.dataset.publicSurface==='info'?'split':'chat');if(compact.matches)nav(false);}else location.assign('/app/');}
  q('#public-open-chat').onclick=showChat;
@@ -29,7 +35,7 @@
   const d=await r.json().catch(()=>({}));if(!r.ok){const e=Error(typeof d.detail==='string'?d.detail:typeof d.error==='string'?d.error:'Не удалось выполнить запрос.');e.status=r.status;throw e;}return d;
  }
  function session(){
-  if(!sessionPromise)sessionPromise=api('/guest/session',{method:'POST'}).then(g=>{if(!g.chat)throw Error('Гостевая сессия недоступна.');guestSession=g;return g;}).catch(e=>{sessionPromise=null;throw e;});
+  if(!sessionPromise)sessionPromise=api('/guest/session?state=1',{method:'POST'}).then(g=>{if(!g.chat)throw Error('Гостевая сессия недоступна.');guestSession=g;return g;}).catch(e=>{sessionPromise=null;throw e;});
   return sessionPromise;
  }
  function prepareRegistration(){
@@ -51,20 +57,28 @@
   mode(compact.matches||!chat||body.dataset.publicSurface==='info'?'info':'split');if(compact.matches)nav(false);
   info.setAttribute('aria-busy','true');
   try{
-   const r=await fetch(dest,{cache:'no-store',credentials:'same-origin',signal,headers:{Accept:'text/html'}});
-   if(!r.ok)throw Error('Страница недоступна.');
-   const doc=new DOMParser().parseFromString(await r.text(),'text/html');
+   const cacheable=staticKeys.has(key)&&dest===routes[key];
+   let data=cacheable?panelCache.get(key):null;
+   if(!data){
+    const r=await fetch(dest,{cache:'no-store',credentials:'same-origin',signal,headers:{Accept:'application/json','X-PM-Panel':'1'}});
+    if(!r.ok)throw Error('Страница недоступна.');
+    if(!(r.headers.get('content-type')||'').includes('application/json')){location.assign(dest);return;}
+    data=await r.json();
+   }
    if(n!==seq||signal.aborted)return;
-   const next=doc.querySelector('#public-info-content'),heading=doc.querySelector('#public-panel-title');
-   if(!next||!heading||next.dataset.panelKey!==key){location.assign(dest);return;}
-   // Only server-rendered public fragments; scripts and event attributes are not accepted.
-   if(next.querySelector('script,iframe,object,embed')||[...next.querySelectorAll('*')].some(el=>[...el.attributes].some(a=>/^on/i.test(a.name))))throw Error('Недопустимое содержимое страницы.');
-   content.replaceChildren(...[...next.childNodes].map(node=>document.importNode(node,true)));
-   content.dataset.panelKey=key;body.dataset.publicKey=key;q('#public-panel-title').textContent=heading.textContent;info.scrollTop=0;updateNav(key);
-   document.title=doc.title;
-   for(const selector of ['meta[name="description"]','meta[name="robots"]','link[rel="canonical"]','meta[property="og:title"]','meta[property="og:description"]','meta[property="og:url"]']){
-    const previous=document.head.querySelector(selector),fresh=doc.head.querySelector(selector);
-    if(previous&&fresh)previous.replaceWith(document.importNode(fresh,true));
+   if(data.key!==key||data.member!==!chat||typeof data.html!=='string'){location.assign(dest);return;}
+   // Parse only the small trusted server fragment, not the complete page.
+   const template=document.createElement('template');template.innerHTML=data.html;
+   if(template.content.querySelector('script,iframe,object,embed')||[...template.content.querySelectorAll('*')].some(el=>[...el.attributes].some(a=>/^on/i.test(a.name))))throw Error('Недопустимое содержимое страницы.');
+   if(cacheable)panelCache.set(key,data);
+   content.replaceChildren(template.content);content.dataset.panelKey=key;
+   body.dataset.publicKey=key;q('#public-panel-title').textContent=data.label;content.scrollTop=0;updateNav(key);
+   document.title=data.title;
+   for(const [selector,attr,value] of [
+    ['meta[name="description"]','content',data.description],['meta[name="robots"]','content',data.robots],
+    ['link[rel="canonical"]','href',data.canonical],['meta[property="og:title"]','content',data.title],
+    ['meta[property="og:description"]','content',data.description],['meta[property="og:url"]','content',data.canonical]]){
+    const previous=document.head.querySelector(selector);if(previous&&typeof value==='string')previous.setAttribute(attr,value);
    }
    if(push&&location.pathname+location.search!==dest)history.pushState({panel:key},'',dest);
    prepareRegistration();
@@ -91,7 +105,11 @@
  function scroll(){box.scrollTop=box.scrollHeight;}
  function render(data){
   remaining=data.quota.remaining;quota.textContent='Бесплатных сообщений осталось: '+remaining+' из '+data.quota.limit+'.';
-  box.replaceChildren();for(const t of data.turns){row(t.text,'user');row(t.answer,'assistant');}
+  const fragment=document.createDocumentFragment();
+  for(const t of data.turns)for(const [value,role] of [[t.text,'user'],[t.answer,'assistant']]){
+   const el=document.createElement('div');el.className='message '+role;el.textContent=value;fragment.append(el);
+  }
+  box.replaceChildren(fragment);
   intro.hidden=!!data.turns.length;scroll();controls();
  }
  async function refresh(){const data=await api('/guest/chats/'+encodeURIComponent(guestSession.chat)+'/events');render(data);return data;}
@@ -100,8 +118,10 @@
   if(!pending||pending.text!==txt)pending={text:txt,request_id:crypto.randomUUID()};
   busy=true;controls();intro.hidden=true;temporary=row(txt,'user');scroll();status.textContent='Подмастерье думает…';
   try{
-   await api('/guest/chats/'+encodeURIComponent(guestSession.chat)+'/turns',{method:'POST',headers:{Accept:'application/json'},body:new URLSearchParams(pending)});
-   pending=null;input.value='';resize();status.textContent='Подмастерье отвечает…';await refresh();status.textContent='';
+   const data=await api('/guest/chats/'+encodeURIComponent(guestSession.chat)+'/turns?state=1',{method:'POST',headers:{Accept:'application/json'},body:new URLSearchParams(pending)});
+   pending=null;input.value='';resize();status.textContent='Подмастерье отвечает…';
+   if(data.quota&&Array.isArray(data.turns))render(data);else await refresh();
+   status.textContent='';
   }catch(err){
    temporary?.remove();status.textContent=err.message;
    try{const data=await refresh();if(pending&&data.turns.some(t=>t.requestId===pending.request_id)){pending=null;input.value='';resize();}}catch{}
@@ -109,5 +129,5 @@
  };
  input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&!e.repeat){e.preventDefault();if(!send.disabled)f.requestSubmit(send);}});
  input.addEventListener('input',resize);
- session().then(async()=>{await refresh();ready=true;controls();resize();}).catch(e=>{status.textContent='Не удалось открыть гостевой чат. Обновите страницу. '+e.message;});
+ session().then(async data=>{if(data.quota&&Array.isArray(data.turns))render(data);else await refresh();ready=true;controls();resize();}).catch(e=>{status.textContent='Не удалось открыть гостевой чат. Обновите страницу. '+e.message;});
 })();

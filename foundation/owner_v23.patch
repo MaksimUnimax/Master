@@ -1,0 +1,64 @@
+--- a/platform_core/guest_registration.py
++++ b/platform_core/guest_registration.py
+@@ -162,0 +163,24 @@
++    @staticmethod
++    def _guest_window(db, chat, before):
++        rows = db.execute("""SELECT rowid, text, answer, request_id, at_ms FROM guest_turns
++            WHERE chat_id=? AND rowid<? ORDER BY rowid DESC LIMIT ?""",
++                          (chat, before, GUEST_PAGE_SIZE + 1)).fetchall()
++        shown = rows[:GUEST_PAGE_SIZE]
++        cursor = shown[-1][0] if len(rows) > GUEST_PAGE_SIZE else None
++        offset = db.execute("SELECT COUNT(*) FROM guest_turns WHERE chat_id=? AND rowid<?",
++                            (chat, cursor)).fetchone()[0] if cursor is not None else 0
++        return ([{"text": text, "answer": answer, "requestId": key, "at": at}
++                 for _, text, answer, key, at in reversed(shown)], cursor, offset)
++
++    def guest_state(self, token, chat, before=2**63-1):
++        with self._lock:
++            db=self._db
++            db.execute("BEGIN")
++            try:
++                self._active(db, token, chat)
++                rows,cursor,offset=self._guest_window(db,chat,before)
++                return {"turns":rows,"nextBefore":cursor,"offset":offset,
++                        "quota":guest_selector.quota(db,chat)}
++            finally:
++                db.rollback()
++
+@@ -164,11 +188,2 @@
+-        with self._write() as db:
+-            self._active(db, token, chat)
+-            rows = db.execute("""SELECT rowid, text, answer, request_id, at_ms FROM guest_turns
+-                WHERE chat_id=? AND rowid<? ORDER BY rowid DESC LIMIT ?""",
+-                              (chat, before, GUEST_PAGE_SIZE + 1)).fetchall()
+-            shown = rows[:GUEST_PAGE_SIZE]
+-            cursor = shown[-1][0] if len(rows) > GUEST_PAGE_SIZE else None
+-            offset = db.execute("SELECT COUNT(*) FROM guest_turns WHERE chat_id=? AND rowid<?",
+-                                (chat, cursor)).fetchone()[0] if cursor is not None else 0
+-            return ([{"text": text, "answer": answer, "requestId": key, "at": at}
+-                     for _, text, answer, key, at in reversed(shown)], cursor, offset)
++        state=self.guest_state(token,chat,before)
++        return state["turns"],state["nextBefore"],state["offset"]
+--- a/platform_core/guest_web.py
++++ b/platform_core/guest_web.py
+@@ -41 +41,4 @@
+-        response = JSONResponse({"chat":chat}, headers=_PRIVATE_HEADERS)
++        payload={"chat":chat}
++        if request.query_params.get("state") == "1":
++            payload.update(await run_in_threadpool(identity.guest_state,token,chat))
++        response = JSONResponse(payload, headers=_PRIVATE_HEADERS)
+@@ -56,5 +59,3 @@
+-    rows, cursor, offset = await run_in_threadpool(request.app.state.identity.guest_window,
+-        request.cookies.get(guest_cookie(request)), request.path_params["chat"], before)
+-    quota=await run_in_threadpool(request.app.state.identity.guest_quota,
+-        request.cookies.get(guest_cookie(request)),request.path_params["chat"])
+-    return JSONResponse({"turns":rows, "nextBefore":cursor, "offset":offset,"quota":quota},headers=_PRIVATE_HEADERS)
++    state=await run_in_threadpool(request.app.state.identity.guest_state,
++        request.cookies.get(guest_cookie(request)),request.path_params["chat"],before)
++    return JSONResponse(state,headers=_PRIVATE_HEADERS)
+@@ -78 +79,4 @@
+-        return JSONResponse({"accepted":True})
++        payload={"accepted":True}
++        if request.query_params.get("state")=="1":
++            payload.update(await run_in_threadpool(request.app.state.identity.guest_state,token,chat))
++        return JSONResponse(payload,headers=_PRIVATE_HEADERS)

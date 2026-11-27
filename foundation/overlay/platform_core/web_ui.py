@@ -61,7 +61,7 @@ async def page(request,*,panel="",error="",status=200):
             form='''<form method="post" action="/login"><label>Логин<input name="login" autocomplete="username" required></label><label>Пароль<input name="password" type="password" autocomplete="current-password" required></label><label class="check"><input type="checkbox" name="remember"> Запомнить меня</label><button>Войти</button></form><form method="post" action="/register/start"><button class="secondary">Создать аккаунт</button></form>'''
         if request.url.path=="/login" or register or panel=="login" or request.query_params.get("account")=="wallet":
             key="register" if register else "login"
-            return public_pages.shell(key,public_pages.auth_content(key,form,error),status=status)
+            return public_pages.panel_response(request,key,public_pages.auth_content(key,form,error),status=status)
         return await public_pages.page(request,"about")
     if admin and request.query_params.get("section")=="admin":return RedirectResponse("/admin",303,headers=_PRIVATE_HEADERS)
     admin_nav='<a class="pm-admin-link" href="/admin">Администрирование</a>' if admin else ''
