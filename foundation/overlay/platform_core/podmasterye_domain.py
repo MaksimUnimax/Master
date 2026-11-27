@@ -208,7 +208,13 @@ def decide(store,scope,token,rid,text,form_context=None,view_context=None,attach
             return old[1],json.loads(old[2]) if old[2] else None
         started=int(time()*1000)
         if ctx is not None:db.execute('INSERT INTO pm_agent_context VALUES(?,?,?,?)',(w,c,rid,encode(ctx)))
-        result,selected=router.choose(db,scope,rid,data_scope,text,ctx,view,attachments=bool(ids),has_files=has_files,faq=getattr(store,'faq',None))
+        from . import podmasterye_agent_actions as actions
+        confirmation=None if ids or ctx else actions.typed_confirmation(db,scope,text)
+        if confirmation is not None:
+            result,selected=confirmation,{}
+        else:
+            result,selected=router.choose(db,scope,rid,data_scope,text,ctx,view,attachments=bool(ids),has_files=has_files,faq=getattr(store,'faq',None))
+        if result:actions.add_proposal(db,scope,rid,result)
         route="local" if result else "model"
         if result:result.update(role="assistant",requestId=rid,route=route,workshop=data_scope)
         db.execute("INSERT INTO pm_turns VALUES(?,?,?,?,?,?,?)",(w,c,rid,text,route,encode(result) if result else None,started))
@@ -235,12 +241,16 @@ def complete(store,scope,token,rid,result):
         agent=db.execute("SELECT value FROM pm_agent_drafts WHERE workspace=? AND chat=? AND rid=?",(scope.workspace_id,scope.chat_id,rid)).fetchone()
         if agent:
             prepared=json.loads(agent[0])
-            result.update({k:prepared[k] for k in ("accountingDraft","formDraft") if k in prepared})
+            result.update({k:prepared[k] for k in ("accountingDraft","formDraft","correctionDraft") if k in prepared})
             result["ui"]={"page":prepared["page"]}
             missing=prepared["missing"]
             result["text"]="Заполнил форму. "+("Уточните: "+", ".join(missing)+"." if missing else "Проверьте данные перед сохранением.")
             if prepared.get("accountingDraft",{}).get("validationError"):
                 result["text"]+=" "+prepared["accountingDraft"]["validationError"]
+        from . import podmasterye_agent_actions as actions
+        actions.add_proposal(db,scope,rid,result)
+        if result.get("confirmation"):
+            result["text"]="Подготовил запись. Проверьте данные и подтвердите сохранение."
         db.execute("UPDATE pm_turns SET result=? WHERE workspace=? AND chat=? AND rid=? AND route='model'",
                    (encode(result),scope.workspace_id,scope.chat_id,rid))
         db.execute("UPDATE pm_route_decisions SET finished=?,outcome='complete' WHERE workspace=? AND chat=? AND rid=?",(int(time()*1000),scope.workspace_id,scope.chat_id,rid))

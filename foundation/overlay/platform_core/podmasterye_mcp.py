@@ -10,6 +10,8 @@ from .mcp_server import serve_stdio
 from .storage import Scope, Store, _owns_chat
 from . import podmasterye_domain as domain, podmasterye_book as book, podmasterye_matrix as matrix, podmasterye_workshops as workshops, podmasterye_agent_forms as agent
 
+from . import podmasterye_agent_actions as actions
+
 class ProductionTools:
     def __init__(self,store,scope,request,grant):
         self.store,self.scope,self.request=store,scope,domain.key_id(request)
@@ -18,6 +20,8 @@ class ProductionTools:
         self.tools={
             "production_state":Capability("production_state","Получить текущие материалы, изделия и материальную себестоимость из БД.",{"type":"object","properties":{},"additionalProperties":False},self.snapshot),
             "accounting_report":Capability("accounting_report","Получить рассчитанный сервером отчёт: summary, stock, sales, planning, finance, journal. Укажите даты периода; ограничьте детализацию.",matrix.report_schema(),self.accounting_report),
+            "record_details":Capability("record_details","Прочитать текущие точные поля материала, изделия, задачи, работника, тарифа, политики накладных или операции журнала по ID (для каталога можно точное название).",actions.RECORD_SCHEMA,self.record_details),
+            "prepare_edit":Capability("prepare_edit","Подготовить точное изменение существующей хозяйственной записи. Передай только изменяемые поля; остальные сохраняются. kind=event для исторического исправления, укажи ID и причину. Сохранение выполняется только после подтверждения пользователя.",actions.EDIT_SCHEMA,self.prepare_edit,effect="edit"),
             "prepare_accounting":Capability("prepare_accounting",matrix.operation_description(),matrix.operation_schema(),self.prepare_accounting,effect="edit"),
             "form_catalog":Capability("form_catalog","Без параметров — перечень доступных форм. С параметром form — точные поля выбранной формы, типы, требования и значения по умолчанию.",{"type":"object","properties":{"form":{"type":"string","enum":agent.active_names()}},"additionalProperties":False},self.form_catalog),
             "current_form":Capability("current_form","Получить текущий пользовательский черновик формы для дополнения.",agent.empty_schema(),self.current_form),
@@ -49,6 +53,14 @@ class ProductionTools:
         except UnavailableTool: raise
         except (ValueError,TypeError): raise InvalidToolInput("Invalid tool input") from None
         except Exception: raise ToolExecutionFailed("Tool execution failed") from None
+    def record_details(self,scope,args):
+        with self.store._lock:
+            self.authorize(self.store._db)
+            return actions.details(self.store._db,workshops.chat_workspace(self.store._db,scope),args["kind"],args.get("id",""))
+    def prepare_edit(self,scope,args):
+        with self.store._write() as db:
+            self.authorize(db)
+            return actions.prepare_edit(db,scope,self.request,args)
     def snapshot(self,scope,args):
         with self.store._lock:
             self.authorize(self.store._db)

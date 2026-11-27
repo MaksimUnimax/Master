@@ -206,7 +206,7 @@ function open(op,args={},preview=null,edit=null){
  const hideFields=edit?.action==='delete';q('#book-fields').hidden=!!hideFields;
  for(const f of q('#book-fields').querySelectorAll('input,select'))f.disabled=!!hideFields;
  q('#book-history-options').hidden=!editable.has(op);q('#book-historical-label').hidden=!!edit;
- q('#book-historical').checked=false;q('#book-correction-reason').value='';
+ q('#book-historical').checked=false;q('#book-correction-reason').value=edit?.reason||'';
  q('#book-correction-label').hidden=!edit;q('#book-correction-reason').required=!!edit;
  const catWrap=q('#book-category-wrap');const catSel=q('#book-category');
  const typ=op==='purchase'||op==='opening'||op==='writeoff'?'material':['sale','manufacture','work_start','work_finish'].includes(op)?'product':null;
@@ -282,8 +282,8 @@ function init(){
  q('#book-confirm').onclick=async()=>{
   if(!confirmed||busy)return;busy=true;q('#book-confirm').disabled=true;q('#book-check').disabled=true;
   const inputs=Array.from(q('#book-fields').querySelectorAll('input,select')).filter(e=>!e.disabled);inputs.forEach(e=>e.disabled=true);
-  try{const r=confirmed.correction?await post('/api/accounting/correction/commit',{requestId,correction:confirmed.correction,revision:confirmed.revision}):await post('/api/accounting/commit',{requestId,operation:confirmed.operation,arguments:confirmed.arguments,revision:confirmed.revision});
-    confirmed=null;requestId=null;q('#book-dialog').close();status(r.summary);await refresh();}
+  try{const r=confirmed.agentConfirmation?await window.PMAgent.confirm(confirmed.agentConfirmation.id):confirmed.correction?await post('/api/accounting/correction/commit',{requestId,correction:confirmed.correction,revision:confirmed.revision}):await post('/api/accounting/commit',{requestId,operation:confirmed.operation,arguments:confirmed.arguments,revision:confirmed.revision});
+    confirmed=null;requestId=null;q('#book-dialog').close();status(r.summary||r.text);await refresh();}
   catch(err){q('#book-form-status').textContent=err.message;if(confirmed)q('#book-confirm').disabled=false;}
   finally{inputs.forEach(e=>e.disabled=false);busy=false;q('#book-check').disabled=false;}
  };

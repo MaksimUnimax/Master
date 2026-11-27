@@ -15,6 +15,31 @@ const upstream=http.createServer(async(req,res)=>{
   const last=q.messages.findLast(x=>x.role==='user').content;
   const result=last.find(x=>x.type==='tool_result');
   const text=last.filter(x=>x.type==='text').map(x=>x.text).join("\n");
+  // Drive actual native tools with an offline model protocol fixture.
+  const actionText=last.find(x=>x.type==='text'&&x.text.startsWith('fixture-action:'))?.text;
+  if(actionText||result?.tool_use_id?.startsWith('owner-action-v21-')){
+    let call=null,answer;
+    if(result?.tool_use_id?.startsWith('owner-action-v21-')){
+      answer=JSON.stringify(result.content);
+    }else{
+      const spec=JSON.parse(actionText.slice('fixture-action:'.length));
+      if(!q.tools?.some(t=>t.name===spec.name)){res.writeHead(422);res.end('missing native tool '+spec.name);return;}
+      call=spec;
+    }
+    const event=(type,fields={})=>res.write('event: '+type+'\n'+'data: '+JSON.stringify({type,...fields})+'\n\n');
+    res.writeHead(200,{'content-type':'text/event-stream'});
+    event('message_start',{message:{id:'fixture-'+ ++calls,role:'assistant',type:'message',content:[],model:q.model,usage:{input_tokens:10,output_tokens:0,cache_read_input_tokens:0,cache_creation_input_tokens:0}}});
+    if(call){
+      event('content_block_start',{index:0,content_block:{type:'tool_use',id:'owner-action-v21-'+calls,name:call.name,input:{}}});
+      event('content_block_delta',{index:0,delta:{type:'input_json_delta',partial_json:JSON.stringify(call.input)}});
+    }else{
+      event('content_block_start',{index:0,content_block:{type:'text',text:''}});
+      event('content_block_delta',{index:0,delta:{type:'text_delta',text:answer}});
+    }
+    event('content_block_stop',{index:0});
+    event('message_delta',{delta:{stop_reason:call?'tool_use':'end_turn'},usage:{output_tokens:5}});
+    event('message_stop');res.end();return;
+  }
   // Exercise the real native read_chat_file tool and image injection.
   const fileStep=result?.tool_use_id;
   const fileRequest=/(Разбери приложенные файлы|Прочитай приложенный файл|Что было в предыдущем файле|Проверь страницу PDF|Проверь изображение)/.test(text);

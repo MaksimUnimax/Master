@@ -199,7 +199,20 @@ def routes(token_for,body):
                 finally:
                     if owner: app.progress.finish(scope,rid,live)
             return await work()
+    async def confirm_agent(req):
+        token=token_for(req,allow_cookie=True);app=req.app.state;identity=app.identity
+        fields=await body(req,"draftId")
+        scope=await run_in_threadpool(identity.resolve_chat,token,req.path_params["chat_id"])
+        from . import podmasterye_agent_actions as actions
+        async with app.pm_chat_context.lock(scope):
+            try:
+                result=await run_in_threadpool(actions.confirm_from_button,identity,scope,token,fields["draftId"])
+                await app.pm_chat_context.sync_local(scope,token,result["requestId"])
+                return JSONResponse(await run_in_threadpool(render,identity,app.admin_costs,token,scope,"turn",result))
+            except domain.Conflict as e:raise HTTPException(409,str(e)) from None
+            except ValueError as e:raise HTTPException(400,str(e)) from None
     return [
+        Route("/api/chats/{chat_id}/confirm",confirm_agent,methods=["POST"]),
         Route("/api/workshops",workshop_list),
         Route("/api/integrations",sources),
         Route("/api/integration-docs",integration_docs),

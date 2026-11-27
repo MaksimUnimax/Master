@@ -7,13 +7,13 @@ import { mountVoice } from './voice.js';
 
 export async function mountComposer(form,chat,api){
  const text=form.elements.text,send=form.querySelector('button[type=submit]'),picker=form.querySelector('input[type=file]'),add=form.querySelector('#attach-file'),list=form.querySelector('#attachment-drafts'),status=document.querySelector('#assistant-status');
- let busy=false,uploads=0,live=true;
+ let busy=false,uploads=0,live=true,armed=false;
  const readyFiles=new Map(),draftAttachments=new Map();
  const account={selected:chat,guest:false,hasChat:id=>live&&id===chat,api};
  const drafts=fileDrafts(account);
  const updateState=()=>{
-   send.disabled=!live||busy||uploads>0;
-   add.disabled=!live||busy||uploads>0;
+   send.disabled=!armed||!live||busy||uploads>0;
+   add.disabled=!armed||!live||busy||uploads>0;
    text.readOnly=busy;
    for(const b of list.querySelectorAll('button'))b.disabled=busy;
  };
@@ -87,7 +87,8 @@ export async function mountComposer(form,chat,api){
  await drafts.restore(chat,shell,conversation);render();resize();
  mountVoice(account);
  return {
-   ready:()=>live&&!busy&&!uploads,
+   activate(){armed=true;updateState();},
+   ready:()=>armed&&live&&!busy&&!uploads,
    ids:()=>Array.from(readyFiles.values()),
    files:()=>Array.from(draftAttachments.entries()).filter(([id])=>readyFiles.has(id)).map(([id,a])=>({attachmentId:readyFiles.get(id),name:a.file.name,bytes:a.file.size})),
    lock(){busy=true;updateState();},

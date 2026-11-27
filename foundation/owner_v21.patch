@@ -1,0 +1,46 @@
+--- a/native/chat-files.mjs
++++ b/native/chat-files.mjs
+@@ -74 +74 @@
+-          if(!select.get(key,id))return 'Файл удалён.';
++          if(!db.prepare('SELECT 1 FROM chat_files WHERE scope_key=? AND id=?').get(key,id))return 'Файл удалён.';
+@@ -98 +98 @@
+-            if(!select.get(key,id))return 'Файл удалён.';
++            if(!db.prepare('SELECT 1 FROM chat_files WHERE scope_key=? AND id=?').get(key,id))return 'Файл удалён.';
+--- a/native/chat-worker.mjs
++++ b/native/chat-worker.mjs
+@@ -17,0 +18 @@
++import { documentTools } from './document-tools.mjs';
+@@ -170,0 +172,2 @@
++  const {zipSync}=await import(pathToFileURL(resolve('fflate')).href);
++  const documents=documentTools(db,fail,env.HARNESS_MEDIA_PYTHON || env.HARNESS_TEST_PYTHON,resolve('@deepseek-ai/libreoffice-kit/cli'),zipSync);
+@@ -398,0 +402 @@
++    const stagedDocuments=new Map();
+@@ -434,0 +439 @@
++        if (metered && req.grant && !req.replayOnly) await documents.mount(ctx,load,key,req,stagedDocuments);
+@@ -588 +593 @@
+-      const guarded=!!metered && (attachments.length>0 || db.prepare("SELECT 1 FROM turn_file_dependencies WHERE operation_id=? AND scope_key=? LIMIT 1").get(req.grant.operationId,key) || db.prepare('SELECT 1 FROM marketplace_file_drafts WHERE scope_key=? AND request_id=? LIMIT 1').get(key,req.requestId));
++      const guarded=!!metered && (stagedDocuments.size>0 || attachments.length>0 || db.prepare("SELECT 1 FROM turn_file_dependencies WHERE operation_id=? AND scope_key=? LIMIT 1").get(req.grant.operationId,key) || db.prepare('SELECT 1 FROM marketplace_file_drafts WHERE scope_key=? AND request_id=? LIMIT 1').get(key,req.requestId));
+@@ -622,0 +628 @@
++          documents.publish(key,req,stagedDocuments,assistant);
+--- a/native/file_formats.py
++++ b/native/file_formats.py
+@@ -13,0 +14,19 @@
++# Single authoritative input-format catalog, shared by upload validation and UI.
++def format_groups():
++    groups = {
++        "Таблицы": {"xlsx","xlsm","xls","ods","csv","tsv"},
++        "Документы": {"docx","doc","odt","pdf","rtf"},
++        "Презентации": {"pptx","ppt"},
++        "Изображения": set(RASTER) | {"svg"},
++        "Аудио": set(AUDIO),
++        "Архивы": {"zip"},
++        "Текст и данные": {"txt","json","xml","md","yaml","yml","log","html","htm","ini","toml"},
++        "Исходный код": TEXT - {"txt","csv","tsv","json","xml","md","yaml","yml","log","ini","toml"},
++    }
++    supported=TEXT | set(OFFICE) | set(ODF) | set(RASTER) | AUDIO | {"doc","xls","ppt","svg","pdf","zip","html","htm","rtf"}
++    assert set().union(*groups.values()) == supported
++    return {label: sorted(values) for label,values in groups.items()}
++
++def supported_extensions():
++    return sorted(set().union(*format_groups().values()))
++

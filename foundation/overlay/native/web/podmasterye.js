@@ -23,6 +23,16 @@ const post=(url,data)=>api(url,{method:'POST',headers:{'Content-Type':'applicati
 function row(parent,text,role='assistant',receipt){
   const node=document.createElement('div');node.className='message '+role;node.textContent=text;
   parent.append(node);
+  if(receipt?.requestId)node.dataset.requestId=receipt.requestId;
+  if(role==='assistant'&&receipt?.confirmation){
+    const c=receipt.confirmation,box=document.createElement('div');box.className='pm-agent-confirmation';box.dataset.draftId=c.id;
+    const summary=document.createElement('small');summary.textContent=c.status==='saved'?c.receipt:c.summary;box.append(summary);
+    const save=document.createElement('button');save.type='button';save.textContent='Сохранить';save.disabled=c.status==='saved';
+    if(c.status!=='saved')save.onclick=()=>window.PMAgent.confirm(c.id).catch(e=>{summary.textContent=e.message;});
+    const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='Изменить';edit.disabled=c.status==='saved';
+    edit.onclick=()=>window.PMAgent.edit(receipt);
+    box.append(save,edit);node.append(box);
+  }
   if(receipt?.attachments?.length){
     const box=document.createElement('div');box.className='pm-message-files';
     for(const f of receipt.attachments){
@@ -45,7 +55,8 @@ async function wallet(){
   $('#wallet-info').textContent='Доступно '+w.available+' · в резерве '+w.reserved+' · цена монеты '+w.salePrice.rubPerCoin+' ₽';
   table($('#wallet-history'),['Списание, монет','Статус'],w.charges.map(c=>[c.coins,c.pending?'В обработке':'Учтено']));
 }
-function formRecipe(d){const f=$('#recipe-form');for(const key of ['product','material','pack_quantity','usage_quantity','pack_price','unit'])f.elements[key].value=d[key]??(key==='unit'?d.base_unit||'шт':'');navigate('products');$('#recipe-status').textContent='Проверьте данные и сохраните форму.';}
+let recipeProposal=null;
+function formRecipe(d,confirmation=null){const f=$('#recipe-form');for(const key of ['product','material','pack_quantity','usage_quantity','pack_price','unit'])f.elements[key].value=d[key]??(key==='unit'?d.base_unit||'шт':'');navigate('products');recipeProposal=confirmation?{id:confirmation.id,signature:JSON.stringify([...new FormData(f)])}:null;$('#recipe-status').textContent='Проверьте данные и сохраните форму.';}
 const agentForms={
  recipe:['#recipe-form',['product','material','unit','pack_quantity','usage_quantity','pack_price']],
  workshop_create:['#workshop-create',['name','description']],
@@ -123,6 +134,29 @@ async function initMember(){
   await Promise.all([refresh(),wallet()]);
   const chat=(await post('/api/workshops/chat',{workshop:window.PMWorkshopId})).chatId;
   const messages=$('#messages');
+  let confirming=false;
+  function markSaved(id,text){
+    for(const box of messages.querySelectorAll('.pm-agent-confirmation'))if(box.dataset.draftId===id){
+      box.querySelector('small').textContent=text;for(const b of box.querySelectorAll('button'))b.disabled=true;
+    }
+  }
+  window.PMAgent.confirm=async id=>{
+    if(confirming)throw Error('Подтверждение уже выполняется.');
+    confirming=true;
+    try{
+      const m=await post('/api/chats/'+encodeURIComponent(chat)+'/confirm',{draftId:id});
+      markSaved(id,m.text);
+      if(![...messages.querySelectorAll('.message.assistant')].some(e=>e.dataset.requestId===m.requestId)){
+        row(messages,'Подтверждаю сохранение','user');row(messages,m.text,m.role,m);
+      }
+      await refresh(m.ui);return m;
+    }finally{confirming=false;}
+  };
+  window.PMAgent.edit=m=>{
+    if(m.correctionDraft){const d=m.correctionDraft;window.PMAccounting.open(d.correction.operation,d.correction.arguments,{...d,agentConfirmation:m.confirmation},d.correction);}
+    else if(m.accountingDraft){const d=m.accountingDraft;window.PMAccounting.open(d.operation,d.arguments,{...d,agentConfirmation:m.confirmation});}
+    else if(m.draft)formRecipe(m.draft,m.confirmation);
+  };
   const h=await api('/api/chats/'+encodeURIComponent(chat)+'/messages');for(const m of h)row(messages,m.text,m.role,m);
   function viewContext(){
    const page=$('nav button.active')?.dataset.page;
@@ -141,8 +175,8 @@ async function initMember(){
   const composer=await mountComposer(f,chat,api);
   const {LiveTurns}=await import('/assets/live-turn.js');
   const live=new LiveTurns();
-  const labels={sending:'Отправляю сообщение',accepted:'Сообщение принято',model:'Модель готовит ответ',thinking:'Модель обдумывает ответ',tool:'Запрашиваю данные',model_wait:'Модель временно занята',marketplace_wait:'Ожидаю повторного запроса',writing:'Модель отвечает',failed:'Не удалось завершить запрос'};
-  function watchTurn(rid,txt){
+  const labels={sending:'Отправляю сообщение',accepted:'Сообщение принято',model:'Подмастерье думает',thinking:'Подмастерье думает',tool:'Подмастерье запрашивает данные',model_wait:'Подмастерье временно занят',marketplace_wait:'Ожидаю повторного запроса',writing:'Подмастерье отвечает',failed:'Не удалось завершить запрос'};
+  function watchTurn(rid,txt,onAccepted){
     const temporary=document.createElement('div');temporary.className='message user';temporary.textContent=txt;
     const progress=document.createElement('div');progress.className='pm-live-turn';progress.dataset.liveTurn='sending';
     const label=document.createElement('small');label.setAttribute('role','status');
@@ -154,7 +188,7 @@ async function initMember(){
     const render=()=>{const v=live.views.get(chat);if(!v||v.rid!==rid)return;progress.dataset.liveTurn=v.stage;label.textContent=labels[v.stage]||'Обрабатываю';dots.hidden=v.stage==='writing';answer.textContent=v.text||'';messages.scrollTop=messages.scrollHeight;};
     const unsubscribe=live.subscribe(chat,render);
     live.update(chat,{rid,stage:'sending',text:'',notices:[]});
-    void live.watch(chat,rid,controller.signal);
+    void live.watch(chat,rid,controller.signal,onAccepted);
     return ()=>{controller.abort();unsubscribe();live.clear(chat,rid);temporary.remove();progress.remove();};
   }
   f.onsubmit=async e=>{
@@ -173,7 +207,10 @@ async function initMember(){
       $('#assistant-status').textContent=ids.length?'Проверяю вложения…':'Обрабатываю…';
       if(ids.length)await composer.prepare(ids);
       $('#assistant-status').textContent='Обрабатываю…';
-      stopLive=watchTurn(pending.body.requestId,txt);
+      const sending=pending;
+      stopLive=watchTurn(sending.body.requestId,txt,()=>{
+        if(pending===sending&&!sending.accepted){sending.accepted=true;input.value="";composer.resize();}
+      });
       const m=await post('/api/chats/'+encodeURIComponent(chat)+'/turns',pending.body);
       stopLive();
       pending=null;
@@ -184,18 +221,20 @@ async function initMember(){
       if(m.ui?.page)navigate(m.ui.page);
       await Promise.all([refresh(m.ui),wallet()]);
       if(m.formDraft)await applyAgentDraft(m.formDraft);
-      if(m.draft)formRecipe(m.draft);
-      if(m.accountingDraft){const d=m.accountingDraft;window.PMAccounting.open(d.operation,d.arguments,d);}
+      if(m.confirmedDraft)markSaved(m.confirmedDraft,m.text);
+      if(m.draft)formRecipe(m.draft,m.confirmation);
+      if(m.accountingDraft||m.correctionDraft)window.PMAgent.edit(m);
       $('#assistant-status').textContent='';
     }catch(err){
       $('#assistant-status').textContent=err.message;
       // Keep the exact draft and request ID after refusal, cancellation or unknown outcome.
-      if(pending){input.value=txt;composer.resize();}
+      if(pending){pending.accepted=false;input.value=txt;composer.resize();}
       await wallet().catch(()=>{});
     }finally{stopLive();composer.unlock();}
   };
+  composer.activate();
   $('#recipe-form').onsubmit=async e=>{e.preventDefault();const f=e.target,o=Object.fromEntries(new FormData(f));o.pack_quantity=Number(o.pack_quantity);o.usage_quantity=Number(o.usage_quantity);o.pack_price=o.pack_price.trim()||null;
-    const b=f.querySelector('button');b.disabled=true;try{await post('/api/production/recipe',{requestId:crypto.randomUUID(),recipe:o});await refresh();$('#recipe-status').textContent='Сохранено.';}catch(err){$('#recipe-status').textContent=err.message;}finally{b.disabled=false;}};
+    const b=f.querySelector('button');b.disabled=true;try{if(recipeProposal&&recipeProposal.signature===JSON.stringify([...new FormData(f)])){await window.PMAgent.confirm(recipeProposal.id);recipeProposal=null;}else{await post('/api/production/recipe',{requestId:crypto.randomUUID(),recipe:o});await refresh();}$('#recipe-status').textContent='Сохранено.';}catch(err){$('#recipe-status').textContent=err.message;}finally{b.disabled=false;}};
 
 }
 async function initGuest(){

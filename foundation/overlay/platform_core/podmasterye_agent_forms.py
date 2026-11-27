@@ -109,6 +109,15 @@ def draft(db,scope,rid,name,args,page=None):
     if previous and previous["form"]==name:a={**previous["arguments"],**a}
     if name.startswith("book."):
         op=name[5:]
+        from . import podmasterye_agent_actions as actions
+        identity_field={"material":"entity_id","product":"entity_id","task":"task_id","worker":"worker_id"}.get(op)
+        if identity_field and a.get(identity_field):
+            a={**actions.details(db,w,op,a[identity_field]),**a}
+        elif op=="channel_rates" and a.get("channel"):
+            try:a={**actions.details(db,w,op,a["channel"]),**a}
+            except ValueError:pass
+        elif op=="cost_policy":
+            a={**actions.details(db,w,op),**a}
         fields=book.forms()[op]["fields"]
         missing=[f["label"] for f in fields if f["required"] and f["default"] is None and f["name"] not in a]
         out={"operation":op,"arguments":a,"workshop":w,"missing":missing}
