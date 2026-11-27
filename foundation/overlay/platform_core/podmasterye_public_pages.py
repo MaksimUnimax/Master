@@ -7,7 +7,6 @@ from starlette.responses import HTMLResponse, RedirectResponse, Response, JSONRe
 from .browser_session import browser_token, _PRIVATE_HEADERS
 from .identity import AuthenticationError
 from . import checkout, coins
-from .guest_billing import local_rate
 from .guest_selector import GUEST_MESSAGE_LIMIT
 from .podmasterye_public_catalog import catalog
 
@@ -96,19 +95,27 @@ def about():
       <section class="pm-public-section"><h2>Стоимость работы</h2><p>Ручной учёт и локальные программные расчёты не расходуют монеты. Запросы к ИИ и платная обработка файлов оплачиваются по фактическому расходу.</p>"""+link("payment","Подробнее об оплате")+"</section>"
 
 async def payment_content(request, signed_in):
-    store = request.app.state.identity
-    rate = await run_in_threadpool(store.public_coin_price)
-    bonus = await run_in_threadpool(store.public_signup_coins)
-    enabled = bool(await run_in_threadpool(checkout.merchant)) and os.getenv("YOOKASSA_PILOT_ONLY") != "1"
-    amount = escape(local_rate(rate))
-    total = escape(coins.purchase_total(rate, 100).replace(".", ","))
-    available = ('<p class="pm-public-notice">Пополнение баланса доступно в личном кабинете.</p>' if enabled
-                 else '<p class="pm-public-notice">Приём платежей сейчас отключён. Оплата не производится.</p>')
-    action = ('<a class="pm-public-primary" href="/?account=wallet&amp;resume=1#buy-coins">Перейти к балансу</a>' if signed_in else link("login", "Войти в аккаунт", "pm-public-primary"))
-    return f"""<header class="pm-public-hero"><h1>Оплата работы Подмастерья</h1><p class="pm-public-lead">Монеты используются для оплаты запросов к ИИ и платной обработки файлов.</p></header>
-      <section class="pm-public-section"><h2>Стоимость монет</h2><div class="pm-public-price"><strong>{amount} ₽</strong><span>за 1 монету при покупке</span></div><p>100 монет — {total} ₽ по текущей цене. При списании за работу ИИ одна монета соответствует 1 ₽ расходов. Цена ответа зависит от фактической обработки запроса.</p><p>Стартовый бонус при первой регистрации: {escape(bonus.replace(".", ","))} монет.</p>{available}
-      <div class="pm-public-actions">{action}</div></section>
-      <section class="pm-public-section"><h2>Что не расходует монеты</h2><p>Ручное ведение учёта, локальные команды и программные расчёты: себестоимость, остатки, отчёты и другие функции учётного ядра.</p><h2>Как пополнить баланс</h2><p>Когда приём оплаты доступен, войдите в кабинет, откройте «Баланс ИИ», нажмите «Купить монеты» и выберите количество. Итоговая сумма и доступные способы оплаты показываются перед оплатой. Проверяйте результат в истории баланса.</p></section>
+    store=request.app.state.identity
+    rate=await run_in_threadpool(store.public_coin_price)
+    bonus=await run_in_threadpool(store.public_signup_coins)
+    enabled=bool(await run_in_threadpool(checkout.merchant)) and os.getenv("YOOKASSA_PILOT_ONLY")!="1"
+    total=coins.purchase_total(rate,100).replace(".",",")
+    state="1" if enabled else "0"
+    note=("Войдите в аккаунт перед оплатой, чтобы монеты поступили на ваш баланс." if not signed_in
+          else "После подтверждения платежа монеты будут зачислены на баланс.") if enabled else "Приём платежей сейчас отключён. Оплата не производится."
+    methods=("СБП","Банковские карты","ЮMoney","SberPay","T-Pay")
+    methods_html="".join('<span class="pm-payment-method">'+escape(method)+'</span>' for method in methods)
+    return f"""<header class="pm-public-hero"><h1>Оплата работы Подмастерья</h1><p class="pm-public-lead">Пополните баланс для работы с ИИ и платной обработки файлов.</p></header>
+      <section class="pm-public-section pm-payment-card"><h2>Пополнить баланс</h2>
+      <form id="public-payment-form" data-enabled="{state}" data-member="{int(signed_in)}">
+        <label for="public-payment-count">Количество монет</label><input id="public-payment-count" name="coins" type="number" inputmode="numeric" min="1" max="8000000" step="1" value="100" required>
+        <div class="pm-payment-total"><span>К оплате</span><output id="public-payment-total" for="public-payment-count" aria-live="polite">{escape(total)} ₽</output></div>
+        <button type="submit" id="public-payment-submit" disabled>Перейти к оплате</button>
+        <p id="public-payment-status" role="status">{escape(note)}</p>
+      </form>
+      <div class="pm-payment-methods"><h3>Способы оплаты через ЮKassa</h3><div>{methods_html}</div><p class="hint">Доступность конкретного способа определяется ЮKassa при оплате.</p></div>
+      <p>Стартовый бонус при первой регистрации: {escape(bonus.replace(".",","))} монет.</p></section>
+      <section class="pm-public-section"><h2>Что не расходует монеты</h2><p>Ручное ведение учёта, локальные команды и программные расчёты.</p></section>
       <section class="pm-public-section"><h2>Вопросы об оплате</h2><p>Если возникла проблема с пополнением, обратитесь в поддержку. Не передавайте реквизиты карты, пароли и коды подтверждения.</p>{link("support","Обратиться в поддержку")}</section>"""
 
 def support():
@@ -185,6 +192,7 @@ def shell(key, content, *, status=200, is_member=False):
           <label class="sr-only" for="guest-input">Вопрос о сервисе</label><textarea id="guest-input" name="text" rows="1" maxlength="1200" placeholder="Спросите о Подмастерье…" disabled required></textarea>
           <div class="composer-footer"><span class="pm-public-guest-label">Гостевой режим</span><span class="spacer"></span><button type="submit" disabled aria-label="Отправить" title="Отправить"><svg viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></svg></button></div>
         </form><p id="guest-status" role="status"></p><p id="guest-limit" hidden>Бесплатные сообщения закончились. {link("register","Создать аккаунт")} или {link("login","войти")}.</p></aside>"""
+    helper_nav = '' if is_member else '<a href="/about/" data-public-chat aria-controls="public-chat-pane">Помощник</a>'
     css = asset_version("podmasterye.css")
     public_css = asset_version("podmasterye-public.css")
     script = asset_version("podmasterye-public.js")
@@ -193,7 +201,7 @@ def shell(key, content, *, status=200, is_member=False):
       <script src="/assets/podmasterye-theme.js?v={theme}"></script><link rel="stylesheet" href="/assets/podmasterye.css?v={css}"><link rel="stylesheet" href="/assets/podmasterye-public.css?v={public_css}"></head>
       <body data-mode="public" data-public-key="{key}" data-public-surface="{'info' if is_member else 'split'}">
       <header class="top"><button type="button" class="icon-btn" id="public-menu-toggle" aria-label="Развернуть меню" title="Развернуть меню" aria-controls="public-menu" aria-expanded="false"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button><a class="pm-brand" href="/" aria-label="Подмастерье"><span class="brand-mark" aria-hidden="true">П</span><b>Подмастерье</b></a><span class="spacer"></span><a href="/kalkulyator">Калькулятор</a><button type="button" class="icon-btn" data-pm-theme aria-label="Сменить тему">◐</button></header>
-      <div class="layout pm-public-layout"><nav id="public-menu" aria-label="Разделы Подмастерья"><div class="pm-nav-header"><strong>Меню</strong></div><a href="/about/" data-public-chat>Помощник</a><div class="nav-group">О сервисе</div>{''.join(nav)}<div class="nav-group">Аккаунт</div>{account}<div class="nav-group">Инструменты</div><a href="/kalkulyator">Калькулятор</a></nav>{assistant}
+      <div class="layout pm-public-layout"><nav id="public-menu" aria-label="Разделы Подмастерья"><div class="pm-nav-header"><strong>Меню</strong></div>{helper_nav}<div class="nav-group">О сервисе</div>{''.join(nav)}<div class="nav-group">Аккаунт</div>{account}<div class="nav-group">Инструменты</div><a href="/kalkulyator">Калькулятор</a></nav>{assistant}
       <main id="public-info-pane" aria-label="Информация о сервисе"><div class="pm-work-header"><strong id="public-panel-title">{escape(PAGES[key][1])}</strong><button id="public-open-chat" type="button" class="secondary">Помощник</button></div>
       <div id="public-info-content" data-panel-key="{key}">{content}{footer()}</div></main></div>
       <div id="cookie-choice" class="cookie-choice" hidden><p>Мы используем необходимые cookie для входа и сохранения контекста. Необязательная аналитика отключена.</p>{link("privacy","Подробнее")}<button type="button" id="cookie-accept">Понятно</button><button type="button" class="secondary" id="cookie-decline">Только необходимые</button></div>

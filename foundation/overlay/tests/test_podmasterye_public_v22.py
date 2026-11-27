@@ -57,7 +57,7 @@ class PublicV22(unittest.TestCase):
         with self.identity._write() as db:
             coins.set_sale_pricing(db,"30")
             coins.set_signup_bonus(db,"21")
-        r=self.c.get("/payment");self.assertIn("1,30 ₽",r.text);self.assertIn("130,00 ₽",r.text)
+        r=self.c.get("/payment");self.assertNotIn("1,30 ₽",r.text);self.assertIn("130,00 ₽",r.text)
         self.assertIn("21 монет",r.text);self.assertIn("Приём платежей сейчас отключён",r.text)
         faq=self.c.get("/faq").text
         self.assertIn("1,30 ₽",faq);self.assertNotIn("{sale_price}",faq);self.assertNotIn("{checkout_steps}",faq)

@@ -419,6 +419,8 @@ def render(faq, key, cards):
     apply_v22(root)
     from owner_v23 import apply as apply_v23
     apply_v23(root)
+    from owner_v24 import apply as apply_v24
+    apply_v24(root)
     (dest/"PODMASTERYE_SOURCE").write_text(PIN+"\n")
     print("Prepared private candidate:",root)
 if __name__=="__main__": main()

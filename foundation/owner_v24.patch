@@ -1,0 +1,7 @@
+--- a/native/web/checkout.js
++++ b/native/web/checkout.js
+@@ -379,0 +380,4 @@
++  } else if (document.body.dataset.mode === 'member') {
++    let selected;
++    try { selected=sessionStorage.getItem('podmasterye-public-checkout-count');sessionStorage.removeItem('podmasterye-public-checkout-count'); } catch {}
++    if (selected && /^[1-9]\d{0,6}$/.test(selected) && Number(selected)<=8000000) openCheckout(selected);

@@ -94,3 +94,22 @@ body[data-mode="public"][data-public-nav="closed"] .pm-public-layout>nav{display
  body[data-mode="public"] .pm-public-layout :is(#public-open-info,#public-open-chat){width:116px;max-width:100%;height:36px}
  body[data-mode="public"][data-public-surface="info"] #public-info-content>*{max-width:950px;margin-inline:auto}
 }
+
+/* The menu entry is a restore control, not a navigation tab for an open chat. */
+body[data-mode="public"][data-public-surface="chat"] #public-menu [data-public-chat]{display:none}
+@media(min-width:961px){
+ body[data-mode="public"][data-public-surface="split"] #public-menu [data-public-chat]{display:none}
+}
+
+.pm-payment-card{border:1px solid var(--line);border-radius:14px;padding:18px;background:var(--wash)}
+.pm-payment-card form{display:grid;gap:10px}
+.pm-payment-card form label{margin:0;color:var(--ink)}
+.pm-payment-card input{width:100%;background:var(--panel);font-size:16px}
+.pm-payment-total{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--line)}
+.pm-payment-total output{font-size:24px;font-weight:650;font-variant-numeric:tabular-nums;color:var(--ink)}
+.pm-payment-card button{width:100%;min-height:44px}
+.pm-payment-card #public-payment-status{color:var(--muted);font-size:13px;margin:0}
+.pm-payment-methods{border-top:1px solid var(--line);margin-top:18px;padding-top:16px}
+.pm-payment-methods h3{font-size:14px;margin:0 0 12px}
+.pm-payment-methods>div{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.pm-payment-method{padding:5px 9px;border:1px solid var(--line);background:var(--panel);border-radius:7px;font-size:13px;color:var(--ink)}

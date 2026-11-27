@@ -13,6 +13,7 @@
   description:head('meta[name="description"]','content'),robots:head('meta[name="robots"]','content'),canonical:head('link[rel="canonical"]','href')
  });
  let seq=0,controller=null,guestSession=null,sessionPromise=null;
+ let paymentCount='100',paymentController=null,paymentTimer=null;
  const routes={about:'/about/',support:'/support',contacts:'/contacts',payment:'/payment',faq:'/faq',privacy:'/privacy',login:'/login',register:'/register'};
  function mode(name){
   body.dataset.publicSurface=name;
@@ -44,6 +45,44 @@
   submit.disabled=true;
   session().then(()=>{if(form.isConnected){submit.disabled=false;if(status)status.textContent='';}}).catch(e=>{if(form.isConnected&&status)status.textContent='Не удалось подготовить регистрацию. Обновите страницу. '+e.message;});
  }
+ function preparePayment(){
+  clearTimeout(paymentTimer);paymentController?.abort();
+  const form=content.querySelector('#public-payment-form');if(!form)return;
+  const input=form.elements.coins,out=form.querySelector('output'),pay=form.querySelector('button'),status=form.querySelector('#public-payment-status');
+  const member=form.dataset.member==='1',initialNote=status.textContent;
+  const currency=new Intl.NumberFormat('ru-RU',{style:'currency',currency:'RUB'});
+  let confirmed=null;
+  const valid=v=>/^[1-9]\d{0,6}$/.test(v)&&Number(v)<=8000000;
+  async function refresh(){
+   clearTimeout(paymentTimer);paymentController?.abort();
+   confirmed=null;pay.disabled=true;out.textContent='—';const count=input.value;
+   if(!valid(count)){status.textContent='Введите целое количество от 1 до 8 000 000.';return;}
+   paymentCount=count;status.textContent='Рассчитываем сумму…';
+   const c=new AbortController();paymentController=c;
+   paymentTimer=setTimeout(async()=>{
+    try{
+     const data=await api('/api/coins/quote?coins='+encodeURIComponent(count),{signal:c.signal});
+     if(c.signal.aborted||!form.isConnected||input.value!==count)return;
+     if(typeof data.enabled!=='boolean'||!/^\d+\.\d{2}$/.test(data.total))throw Error('Некорректная сумма.');
+     out.textContent=currency.format(Number(data.total));
+     confirmed=data.enabled?count:null;pay.disabled=!data.enabled;
+     status.textContent=data.enabled?(member?'После подтверждения платежа монеты поступят на ваш баланс.':'Войдите в аккаунт перед оплатой, чтобы монеты поступили на ваш баланс.'):'Приём платежей сейчас отключён. Оплата не производится.';
+    }catch(e){if(!c.signal.aborted&&form.isConnected)status.textContent='Не удалось рассчитать сумму. Измените количество и повторите попытку.';}
+   },120);
+  }
+  input.addEventListener('input',refresh);
+  form.onsubmit=e=>{
+   e.preventDefault();
+   if(pay.disabled||confirmed!==input.value||!valid(confirmed))return;
+   if(member){location.assign('/?account=wallet&resume=1&coins='+encodeURIComponent(confirmed)+'#buy-coins');return;}
+   // This is only a selected quantity, not a payment or an idempotency key.
+   try{sessionStorage.setItem('podmasterye-public-checkout-count',confirmed);}catch{}
+   openPanel('login');
+  };
+  if(paymentCount==='100'){
+   confirmed=form.dataset.enabled==='1'?'100':null;pay.disabled=!confirmed;
+  }else{input.value=paymentCount;refresh();}
+ }
  function updateNav(key){
   for(const a of menu.querySelectorAll('[data-public-panel]')){
    if(a.dataset.publicPanel===key)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
@@ -54,6 +93,7 @@
   if(!allowed.has(key))return;
   const dest=url||routes[key],n=++seq;
   controller?.abort();controller=new AbortController();const signal=controller.signal;
+  clearTimeout(paymentTimer);paymentController?.abort();
   mode(compact.matches||!chat||body.dataset.publicSurface==='info'?'info':'split');if(compact.matches)nav(false);
   info.setAttribute('aria-busy','true');
   try{
@@ -81,7 +121,7 @@
     const previous=document.head.querySelector(selector);if(previous&&typeof value==='string')previous.setAttribute(attr,value);
    }
    if(push&&location.pathname+location.search!==dest)history.pushState({panel:key},'',dest);
-   prepareRegistration();
+   prepareRegistration();preparePayment();
   }catch(err){if(!signal.aborted&&n===seq)location.assign(dest);}
   finally{if(n===seq)info.removeAttribute('aria-busy');}
  }
@@ -89,13 +129,13 @@
   const a=e.target.closest('a[data-public-panel],a[data-public-chat]');
   if(!a||e.defaultPrevented||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||a.target)return;
   const u=new URL(a.href,location.href);if(u.origin!==location.origin)return;
-  if(a.hasAttribute('data-public-chat')){if(chat){e.preventDefault();mode(compact.matches?'chat':body.dataset.publicSurface==='info'?'split':body.dataset.publicSurface);if(compact.matches)nav(false);}return;}
+  if(a.hasAttribute('data-public-chat')){if(chat){e.preventDefault();if(body.dataset.publicSurface==='info'){mode(compact.matches?'chat':'split');if(compact.matches)nav(false);}}return;}
   const key=a.dataset.publicPanel;if(!allowed.has(key)||u.pathname!==routes[key])return;
   e.preventDefault();openPanel(key);
  });
  history.replaceState({panel:body.dataset.publicKey},'',location.href);
  addEventListener('popstate',()=>{const key=history.state?.panel||Object.keys(routes).find(k=>routes[k]===location.pathname)||(location.pathname==='/'?'about':null);if(key)openPanel(key,{push:false,url:location.pathname+location.search});else location.reload();});
- prepareRegistration();
+ prepareRegistration();preparePayment();
  const f=q('#guest-form');if(!f)return;
  const input=f.elements.text,send=f.querySelector('button[type=submit]'),box=q('#guest-messages'),quota=q('#guest-quota'),status=q('#guest-status'),limit=q('#guest-limit'),intro=q('#guest-intro');
  let remaining=0,busy=false,ready=false,pending=null,temporary=null;

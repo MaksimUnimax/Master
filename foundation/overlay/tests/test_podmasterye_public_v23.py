@@ -64,6 +64,6 @@ class PublicV23(previous.PublicV22):
                 self.assertNotIn('id="public-menu-close"',full.text)
                 self.assertEqual(full.text.count('id="public-menu-toggle"'),1)
         with self.identity._write() as db:coins.set_sale_pricing(db,"30")
-        self.assertIn("1,30 ₽",self.c.get("/payment",headers=h).json()["html"])
+        self.assertIn("130,00 ₽",self.c.get("/payment",headers=h).json()["html"])
         with self.identity._write() as db:coins.set_sale_pricing(db,"40")
-        self.assertIn("1,40 ₽",self.c.get("/payment",headers=h).json()["html"])
+        self.assertIn("140,00 ₽",self.c.get("/payment",headers=h).json()["html"])
