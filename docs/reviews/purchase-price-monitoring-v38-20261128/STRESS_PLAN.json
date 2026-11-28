@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "plan_id": "purchase-monitoring-stress-v1",
+  "declared_at_utc": "2026-11-28",
+  "scope": "Isolated monitoring candidate; real domain handlers, shared timer, parser adapter, shared wallet and limiter; synthetic provider transport only",
+  "evidence_kind": "controlled_transport_acceptance_not_live",
+  "freeze": {
+    "required_before_full_run": true,
+    "record_git_head": true,
+    "require_clean_runtime_paths": true,
+    "runtime_digest_must_remain_unchanged": true,
+    "plan_sha256_recorded_before_load": true,
+    "short_run_is_smoke_only": true
+  },
+  "minimums": {
+    "continuous_mixed_load_wall_seconds": 1800,
+    "isolated_tenants": 20,
+    "simultaneous_commands": 100,
+    "replays_of_one_request_id": 1000,
+    "transport_events_per_adapter": {
+      "ozon": 1000,
+      "wb": 1000,
+      "ym": 1000,
+      "read_url": 1000
+    },
+    "controlled_process_restarts": 2,
+    "abrupt_process_restarts": 1,
+    "cancel_commands": 20,
+    "faults_exercised": ["429_series", "429_persistent", "retry_after", "provider_503", "unknown_paid_submission", "malformed_report", "identity_mismatch", "insufficient_balance"]
+  },
+  "resource_thresholds": {
+    "command_p95_ms_max": 2000,
+    "command_p99_ms_max": 5000,
+    "rss_process_tree_peak_bytes_max": 1073741824,
+    "rss_process_tree_growth_bytes_max": 268435456,
+    "mean_cpu_cores_max": 2.0,
+    "open_descriptors_process_tree_max": 512,
+    "pending_timer_runs_max": 400,
+    "pending_parser_orders_max": 400,
+    "database_total_bytes_max": 268435456,
+    "drain_wall_seconds_max": 180,
+    "drain_pending_nonterminal_max": 80,
+    "sqlite_integrity_errors_max": 0,
+    "foreign_key_errors_max": 0,
+    "duplicate_paid_submissions_max": 0,
+    "duplicate_settlements_max": 0,
+    "duplicate_observations_max": 0,
+    "duplicate_chat_publications_max": 0,
+    "cross_tenant_access_successes_max": 0,
+    "early_limiter_dispatches_max": 0,
+    "uncontrolled_process_crashes_max": 0,
+    "unhandled_handler_errors_max": 0,
+    "live_network_requests_max": 0
+  },
+  "load_policy": {
+    "minimum_mixed_iterations_per_minute": 30,
+    "maximum_active_products_per_tenant": 4,
+    "provider_time": "real wall clock; production quota and retry logic are not patched",
+    "duration_clock": "monotonic real wall clock",
+    "restart_policy": "Persist provider receipts across child-process restart; do not edit queue checkpoints, lease timestamps or billing rows to force recovery",
+    "resource_sampling_seconds": 1,
+    "rss_growth_baseline": "After application/tenant initialization, concurrency waves and the first actual settled monitoring observation, immediately before continuous mixed load",
+    "integrity_sampling_seconds": 30,
+    "runtime_source_digest_sampling_seconds": 30,
+    "external_network_policy": "Only synthetic parser transport is installed. Unexpected URLs or credentials abort the harness. Ordinary read_url guard remains unchanged."
+  },
+  "blocker_policy": {
+    "unsupported_adapter_is": "blocked",
+    "blocked_adapter_transport_events": 0,
+    "do_not_patch_provider_contract_guards": true,
+    "do_not_count_validation_or_guard_attempts_as_transport_events": true,
+    "do_not_substitute_adapter_unit_calls_for_end_to_end_events": true,
+    "do_not_claim_live_acceptance": true,
+    "do_not_raise_thresholds_after_observing_results": true
+  },
+  "required_outputs": [
+    "plan-copy.json",
+    "run-manifest.json",
+    "command-events.jsonl",
+    "provider-events.jsonl",
+    "resource-samples.jsonl",
+    "fault-events.jsonl",
+    "worker-stderr.log",
+    "summary.json"
+  ]
+}

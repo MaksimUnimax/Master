@@ -1,0 +1,17 @@
+{
+  "candidate_sha": "c33a108e036feb4487ee4f3a247abca8e1950313",
+  "source_path": "products/harness-platform/platform_core/purchase_monitoring.py",
+  "source_sha256": "ae72510391df97cacaee3c2c3c8bdec248a1d508426753c0424eda0fee551648",
+  "files": [
+    {
+      "name": "OPERATIONS_CONTRACT.json",
+      "sha256": "cef6c7056a78537de2b7c2f9cc509513d5ee13d2d024f7796170d992c2d0b7e8"
+    },
+    {
+      "name": "SCHEMA_CATALOG.json",
+      "sha256": "6663c9aa5b30bd8c28c1c5853f7c260a3694a9dfd23c0d92175cb733fe0c89fc"
+    }
+  ],
+  "production_access": false,
+  "external_calls": 0
+}

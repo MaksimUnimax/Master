@@ -1,0 +1,228 @@
+{
+  "status": "blocked",
+  "evidence_kind": "controlled_transport_not_live",
+  "continuous_mixed_load_wall_seconds": 1800.3143565770006,
+  "tenants": 20,
+  "tenants_with_ledger_attempts": 21,
+  "fixture_tenant_population": {
+    "funded_load_tenants": 20,
+    "additional_insufficient_balance_tenants": 1
+  },
+  "criteria": {
+    "MC-44": "passed",
+    "MC-45": "blocked",
+    "MC-46": "blocked"
+  },
+  "counts": {
+    "parallel_commands": 100,
+    "peak_parallel_inflight": 100,
+    "same_request_id_commands": 1000,
+    "isolation_attempts": 160,
+    "cross_tenant_access_successes": 0,
+    "mixed_iterations": 3444,
+    "controlled_process_restarts": 2,
+    "abrupt_process_restarts": 1,
+    "financial_topups": 1,
+    "cancel_commands": 117
+  },
+  "provider_events_per_adapter": {
+    "ozon": 2416,
+    "wb": 2410,
+    "ym": 2076,
+    "read_url": 0
+  },
+  "faults_observed": {
+    "429_series": 3,
+    "429_persistent": 5,
+    "provider_503": 6,
+    "unknown_paid_submission": 5,
+    "malformed_report": 5,
+    "identity_mismatch": 1,
+    "retry_after": 8,
+    "insufficient_balance": 1
+  },
+  "measurements": {
+    "command_p95_ms": 122.459,
+    "command_p99_ms": 433.978,
+    "rss_process_tree_peak_bytes": 177217536,
+    "rss_process_tree_growth_bytes": 2879488,
+    "mean_cpu_cores": 0.1198438460228032,
+    "open_descriptors_process_tree": 46,
+    "pending_timer_runs": 60,
+    "pending_parser_orders": 60,
+    "database_total_bytes": 21139992,
+    "drain_wall_seconds": 19.059199719999015,
+    "drain_pending_nonterminal": 0,
+    "manual_review_orders": 5,
+    "unresolved_paid_attempts": 5,
+    "sqlite_integrity_errors": 0,
+    "foreign_key_errors": 0,
+    "duplicate_paid_submissions": 0,
+    "duplicate_settlements": 0,
+    "duplicate_observations": 0,
+    "duplicate_chat_publications": 0,
+    "cross_tenant_access_successes": 0,
+    "early_limiter_dispatches": 0,
+    "uncontrolled_process_crashes": 0,
+    "unhandled_handler_errors": 0,
+    "live_network_requests": 0
+  },
+  "command_latency": {
+    "count": 5708,
+    "p50_ms": 7.051,
+    "p95_ms": 122.459,
+    "p99_ms": 433.978,
+    "maximum_ms": 565.202
+  },
+  "latency_by_operation": {
+    "add": {
+      "count": 100,
+      "p50_ms": 434.053,
+      "p95_ms": 544.12,
+      "p99_ms": 564.949,
+      "maximum_ms": 565.202
+    },
+    "check": {
+      "count": 3684,
+      "p50_ms": 9.124,
+      "p95_ms": 122.474,
+      "p99_ms": 163.229,
+      "maximum_ms": 277.416
+    },
+    "configure": {
+      "count": 59,
+      "p50_ms": 5.429,
+      "p95_ms": 13.997,
+      "p99_ms": 22.689,
+      "maximum_ms": 22.689
+    },
+    "costs": {
+      "count": 40,
+      "p50_ms": 0.115,
+      "p95_ms": 0.198,
+      "p99_ms": 0.318,
+      "maximum_ms": 0.318
+    },
+    "export": {
+      "count": 40,
+      "p50_ms": 0.312,
+      "p95_ms": 0.465,
+      "p99_ms": 0.581,
+      "maximum_ms": 0.581
+    },
+    "get": {
+      "count": 884,
+      "p50_ms": 3.073,
+      "p95_ms": 18.467,
+      "p99_ms": 30.947,
+      "maximum_ms": 127.825
+    },
+    "history": {
+      "count": 473,
+      "p50_ms": 6.048,
+      "p95_ms": 20.994,
+      "p99_ms": 28.472,
+      "maximum_ms": 49.753
+    },
+    "pause": {
+      "count": 139,
+      "p50_ms": 5.848,
+      "p95_ms": 19.009,
+      "p99_ms": 28.444,
+      "maximum_ms": 32.791
+    },
+    "resume": {
+      "count": 177,
+      "p50_ms": 6.263,
+      "p95_ms": 23.752,
+      "p99_ms": 27.981,
+      "maximum_ms": 35.706
+    },
+    "start": {
+      "count": 54,
+      "p50_ms": 6.394,
+      "p95_ms": 23.837,
+      "p99_ms": 28.568,
+      "maximum_ms": 28.568
+    },
+    "stop": {
+      "count": 58,
+      "p50_ms": 6.644,
+      "p95_ms": 20.531,
+      "p99_ms": 25.063,
+      "maximum_ms": 25.063
+    }
+  },
+  "blockers": [
+    {
+      "adapter": "read_url",
+      "reason": "Production contract guard prevented dispatch; end-to-end transport events are zero.",
+      "end_to_end_transport_events": 0,
+      "live_requests": 0
+    }
+  ],
+  "violations": [],
+  "supported_path_load_requirements_met": true,
+  "supported_path_transport_volume_met": true,
+  "live_acceptance": "not_run",
+  "real_provider_requests": 0,
+  "candidate_sha": "c33a108e036feb4487ee4f3a247abca8e1950313",
+  "private_source_sha256": "5de892abd36936c76d50391208ff0f96aa7c707fda373b433d4ef145d4fb6ef3",
+  "same_request_id_effects": {
+    "provider_attempts": 1,
+    "observations": 1
+  },
+  "candidate": {
+    "git_head": "c33a108e036feb4487ee4f3a247abca8e1950313",
+    "runtime_sha256": "ab713219b0b930d3ddc4cb1c082ce71265083a97e1bddd2c169279ee12fc9ba2",
+    "plan_sha256": "adbd159138bb2404afbd6ac01fb7a414258fb50a6b5cc251f89997c29134960b",
+    "started_at": "2026-11-28T06:41:15.972489+00:00",
+    "python_version": "3.12.14",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "duration_requested": 1800.0,
+    "full_requested": true,
+    "harness_sha256": "c576f49b4caf85ef9dd000b9b5d120d689222375494b907e0c46f6cb5f5ce5ba",
+    "python_packages": {
+      "mcp": "2.2.0",
+      "starlette": "1.10.0",
+      "httpx": "0.28.1",
+      "jsonschema": "4.26.0"
+    },
+    "node_version": "v24.22.3",
+    "cpu_count": 9
+  },
+  "final_integrity": {
+    "counts": {
+      "pm_price_items": 81,
+      "pm_price_observations": 2187,
+      "pm_price_commands": 3209,
+      "pm_price_attempt_links": 2345,
+      "timer_runs": 2365,
+      "parser_market_jobs": 2345,
+      "coin_attempts": 2345,
+      "pm_turns": 278
+    },
+    "pending_timer": 0,
+    "pending_parser": 0,
+    "settled_attempts": 2340,
+    "manual_review_orders": 5,
+    "unresolved_paid_attempts": 5,
+    "duplicate_settlements": 0,
+    "duplicate_observations": 0,
+    "duplicate_chat_publications": 0,
+    "ownership_errors": 0,
+    "statuses": {
+      "contract_blocked": 20,
+      "ok": 54,
+      "queued": 2,
+      "schema_error": 5
+    },
+    "observations_by_source": {
+      "ozon": 767,
+      "wb": 764,
+      "ym": 656
+    },
+    "integrity_errors": [],
+    "foreign_key_errors": []
+  }
+}

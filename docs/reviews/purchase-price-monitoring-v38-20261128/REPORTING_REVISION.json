@@ -1,0 +1,157 @@
+{
+  "schema": "purchase-monitoring-reporting-revision/1",
+  "revision": "r2",
+  "date": "2026-11-28",
+  "status": "prepared_for_docs_only_publication",
+  "candidate_sha": "c33a108e036feb4487ee4f3a247abca8e1950313",
+  "source_sha_unchanged": true,
+  "runtime_changed": false,
+  "primary_evidence_modified": false,
+  "runtime_tests_rerun": false,
+  "criterion_statuses_changed": false,
+  "criteria_counts": {
+    "PASS": 30,
+    "FAIL": 0,
+    "BLOCKED": 28,
+    "NOT_RUN": 0
+  },
+  "fully_accepted": false,
+  "production_deployed": false,
+  "github_publication_completed": false,
+  "owner_delivery_confirmed": false,
+  "previous_delivery": {
+    "external_manifest_sha256": "1891d1bb121f07654ba07688603268a9072eeb7b4ff4aa99844070a35646d07d",
+    "archive": {
+      "name": "purchase-price-monitoring-v38-c33a108.zip",
+      "bytes": 90646747,
+      "sha256": "13075a4b993347bba0e48cd421b4fffd92cd8148fcb6b98c057986b2ccb22363"
+    },
+    "matrix_sha256": "f52cfbbdf3a07416a1971e9482145df066ca1da68a49225c1a6435c5e184a72a",
+    "bundle_sha256": "4c987d18c2441503d8b19fab5eaf0062cd442a0da4b19612e31b2b4ffcce5b50",
+    "verified_on_alisa": {
+      "zip_entries": 2169,
+      "member_hashes": 2168,
+      "matrix_references": 228
+    },
+    "scope": "Immutable original archive; these counts and hashes do not certify a later repackaged container."
+  },
+  "changes": [
+    "Clarified that only Read URL admission/status contract and pure helpers exist; paid adapter remains unimplemented.",
+    "Removed unsupported assertion of completed owner delivery and separated preparation from completed GitHub publication.",
+    "Replaced stale MC50 awaiting-assembly text with verified-original-archive scope and separate final repackaging/publication requirements.",
+    "Corrected public relative links; private evidence paths are explicitly labeled as archive identifiers.",
+    "Updated derived matrix prose and hash reference without changing any criterion or runtime-test outcome.",
+    "Bound the final report filename to the r2 archive and made the external publication receipt authoritative for delivery status."
+  ],
+  "files": [
+    {
+      "path": "ARCHITECTURE_RU.md",
+      "bytes": 40617,
+      "sha256": "8955d113f1d1e0475b172f5e72d060c0ac8e4a3c07a6efbe6c42e33ac58bac4e",
+      "previous_sha256": "01b737cb4a22f26a7b3a1fc50eddb610ed3ce9bb891a649da8aee768c9bd869c"
+    },
+    {
+      "path": "BROWSER_EQUIVALENCE.json",
+      "bytes": 367310,
+      "sha256": "67d62cec61173a4beaf04f6c095f712f3cd4952df02ebc213e3701d00c7516d4",
+      "previous_sha256": "67d62cec61173a4beaf04f6c095f712f3cd4952df02ebc213e3701d00c7516d4"
+    },
+    {
+      "path": "BROWSER_RESULTS.json",
+      "bytes": 233746,
+      "sha256": "d2de08764e11e6145255fae417e485450a9edbd2c7a3a878a777b680cfab7d8b",
+      "previous_sha256": "d2de08764e11e6145255fae417e485450a9edbd2c7a3a878a777b680cfab7d8b"
+    },
+    {
+      "path": "CONTRACT_EXPORT.json",
+      "bytes": 577,
+      "sha256": "20a7f45a0525126b498596ff6eb0381a3db0713631fa77c2b16df535db5a6f70",
+      "previous_sha256": "20a7f45a0525126b498596ff6eb0381a3db0713631fa77c2b16df535db5a6f70"
+    },
+    {
+      "path": "OPERATIONS_CONTRACT.json",
+      "bytes": 354911,
+      "sha256": "cef6c7056a78537de2b7c2f9cc509513d5ee13d2d024f7796170d992c2d0b7e8",
+      "previous_sha256": "cef6c7056a78537de2b7c2f9cc509513d5ee13d2d024f7796170d992c2d0b7e8"
+    },
+    {
+      "path": "PROVIDER_CONTRACTS_RU.md",
+      "bytes": 28940,
+      "sha256": "36fcdac7b3e2957271181fb434cfebebd8b7d94ef9e47ce2b76c0919742e326f",
+      "previous_sha256": "b5eb14779c496f55b214d27bb351174169ccc3a6d0f1d44c40ae926cb34c798b"
+    },
+    {
+      "path": "README.md",
+      "bytes": 6636,
+      "sha256": "c1d45312a2f6235b72e5fcae884cdd2103aba6f0c71c51c01abaad0937b8f216",
+      "previous_sha256": "aa564f2edd1247e0538ce59f762690c87c3a1e2a1c48a1830494c6fbfda1c5fa"
+    },
+    {
+      "path": "REGRESSION_RESULTS.json",
+      "bytes": 1491377,
+      "sha256": "b798d014f169ff267dbcb6f4cdb792aa5c815e17752d57d4c16d667367f27f99",
+      "previous_sha256": "b798d014f169ff267dbcb6f4cdb792aa5c815e17752d57d4c16d667367f27f99"
+    },
+    {
+      "path": "REPORT_RU.md",
+      "bytes": 35962,
+      "sha256": "63670914be2c20b1392f21ce8e3a610d3cb4df46c781c770b2cba2cb4e4b6037",
+      "previous_sha256": "7343bda04d15e274614b1dc26b8b4eb0ca4be4c0d373db1b4ff3d7ff8a461203"
+    },
+    {
+      "path": "REPRODUCE_AND_ROLLBACK_RU.md",
+      "bytes": 16210,
+      "sha256": "9b082eccdde56c93d5d1795cd98b9579b526190a92eea18ce1cd0d5f26e67cb2",
+      "previous_sha256": "9b082eccdde56c93d5d1795cd98b9579b526190a92eea18ce1cd0d5f26e67cb2"
+    },
+    {
+      "path": "SCHEMA_CATALOG.json",
+      "bytes": 26708,
+      "sha256": "6663c9aa5b30bd8c28c1c5853f7c260a3694a9dfd23c0d92175cb733fe0c89fc",
+      "previous_sha256": "6663c9aa5b30bd8c28c1c5853f7c260a3694a9dfd23c0d92175cb733fe0c89fc"
+    },
+    {
+      "path": "STRESS_PLAN.json",
+      "bytes": 3598,
+      "sha256": "adbd159138bb2404afbd6ac01fb7a414258fb50a6b5cc251f89997c29134960b",
+      "previous_sha256": "adbd159138bb2404afbd6ac01fb7a414258fb50a6b5cc251f89997c29134960b"
+    },
+    {
+      "path": "STRESS_RESULTS.json",
+      "bytes": 5932,
+      "sha256": "c7fba47d7433e2f6f381caa354e5e6bca40ee81666304df447e70d7852b4ac21",
+      "previous_sha256": "c7fba47d7433e2f6f381caa354e5e6bca40ee81666304df447e70d7852b4ac21"
+    },
+    {
+      "path": "acceptance-matrix.json",
+      "bytes": 1064427,
+      "sha256": "8dec74655a3011f1937157c9a464ca3249f48efe13d6d2425eda6124726e56db",
+      "previous_sha256": "f52cfbbdf3a07416a1971e9482145df066ca1da68a49225c1a6435c5e184a72a"
+    },
+    {
+      "path": "acceptance-matrix.md",
+      "bytes": 201858,
+      "sha256": "08fc45159d73b83ea49d5fc79505c66d6bb38dd37b7de8bcdf669e7537e3eb0c",
+      "previous_sha256": "c6b0b6df2900c7a7ecf81abe955ab9c07ea85bb68d43ecbde81df0777cef37c7"
+    },
+    {
+      "path": "gap-review.md",
+      "bytes": 7101,
+      "sha256": "74ef251ea30beb584cef40fbbf50c7bb82a06ff4774a03f3e2d0cfd411bfb147",
+      "previous_sha256": "8f4950a95dfd9a9b0f8cbdd1c01eb39a38b13d632ea7bc5af3ad320b33fc87d1"
+    },
+    {
+      "path": "live-financial-report.json",
+      "bytes": 9661,
+      "sha256": "9a9e682d3152fb4e673509763bef9ae771bec3732fe55b1a32edd0639ad518a0",
+      "previous_sha256": "9a9e682d3152fb4e673509763bef9ae771bec3732fe55b1a32edd0639ad518a0"
+    }
+  ],
+  "hash_scope": "Files listed here exclude this receipt and the later external DELIVERY_MANIFEST. No archive self-hash or future GitHub commit is embedded.",
+  "completion_protocol": [
+    "Build the final container using unchanged source bundle/primary evidence and revised reporting projections.",
+    "Verify archive CRC, all member hashes and matrix evidence references; write a new external DELIVERY_MANIFEST for those final bytes.",
+    "Publish reviewed documentation only and record actual commit SHA/draft PR URL after creation.",
+    "Write a separate external publication/delivery receipt after the GitHub and owner-file steps complete; no preemptive success fields."
+  ]
+}
