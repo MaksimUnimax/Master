@@ -58,3 +58,7 @@ Live v35 c5927ce090a80cbd28cb701a7ba46a42a5f5f4ad. Подключения трё
 - https://yandex.ru/dev/market/partner-api/doc/ru/reference/returns/getReturns
 - https://yandex.ru/dev/market/partner-api/doc/ru/reference/business-offer-mappings/getOfferMappings
 - https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/generateGoodsRealizationReport
+
+## Обязательное правило владельца от 28.11.2026 — два способа управления
+
+Применять [CORE-DUAL-01](CORE_DUAL_CONTROL_RU.md) к каждому шаблону пользовательского реестра. Кабинет без модели вызывает тот же скрипт, что чат через локальную матрицу или инструмент. Подключение, сбор истории, статус, остановка/возобновление, коэффициенты, сопоставление SKU, отчёты и план закупок доступны из обоих каналов. Внутренние API-операции остаются за общим исполнителем; ключи вводятся в защищённое поле и не передаются модели. Не создавать UI-only или chat-only бизнес-операции и второй планировщик.
