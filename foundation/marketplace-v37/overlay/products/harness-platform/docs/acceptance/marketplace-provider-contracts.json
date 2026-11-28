@@ -1,0 +1,2753 @@
+{
+  "schema": "market-quantity-provider-contract-evidence/v1",
+  "generated_at": "2026-11-28T03:32:38.661996+00:00",
+  "command": "python -m unittest tests.test_market_quantity_providers -v",
+  "actual_test_count": 84,
+  "success": true,
+  "live": false,
+  "fixture_values": "Synthetic values; documented or explicitly observed structural schemas; unit responses are not live API evidence.",
+  "source_sha256": {
+    "platform_core/market_quantity_providers.py": "57d40a60c102c2e248f1500d59f3e8b0348770a8e1577bfeed497a0713ef75ba",
+    "platform_core/market_quantity_registry.py": "75be45b2bc0e52f1ce3308419eefac35644366a066380b0160262ffa12a1169c",
+    "tests/test_market_quantity_providers.py": "fde757af40d0447d5f49a50d1fd991f2fdf6a06ae8e1ca44d261abaeec413ff0",
+    "tests/fixtures/market_quantity_cases.py": "0ad5d7a6637122e27211b97fed802a9f9d9f30e25e9043591a7f2723ccf38520",
+    "acceptance/market_quantity_live.py": "3a1418c0af3eaa72d517220f5968653db9c45e6d77a002b811c02f0415b8762b",
+    "docs/integrations/MARKET_QUANTITY_PROVIDER_EVIDENCE_RU.md": "0de651581e3b5a74cfc15df381bcb7b4010705c83f5c797fe0675a01d9a2200a"
+  },
+  "official_wb_source_snapshot": [
+    {
+      "file": "01-general",
+      "url": "https://dev.wildberries.ru/api/swagger/yaml/en/01-general.yaml",
+      "bytes": 104974,
+      "sha256": "ce780f658bba2438e05a0bf98dc6fb57c9a1f62ae7f320239cb8239d377bbf3d"
+    },
+    {
+      "file": "02-items",
+      "url": "https://dev.wildberries.ru/api/swagger/yaml/en/02-items.yaml",
+      "bytes": 397540,
+      "sha256": "9fc743e41898af67d5891d5ba94cb851ac113e3a8486631b1f0f0f7437033ad6"
+    },
+    {
+      "file": "11-analytics",
+      "url": "https://dev.wildberries.ru/api/swagger/yaml/en/11-analytics.yaml",
+      "bytes": 249691,
+      "sha256": "3dc73c7179e7aa64ca604346f9d4921780e069253f12b2235ec223a6e15e8d5d"
+    },
+    {
+      "file": "12-reports",
+      "url": "https://dev.wildberries.ru/api/swagger/yaml/en/12-reports.yaml",
+      "bytes": 140312,
+      "sha256": "5576a20b4c3cfb3e90e28b0d8754e3f3305f447a848771f43d7e6163333a9872"
+    },
+    {
+      "file": "13-finances",
+      "url": "https://dev.wildberries.ru/api/swagger/yaml/en/13-finances.yaml",
+      "bytes": 80970,
+      "sha256": "33030d3af496b73100f000de835554784a24e32abab462078263a74d15ab14df"
+    }
+  ],
+  "templates": [
+    {
+      "template": "OZ-01",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_01",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_01",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "identity"
+      ],
+      "source": "https://docs.ozon.ru/api/seller/",
+      "history": {
+        "axis": "snapshot",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_applicable",
+        "boundary_evidence": "not_applicable",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": false,
+      "sources": [
+        "https://docs.ozon.ru/api/seller/"
+      ],
+      "quota_profiles": {
+        "identity": {
+          "key": "OZ-01:identity",
+          "scope": "seller",
+          "interval": 1,
+          "min_interval": 1,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "Ratelimit-Remaining"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.ozon.ru/news/802-Zagolovki-dlia-upravleniia-reit-limitami-v-Seller-API/",
+          "verified_at": "2026-11-28",
+          "documented": false,
+          "token_class": null
+        }
+      },
+      "required_scope": [
+        "Seller"
+      ],
+      "required_scope_evidence": "accepted_runtime_hint_not_independently_documented"
+    },
+    {
+      "template": "OZ-02",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_catalog_count_change_details_mismatch_and_archive_pass",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_02",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_02",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "list",
+        "details"
+      ],
+      "source": "https://docs.ozon.ru/api/seller/",
+      "history": {
+        "axis": "snapshot",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_applicable",
+        "boundary_evidence": "not_applicable",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": false,
+      "sources": [
+        "https://docs.ozon.ru/api/seller/"
+      ],
+      "quota_profiles": {
+        "list": {
+          "key": "OZ-02:list",
+          "scope": "seller",
+          "interval": 1,
+          "min_interval": 1,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "Ratelimit-Remaining"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.ozon.ru/news/802-Zagolovki-dlia-upravleniia-reit-limitami-v-Seller-API/",
+          "verified_at": "2026-11-28",
+          "documented": false,
+          "token_class": null
+        },
+        "details": {
+          "key": "OZ-02:details",
+          "scope": "seller",
+          "interval": 1,
+          "min_interval": 1,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "Ratelimit-Remaining"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.ozon.ru/news/802-Zagolovki-dlia-upravleniia-reit-limitami-v-Seller-API/",
+          "verified_at": "2026-11-28",
+          "documented": false,
+          "token_class": null
+        }
+      },
+      "required_scope": [
+        "Product read-only"
+      ],
+      "required_scope_evidence": "accepted_runtime_hint_not_independently_documented"
+    },
+    {
+      "template": "OZ-03",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_bad_archives_missing_sheets_and_bad_csv_fail_closed",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_03",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_live_ozon_report_origin_is_allowed_without_authentication",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_ozon_fbo_and_fbs_reports_are_both_required",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_report_failures_and_unknown_status_are_not_zero_success",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_report_ids_cannot_be_urls_or_unstructured_payloads",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_report_ids_survive_pending_restart_and_expired_url",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_03",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_timezones_and_ozon_csv_period_are_checked",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "generate",
+        "poll",
+        "download"
+      ],
+      "source": "https://docs.ozon.ru/api/seller/",
+      "history": {
+        "axis": "in_process_at",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": 3,
+        "window_evidence": "accepted_donor_conservative_window",
+        "boundary_evidence": "unknown",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {},
+      "individual_quota_documented": false,
+      "sources": [
+        "https://docs.ozon.ru/api/seller/"
+      ],
+      "quota_profiles": {
+        "generate": {
+          "key": "OZ-03:generate",
+          "scope": "seller",
+          "interval": 60,
+          "min_interval": 60,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "Ratelimit-Remaining"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.ozon.ru/news/802-Zagolovki-dlia-upravleniia-reit-limitami-v-Seller-API/",
+          "verified_at": "2026-11-28",
+          "documented": false,
+          "token_class": null
+        },
+        "poll": {
+          "key": "OZ-03:poll",
+          "scope": "seller",
+          "interval": 1,
+          "min_interval": 1,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "Ratelimit-Remaining"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.ozon.ru/news/802-Zagolovki-dlia-upravleniia-reit-limitami-v-Seller-API/",
+          "verified_at": "2026-11-28",
+          "documented": false,
+          "token_class": null
+        },
+        "download": {
+          "key": "OZ-03:download",
+          "scope": "seller",
+          "interval": 1,
+          "min_interval": 1,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "Ratelimit-Remaining"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.ozon.ru/news/802-Zagolovki-dlia-upravleniia-reit-limitami-v-Seller-API/",
+          "verified_at": "2026-11-28",
+          "documented": false,
+          "token_class": null
+        }
+      },
+      "required_scope": [
+        "Report"
+      ],
+      "required_scope_evidence": "accepted_runtime_hint_not_independently_documented"
+    },
+    {
+      "template": "OZ-04",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_empty_arrays_are_zero_only_after_documented_completion",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_04",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_ozon_return_cursor_restart_does_not_repeat_first_page",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_ozon_returns_exact_exemplars_and_physical_classification",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_04",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "list"
+      ],
+      "source": "https://docs.ozon.ru/api/seller/",
+      "history": {
+        "axis": "logistic_return_date",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_declared",
+        "boundary_evidence": "unknown",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": false,
+      "sources": [
+        "https://docs.ozon.ru/api/seller/"
+      ],
+      "quota_profiles": {
+        "list": {
+          "key": "OZ-04:list",
+          "scope": "seller",
+          "interval": 1,
+          "min_interval": 1,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "Ratelimit-Remaining"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.ozon.ru/news/802-Zagolovki-dlia-upravleniia-reit-limitami-v-Seller-API/",
+          "verified_at": "2026-11-28",
+          "documented": false,
+          "token_class": null
+        }
+      },
+      "required_scope": [
+        "Returns read-only"
+      ],
+      "required_scope_evidence": "accepted_runtime_hint_not_independently_documented"
+    },
+    {
+      "template": "OZ-05",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_05",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_05",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "fbo",
+        "fbs"
+      ],
+      "source": "https://docs.ozon.ru/api/seller/",
+      "history": {
+        "axis": "order_creation",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_declared",
+        "boundary_evidence": "unknown",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": false,
+      "sources": [
+        "https://docs.ozon.ru/api/seller/"
+      ],
+      "quota_profiles": {
+        "fbo": {
+          "key": "OZ-05:fbo",
+          "scope": "seller",
+          "interval": 1,
+          "min_interval": 1,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "Ratelimit-Remaining"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.ozon.ru/news/802-Zagolovki-dlia-upravleniia-reit-limitami-v-Seller-API/",
+          "verified_at": "2026-11-28",
+          "documented": false,
+          "token_class": null
+        },
+        "fbs": {
+          "key": "OZ-05:fbs",
+          "scope": "seller",
+          "interval": 1,
+          "min_interval": 1,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "Ratelimit-Remaining"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.ozon.ru/news/802-Zagolovki-dlia-upravleniia-reit-limitami-v-Seller-API/",
+          "verified_at": "2026-11-28",
+          "documented": false,
+          "token_class": null
+        }
+      },
+      "required_scope": [
+        "Posting FBO",
+        "Posting FBS read-only"
+      ],
+      "required_scope_evidence": "accepted_runtime_hint_not_independently_documented"
+    },
+    {
+      "template": "OZ-06",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_current_ozon_posting_versions_and_safe_quantity_flags",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_06",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_06",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_timezones_and_ozon_csv_period_are_checked",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "fbo",
+        "fbs"
+      ],
+      "source": "https://dev.ozon.ru/news/734-Otkliuchenie-starykh-metodov-Seller-API-dlia-raboty-s-postingami/",
+      "history": {
+        "axis": "order_creation",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_declared",
+        "boundary_evidence": "unknown",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": false,
+      "sources": [
+        "https://dev.ozon.ru/news/734-Otkliuchenie-starykh-metodov-Seller-API-dlia-raboty-s-postingami/"
+      ],
+      "quota_profiles": {
+        "fbo": {
+          "key": "OZ-06:fbo",
+          "scope": "seller",
+          "interval": 1,
+          "min_interval": 1,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "Ratelimit-Remaining"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.ozon.ru/news/802-Zagolovki-dlia-upravleniia-reit-limitami-v-Seller-API/",
+          "verified_at": "2026-11-28",
+          "documented": false,
+          "token_class": null
+        },
+        "fbs": {
+          "key": "OZ-06:fbs",
+          "scope": "seller",
+          "interval": 1,
+          "min_interval": 1,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "Ratelimit-Remaining"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.ozon.ru/news/802-Zagolovki-dlia-upravleniia-reit-limitami-v-Seller-API/",
+          "verified_at": "2026-11-28",
+          "documented": false,
+          "token_class": null
+        }
+      },
+      "required_scope": [
+        "Posting FBO",
+        "Posting FBS read-only"
+      ],
+      "required_scope_evidence": "accepted_runtime_hint_not_independently_documented"
+    },
+    {
+      "template": "OZ-07",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_07",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_stocks_distinguish_aggregate_transit_available_and_physical",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_07",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "list"
+      ],
+      "source": "https://docs.ozon.ru/api/seller/",
+      "history": {
+        "axis": "snapshot",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_applicable",
+        "boundary_evidence": "not_applicable",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": false,
+      "sources": [
+        "https://docs.ozon.ru/api/seller/"
+      ],
+      "quota_profiles": {
+        "list": {
+          "key": "OZ-07:list",
+          "scope": "seller",
+          "interval": 1,
+          "min_interval": 1,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "Ratelimit-Remaining"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.ozon.ru/news/802-Zagolovki-dlia-upravleniia-reit-limitami-v-Seller-API/",
+          "verified_at": "2026-11-28",
+          "documented": false,
+          "token_class": null
+        }
+      },
+      "required_scope": [
+        "Product read-only"
+      ],
+      "required_scope_evidence": "accepted_runtime_hint_not_independently_documented"
+    },
+    {
+      "template": "WB-01",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_basic_wb_limits_and_shared_yandex_poll",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_wb_token_claims_require_authenticated_seller",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_WB_01",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_WB_01",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "identity"
+      ],
+      "source": "https://dev.wildberries.ru/api/swagger/yaml/en/01-general.yaml",
+      "history": {
+        "axis": "snapshot",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_applicable",
+        "boundary_evidence": "not_applicable",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": true,
+      "sources": [
+        "https://dev.wildberries.ru/api/swagger/yaml/en/01-general.yaml"
+      ],
+      "quota_profiles": {
+        "identity": {
+          "key": "WB-01:identity",
+          "scope": "seller",
+          "interval": 86400,
+          "min_interval": 86400,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-Ratelimit-Retry",
+            "X-Ratelimit-Reset",
+            "X-Ratelimit-Remaining",
+            "X-Ratelimit-Limit"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.wildberries.ru/api/swagger/yaml/en/01-general.yaml",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": "base"
+        }
+      },
+      "required_scope": [
+        "any category"
+      ],
+      "required_scope_evidence": "official_documentation"
+    },
+    {
+      "template": "WB-02",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_WB_02",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_WB_02",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_wb_catalog_cursor_must_advance_and_total_match",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "list"
+      ],
+      "source": "https://dev.wildberries.ru/api/swagger/yaml/en/02-items.yaml",
+      "history": {
+        "axis": "snapshot",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_applicable",
+        "boundary_evidence": "not_applicable",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": true,
+      "sources": [
+        "https://dev.wildberries.ru/api/swagger/yaml/en/02-items.yaml"
+      ],
+      "quota_profiles": {
+        "list": {
+          "key": "WB-02:list",
+          "scope": "seller",
+          "interval": 0.75,
+          "min_interval": 0.75,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-Ratelimit-Retry",
+            "X-Ratelimit-Reset",
+            "X-Ratelimit-Remaining",
+            "X-Ratelimit-Limit"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.wildberries.ru/api/swagger/yaml/en/02-items.yaml",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": "base"
+        }
+      },
+      "required_scope": [
+        "Content"
+      ],
+      "required_scope_evidence": "official_documentation"
+    },
+    {
+      "template": "WB-03",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_basic_wb_limits_and_shared_yandex_poll",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_empty_arrays_are_zero_only_after_documented_completion",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_WB_03",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_service_limit_is_a_separate_shared_scope",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_WB_03",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_wb_funnel_is_not_gross_delivery_or_physical_returns",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_wb_funnel_offset_and_known_unknown_units",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_wire_observer_preserves_bad_response_for_the_actual_executor",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "list"
+      ],
+      "source": "https://dev.wildberries.ru/api/swagger/yaml/en/11-analytics.yaml",
+      "history": {
+        "axis": "order_cohort_interval",
+        "earliest": null,
+        "max_lookback_days": 365,
+        "max_window_days": 365,
+        "window_months": null,
+        "window_evidence": "documented",
+        "boundary_evidence": "documented",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": true,
+      "sources": [
+        "https://dev.wildberries.ru/api/swagger/yaml/en/11-analytics.yaml"
+      ],
+      "quota_profiles": {
+        "list": {
+          "key": "WB-03:list",
+          "scope": "seller",
+          "interval": 1800,
+          "min_interval": 1800,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-Ratelimit-Retry",
+            "X-Ratelimit-Reset",
+            "X-Ratelimit-Remaining",
+            "X-Ratelimit-Limit"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.wildberries.ru/api/swagger/yaml/en/11-analytics.yaml",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": "base"
+        }
+      },
+      "required_scope": [
+        "Analytics"
+      ],
+      "required_scope_evidence": "official_documentation"
+    },
+    {
+      "template": "WB-04",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_basic_wb_limits_and_shared_yandex_poll",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_WB_04",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_WB_04",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_wb_finance_ignores_nonquantity_adjustments",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_wb_finance_quantity_fields_not_economic_fields",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_wb_finance_short_page_is_not_terminal",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_wb_realization_return_is_not_physical_logistics_evidence",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "list"
+      ],
+      "source": "https://dev.wildberries.ru/api/swagger/yaml/en/13-finances.yaml",
+      "history": {
+        "axis": "realization_event",
+        "earliest": "2024-01-29",
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_declared",
+        "boundary_evidence": "documented",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES",
+        "realization_return_not_physical_return": "TESTED"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": true,
+      "sources": [
+        "https://dev.wildberries.ru/api/swagger/yaml/en/13-finances.yaml"
+      ],
+      "quota_profiles": {
+        "list": {
+          "key": "WB-04:list",
+          "scope": "seller",
+          "interval": 43200,
+          "min_interval": 43200,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-Ratelimit-Retry",
+            "X-Ratelimit-Reset",
+            "X-Ratelimit-Remaining",
+            "X-Ratelimit-Limit"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.wildberries.ru/api/swagger/yaml/en/13-finances.yaml",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": "base"
+        }
+      },
+      "required_scope": [
+        "Finance"
+      ],
+      "required_scope_evidence": "official_documentation"
+    },
+    {
+      "template": "WB-05",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_basic_wb_limits_and_shared_yandex_poll",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_WB_05",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_report_failures_and_unknown_status_are_not_zero_success",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_report_ids_cannot_be_urls_or_unstructured_payloads",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_report_ids_survive_pending_restart_and_expired_url",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_stocks_distinguish_aggregate_transit_available_and_physical",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_WB_05",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_wb_get_generation_is_non_idempotent_and_no_duplicate_quota",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_wb_stock_barcodes_share_sku_without_losing_or_duplicating_units",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "generate",
+        "poll",
+        "download"
+      ],
+      "source": "https://dev.wildberries.ru/api/swagger/yaml/en/12-reports.yaml",
+      "history": {
+        "axis": "snapshot",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_applicable",
+        "boundary_evidence": "not_applicable",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {},
+      "individual_quota_documented": true,
+      "sources": [
+        "https://dev.wildberries.ru/api/swagger/yaml/en/12-reports.yaml"
+      ],
+      "quota_profiles": {
+        "generate": {
+          "key": "WB-05:generate",
+          "scope": "seller",
+          "interval": 900,
+          "min_interval": 900,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-Ratelimit-Retry",
+            "X-Ratelimit-Reset",
+            "X-Ratelimit-Remaining",
+            "X-Ratelimit-Limit"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.wildberries.ru/api/swagger/yaml/en/12-reports.yaml",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": "base"
+        },
+        "poll": {
+          "key": "WB-05:poll",
+          "scope": "seller",
+          "interval": 900,
+          "min_interval": 900,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-Ratelimit-Retry",
+            "X-Ratelimit-Reset",
+            "X-Ratelimit-Remaining",
+            "X-Ratelimit-Limit"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.wildberries.ru/api/swagger/yaml/en/12-reports.yaml",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": "base"
+        },
+        "download": {
+          "key": "WB-05:download",
+          "scope": "seller",
+          "interval": 900,
+          "min_interval": 900,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-Ratelimit-Retry",
+            "X-Ratelimit-Reset",
+            "X-Ratelimit-Remaining",
+            "X-Ratelimit-Limit"
+          ],
+          "rate_limit_statuses": [
+            429
+          ],
+          "source": "https://dev.wildberries.ru/api/swagger/yaml/en/12-reports.yaml",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": "base"
+        }
+      },
+      "required_scope": [
+        "Analytics"
+      ],
+      "required_scope_evidence": "official_documentation"
+    },
+    {
+      "template": "YM-01",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_YM_01",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_YM_01",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "identity",
+        "campaigns"
+      ],
+      "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/auth/getAuthTokenInfo",
+      "history": {
+        "axis": "snapshot",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_applicable",
+        "boundary_evidence": "not_applicable",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": true,
+      "sources": [
+        "https://yandex.ru/dev/market/partner-api/doc/ru/reference/auth/getAuthTokenInfo"
+      ],
+      "quota_profiles": {
+        "identity": {
+          "key": "YM-01:identity",
+          "scope": "business",
+          "interval": 36,
+          "min_interval": 36,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/auth/getAuthTokenInfo",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        },
+        "campaigns": {
+          "key": "YM-01:campaigns",
+          "scope": "business",
+          "interval": 3.6,
+          "min_interval": 3.6,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/auth/getAuthTokenInfo",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        }
+      },
+      "required_scope": [
+        "any valid Api-Key scope"
+      ],
+      "required_scope_evidence": "official_documentation"
+    },
+    {
+      "template": "YM-02",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_catalog_count_change_details_mismatch_and_archive_pass",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_YM_02",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_YM_02",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "list"
+      ],
+      "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/business-offer-mappings/getOfferMappings",
+      "history": {
+        "axis": "snapshot",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_applicable",
+        "boundary_evidence": "not_applicable",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": true,
+      "sources": [
+        "https://yandex.ru/dev/market/partner-api/doc/ru/reference/business-offer-mappings/getOfferMappings"
+      ],
+      "quota_profiles": {
+        "list": {
+          "key": "YM-02:list",
+          "scope": "business",
+          "interval": 0.6,
+          "min_interval": 0.6,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/business-offer-mappings/getOfferMappings",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        }
+      },
+      "required_scope": [
+        "offers-and-cards-management:read-only"
+      ],
+      "required_scope_evidence": "official_documentation"
+    },
+    {
+      "template": "YM-03",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_empty_arrays_are_zero_only_after_documented_completion",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_YM_03",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_invalid_units_do_not_become_zero",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_YM_03",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_unrecognized_or_looped_cursor_is_rejected",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_yandex_laas_foreign_source_orders_cannot_double_count_marketplaces",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_yandex_modern_date_parameters_and_half_open_order_interval",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_yandex_unit_outcomes_preserve_original_denominator",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_yandex_unknown_unit_status_rejected_and_partial_count_explicit",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "list"
+      ],
+      "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/orders/getBusinessOrders",
+      "history": {
+        "axis": "order_creation",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": 30,
+        "window_months": null,
+        "window_evidence": "documented",
+        "boundary_evidence": "unknown",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES",
+        "foreign_laas_source_doublecount_guard": "TESTED"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": true,
+      "sources": [
+        "https://yandex.ru/dev/market/partner-api/doc/ru/reference/orders/getBusinessOrders"
+      ],
+      "quota_profiles": {
+        "list": {
+          "key": "YM-03:list",
+          "scope": "business",
+          "interval": 0.36,
+          "min_interval": 0.36,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/orders/getBusinessOrders",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        }
+      },
+      "required_scope": [
+        "inventory-and-order-processing:read-only"
+      ],
+      "required_scope_evidence": "official_documentation"
+    },
+    {
+      "template": "YM-04",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_empty_arrays_are_zero_only_after_documented_completion",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_YM_04",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_YM_04",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_yandex_fast_return_refund_never_proves_physical_return",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_yandex_modern_date_parameters_and_half_open_order_interval",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "list"
+      ],
+      "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/returns/getReturns",
+      "history": {
+        "axis": "return_update",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_declared",
+        "boundary_evidence": "unknown",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {
+        "generate_unknown": "Template has no report-generation stage.",
+        "corrupt_archive": "JSON-only method; malformed JSON remains mandatory."
+      },
+      "individual_quota_documented": true,
+      "sources": [
+        "https://yandex.ru/dev/market/partner-api/doc/ru/reference/returns/getReturns"
+      ],
+      "quota_profiles": {
+        "list": {
+          "key": "YM-04:list",
+          "scope": "campaign",
+          "interval": 0.72,
+          "min_interval": 0.72,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/returns/getReturns",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        }
+      },
+      "required_scope": [
+        "inventory-and-order-processing:read-only"
+      ],
+      "required_scope_evidence": "official_documentation"
+    },
+    {
+      "template": "YM-05",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_bad_archives_missing_sheets_and_bad_csv_fail_closed",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_checkpoint_bound_to_connection_generation_and_all_selectors",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_YM_05",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_report_download_urls_are_private_and_cannot_escape",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_report_failures_and_unknown_status_are_not_zero_success",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_report_ids_cannot_be_urls_or_unstructured_payloads",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_report_ids_survive_pending_restart_and_expired_url",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_YM_05",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_yandex_monthly_report_remains_calendar_basis",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "generate",
+        "poll",
+        "download"
+      ],
+      "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/generateGoodsRealizationReport",
+      "history": {
+        "axis": "realization_event",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": 1,
+        "window_evidence": "documented",
+        "boundary_evidence": "unknown",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {},
+      "individual_quota_documented": true,
+      "sources": [
+        "https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/generateGoodsRealizationReport"
+      ],
+      "quota_profiles": {
+        "generate": {
+          "key": "YM-05:generate",
+          "scope": "business",
+          "interval": 120,
+          "min_interval": 120,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/generateGoodsRealizationReport",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        },
+        "poll": {
+          "key": "yandex:report-info",
+          "scope": "business",
+          "interval": 0.6,
+          "min_interval": 0.6,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/getReportInfo",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        },
+        "download": {
+          "key": "YM-05:download",
+          "scope": "business",
+          "interval": 0.6,
+          "min_interval": 0.6,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/generateGoodsRealizationReport",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        }
+      },
+      "required_scope": [
+        "finance-and-accounting"
+      ],
+      "required_scope_evidence": "official_documentation"
+    },
+    {
+      "template": "YM-06",
+      "contract_result": "PASS",
+      "contract_test_cases": [
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_current_stock_report_requires_and_filters_placement_column",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_YM_06",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_failed_unqualified_legacy_stock_report_is_retained_before_discovery",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_live_current_stock_header_without_placement_requires_single_campaign",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_live_yandex_private_mds_report_origin_is_allowed_without_authentication",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_old_current_report_rechecks_scope_without_recreating_report",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_report_failures_and_unknown_status_are_not_zero_success",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_report_ids_cannot_be_urls_or_unstructured_payloads",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_report_ids_survive_pending_restart_and_expired_url",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_stocks_distinguish_aggregate_transit_available_and_physical",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_success_YM_06",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_wire_observer_preserves_bad_response_for_the_actual_executor",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_yandex_stock_report_does_not_sum_different_report_representations",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_yandex_stock_variants_use_proven_campaign_scope_and_quotas",
+          "result": "PASS"
+        },
+        {
+          "test": "tests.test_market_quantity_providers.ProviderContracts.test_yandex_warehouse_discovery_paginates_and_cannot_bind_unknown_campaign",
+          "result": "PASS"
+        }
+      ],
+      "stages": [
+        "warehouses_current",
+        "warehouses_legacy",
+        "generate_current",
+        "generate",
+        "poll",
+        "download"
+      ],
+      "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/generateStocksReport",
+      "history": {
+        "axis": "snapshot",
+        "earliest": null,
+        "max_lookback_days": null,
+        "max_window_days": null,
+        "window_months": null,
+        "window_evidence": "not_applicable",
+        "boundary_evidence": "not_applicable",
+        "timezone": "Europe/Moscow",
+        "empty_window_is_history_boundary": false
+      },
+      "normalization": "market-quantity/v1",
+      "http_boundary_codes_tested": [
+        400,
+        401,
+        402,
+        403,
+        404,
+        408,
+        409,
+        410,
+        420,
+        429,
+        500,
+        502,
+        503,
+        504
+      ],
+      "scenario_status": {
+        "synthetic_success": "TESTED",
+        "invalid_json_schema_domain_error_initial_stage": "TESTED",
+        "rejected_http_failures_initial_stage": "TESTED",
+        "safe_quantity_projection": "TESTED",
+        "restart_serializable_checkpoint": "TESTED",
+        "runtime_429_retry_restart_concurrency": "SEPARATE_RUNTIME_EVIDENCE",
+        "live_authorized_provider": "SEPARATE_LIVE_EVIDENCE",
+        "seller_account_reconciliation": "NOT_ESTABLISHED_BY_UNIT_TESTS",
+        "warehouse_scope_current_groups_fby_ambiguous_restart": "TESTED",
+        "independent_wire_counter_conservation": "TESTED_WITH_SYNTHETIC_VALUES",
+        "observed_v3_csv_variant_single_campaign_only": "TESTED_WITH_SYNTHETIC_VALUES"
+      },
+      "not_applicable": {},
+      "individual_quota_documented": true,
+      "sources": [
+        "https://yandex.ru/dev/market/partner-api/doc/ru/reference/warehouses/getPartnerWarehouses",
+        "https://yandex.ru/dev/market/partner-api/doc/ru/reference/warehouses/getPagedWarehouses",
+        "https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/generateStocksReport",
+        "https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/generateStocksOnWarehousesReport",
+        "https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/getReportInfo"
+      ],
+      "quota_profiles": {
+        "warehouses_current": {
+          "key": "YM-06:warehouses_current",
+          "scope": "business",
+          "interval": 36,
+          "min_interval": 36,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/warehouses/getPartnerWarehouses",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        },
+        "warehouses_legacy": {
+          "key": "YM-06:warehouses_legacy",
+          "scope": "business",
+          "interval": 36,
+          "min_interval": 36,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/warehouses/getPagedWarehouses",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        },
+        "generate_current": {
+          "key": "YM-06:generate_current",
+          "scope": "business",
+          "interval": 120,
+          "min_interval": 120,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/generateStocksReport",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        },
+        "generate": {
+          "key": "YM-06:generate",
+          "scope": "business",
+          "interval": 120,
+          "min_interval": 120,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/generateStocksOnWarehousesReport",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        },
+        "poll": {
+          "key": "yandex:report-info",
+          "scope": "business",
+          "interval": 0.6,
+          "min_interval": 0.6,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/getReportInfo",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        },
+        "download": {
+          "key": "YM-06:download",
+          "scope": "business",
+          "interval": 0.6,
+          "min_interval": 0.6,
+          "max_concurrency": 1,
+          "max_active_retries": 5,
+          "max_cycle_seconds": 900,
+          "backoff_base": 8,
+          "backoff_cap": 900,
+          "vendor_headers": [
+            "Retry-After",
+            "X-RateLimit-Resource-Until",
+            "X-RateLimit-Resource-Remaining",
+            "X-RateLimit-Resource-Limit"
+          ],
+          "rate_limit_statuses": [
+            420,
+            429
+          ],
+          "source": "https://yandex.ru/dev/market/partner-api/doc/ru/reference/reports/generateStocksReport",
+          "verified_at": "2026-11-28",
+          "documented": true,
+          "token_class": null
+        }
+      },
+      "required_scope": [
+        "offers-and-cards-management:read-only",
+        "inventory-and-order-processing:read-only"
+      ],
+      "required_scope_evidence": "official_documentation"
+    }
+  ],
+  "all_unit_results": {
+    "tests.test_market_quantity_providers.ProviderContracts.test_all_eighteen_passports_are_complete_and_private": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_bad_archives_missing_sheets_and_bad_csv_fail_closed": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_basic_wb_limits_and_shared_yandex_poll": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_catalog_count_change_details_mismatch_and_archive_pass": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_checkpoint_bound_to_connection_generation_and_all_selectors": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_current_ozon_posting_versions_and_safe_quantity_flags": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_current_stock_report_requires_and_filters_placement_column": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_documented_history_boundaries_never_invent_earliest_date": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_documented_wb_token_claims_require_authenticated_seller": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_empty_arrays_are_zero_only_after_documented_completion": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_01": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_02": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_03": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_04": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_05": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_06": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_OZ_07": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_WB_01": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_WB_02": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_WB_03": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_WB_04": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_WB_05": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_YM_01": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_YM_02": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_YM_03": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_YM_04": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_YM_05": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_fail_closed_YM_06": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_failed_unqualified_legacy_stock_report_is_retained_before_discovery": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_independent_wire_counters_match_all_eighteen_quantity_projections": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_invalid_units_do_not_become_zero": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_live_current_stock_header_without_placement_requires_single_campaign": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_live_evidence_redacts_values_and_unrecognized_keys": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_live_ozon_report_origin_is_allowed_without_authentication": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_live_yandex_private_mds_report_origin_is_allowed_without_authentication": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_old_current_report_rechecks_scope_without_recreating_report": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_ozon_fbo_and_fbs_reports_are_both_required": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_ozon_return_cursor_restart_does_not_repeat_first_page": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_ozon_returns_exact_exemplars_and_physical_classification": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_report_download_urls_are_private_and_cannot_escape": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_report_failures_and_unknown_status_are_not_zero_success": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_report_ids_cannot_be_urls_or_unstructured_payloads": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_report_ids_survive_pending_restart_and_expired_url": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_service_limit_is_a_separate_shared_scope": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_stocks_distinguish_aggregate_transit_available_and_physical": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_01": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_02": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_03": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_04": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_05": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_06": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_OZ_07": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_WB_01": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_WB_02": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_WB_03": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_WB_04": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_WB_05": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_YM_01": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_YM_02": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_YM_03": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_YM_04": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_YM_05": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_success_YM_06": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_timezones_and_ozon_csv_period_are_checked": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_unrecognized_or_looped_cursor_is_rejected": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_wb_catalog_cursor_must_advance_and_total_match": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_wb_finance_ignores_nonquantity_adjustments": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_wb_finance_quantity_fields_not_economic_fields": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_wb_finance_short_page_is_not_terminal": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_wb_funnel_is_not_gross_delivery_or_physical_returns": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_wb_funnel_offset_and_known_unknown_units": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_wb_get_generation_is_non_idempotent_and_no_duplicate_quota": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_wb_realization_return_is_not_physical_logistics_evidence": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_wb_stock_barcodes_share_sku_without_losing_or_duplicating_units": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_wire_observer_preserves_bad_response_for_the_actual_executor": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_yandex_fast_return_refund_never_proves_physical_return": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_yandex_laas_foreign_source_orders_cannot_double_count_marketplaces": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_yandex_modern_date_parameters_and_half_open_order_interval": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_yandex_monthly_report_remains_calendar_basis": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_yandex_stock_report_does_not_sum_different_report_representations": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_yandex_stock_variants_use_proven_campaign_scope_and_quotas": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_yandex_unit_outcomes_preserve_original_denominator": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_yandex_unknown_unit_status_rejected_and_partial_count_explicit": "PASS",
+    "tests.test_market_quantity_providers.ProviderContracts.test_yandex_warehouse_discovery_paginates_and_cannot_bind_unknown_campaign": "PASS"
+  },
+  "limitations": [
+    "No authorized HTTP call occurs in this unit suite.",
+    "The shared executor, rate limiter and stress laboratory have independent evidence.",
+    "Ozon method-specific quotas and unknown earliest history boundaries are not silently marked verified."
+  ],
+  "remaining_provider_contract_blockers": [
+    {
+      "criterion": "MP-T03",
+      "templates": [
+        "OZ-01",
+        "OZ-02",
+        "OZ-03",
+        "OZ-04",
+        "OZ-05",
+        "OZ-06",
+        "OZ-07"
+      ],
+      "status": "NOT_DOCUMENTALLY_CONFIRMED",
+      "fields": [
+        "individual_method_quota",
+        "minimum_role_method_mapping"
+      ],
+      "evidence": "https://docs.ozon.ru/api/seller/ returned no readable lines; generic Client-Id ceiling and successful authorized responses do not prove individual method limits."
+    },
+    {
+      "criterion": "MP-T03",
+      "templates": [
+        "OZ-03",
+        "OZ-04",
+        "OZ-05",
+        "OZ-06",
+        "YM-03",
+        "YM-04",
+        "YM-05"
+      ],
+      "status": "RETENTION_BOUNDARY_UNKNOWN",
+      "fields": [
+        "earliest_available_history"
+      ],
+      "evidence": "Read primary sources specify methods/windows but do not establish the earliest available history; empty windows are not a boundary proof."
+    },
+    {
+      "criterion": "LIVE_ALTERNATIVE_COVERAGE",
+      "templates": [
+        "YM-06"
+      ],
+      "status": "NOT_ESTABLISHED_BY_AVAILABLE_STORE",
+      "fields": [
+        "live_FBY",
+        "live_warehouse_groups",
+        "live_multiple_campaigns"
+      ],
+      "evidence": "Available authorized Yandex connection has one FBS campaign; alternative branches have synthetic contracts, not actual stores."
+    }
+  ]
+}

@@ -1,0 +1,198 @@
+{
+  "schema": "marketplace-public-dual/v1",
+  "candidate_sha": "db0d660f132ae3b7d3db7620fd4b1110fc75022f",
+  "status": "DUAL_SCOPE_PASS_FOR_RECORDED_SHA",
+  "tests_run_total": 229,
+  "qualified_test_aliases": 43,
+  "operations": [
+    {
+      "id": "USER-01",
+      "name": "Подключить магазин",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-02",
+      "name": "Прочитать подключения",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-03",
+      "name": "Заменить ключ",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-04",
+      "name": "Проверить доступ",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-05",
+      "name": "Отключить магазин",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-06",
+      "name": "Статус истории и полноты",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-07",
+      "name": "Собрать недостающий период",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-08",
+      "name": "Обновить уже собранные данные",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-09",
+      "name": "Остановить / продолжить / повторить",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-10",
+      "name": "Продажи: факт и оценка",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-11",
+      "name": "Коэффициенты потерь",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-12",
+      "name": "Каталог / поиск / несвязанные SKU",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-13",
+      "name": "Связать SKU с изделием / снять связь",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-14",
+      "name": "Два коэффициента брака",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-15",
+      "name": "Сезонный план закупок",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-16",
+      "name": "Фактический расход / материальная стоимость / краткий план",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "USER-17",
+      "name": "Экспорт полного отчёта / плана",
+      "status": "PASS_FOR_RECORDED_SHA"
+    }
+  ],
+  "criteria": [
+    {
+      "id": "DUAL-01",
+      "requirement": "Реестр всех пользовательских операций сопоставлен с элементом UI и доступным инструментом/командой чата.",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "DUAL-02",
+      "requirement": "Общие обработчик, результаты, состояние БД и квитанции при одинаковом вводе.",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "DUAL-03",
+      "requirement": "Кабинет без DeepSeek, без монет; ноль вызовов модели.",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "DUAL-04",
+      "requirement": "Полный сценарий чата без перехода в кабинет; поля, разрешения и подтверждения.",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "DUAL-05",
+      "requirement": "Взаимная видимость, одинаковые ошибки, отмена, восстановление и отсутствие дублей при смене канала.",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "DUAL-06",
+      "requirement": "Изоляция клиентов, роли, запреты и безопасный ввод секретов.",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "DUAL-07",
+      "requirement": "Ревью подтверждает отсутствие параллельных расчётов/архитектуры: общий контракт и ядро.",
+      "status": "PASS_FOR_RECORDED_SHA"
+    },
+    {
+      "id": "DUAL-08",
+      "requirement": "Новые функции реализованы для обоих каналов; неполный паритет не принимается.",
+      "status": "PASS_FOR_RECORDED_SHA"
+    }
+  ],
+  "runs": [
+    {
+      "kind": "browser",
+      "engine": "chromium",
+      "tests_run": 48,
+      "status": "PASS",
+      "result_sha256": "961ed9e99634c1cf7b6e119a6243ad7ed78fac6a13ef731f6d2fca3b1090fa46"
+    },
+    {
+      "kind": "browser",
+      "engine": "opera",
+      "tests_run": 48,
+      "status": "PASS",
+      "result_sha256": "42106f3ce5e38810227f08f965dd01fa395ba3545e36e0ca6f5c0afd33c23a0f"
+    },
+    {
+      "kind": "native",
+      "engine": "native",
+      "tests_run": 44,
+      "status": "PASS",
+      "result_sha256": "0b58e69120837f3e40f8e0cd015e82fff7223036ba6685e5d15992a34176a4e5"
+    },
+    {
+      "kind": "supplemental DOM",
+      "engine": "chromium",
+      "tests_run": 3,
+      "status": "PASS",
+      "result_sha256": "12b3b17a1df35ab78b480b06af141e601d2b4ea77728a45a9b2fa1df6cf12f91"
+    },
+    {
+      "kind": "supplemental DOM",
+      "engine": "opera",
+      "tests_run": 3,
+      "status": "PASS",
+      "result_sha256": "b473f159b66e240eea51d6f0ebb028a20803ecdd969856171888f70becadee19"
+    },
+    {
+      "kind": "alternate API contexts",
+      "engine": null,
+      "tests_run": 80,
+      "status": "PASS",
+      "result_sha256": "e7f9bf8bfa5e71aa4c5546fde4336e73cd9fb40a86cd1a72b43003bb8be67f63"
+    },
+    {
+      "kind": "real-clock 429",
+      "engine": null,
+      "tests_run": 3,
+      "status": "PASS",
+      "result_sha256": "04eb0d3a4dcbdb5f606e6c59f1c3cac187cbcb07a9a8f09cec251fbf06dc42fa"
+    }
+  ],
+  "scope_limits": [
+    "This qualifies DUAL-01 through DUAL-08 for the recorded SHA, not the whole release MP-T01–MP-T40.",
+    "Authenticated live marketplace reconciliation, full initial history, 30-minute stress, preservation and expenses remain separate mandatory parent gates.",
+    "Synthetic loopback HTTP is not live marketplace evidence. Real-clock refers to actual time, not a live marketplace.",
+    "Backend object recreation proves durable state recovery; OS-process restarts are separately tested by the parent runtime suite.",
+    "No production changes or deployment approval are implied. Historical passes remain qualified only for their original SHA."
+  ],
+  "primary_proof_sha256": "b829b8f21a60de2620d9bac81a80dab118fa2c1a5a044f159a62b6061f3f5df9",
+  "whole_candidate_source_files": 593,
+  "per_run_guarded_files": 378,
+  "source_guard_qualification": "DUAL internal run manifests cover the same 378 platform_core/native/tests files. Separate whole-tree guards and frozen/rebuild manifests cover all 593 candidate files."
+}

@@ -1,0 +1,296 @@
+{
+  "candidate_commit": "db0d660f132ae3b7d3db7620fd4b1110fc75022f",
+  "scope": "MP-T31–MP-T34 isolated acceptance on synthetic data. All provider HTTP was real TCP to loopback fixtures; no live marketplace load.",
+  "status": "PASS",
+  "gates": {
+    "MP-T31": "PASS",
+    "MP-T32": "PASS",
+    "MP-T33": "PASS",
+    "MP-T34": "PASS"
+  },
+  "source_guards": {
+    "git_head_matched": true,
+    "git_clean": true,
+    "tracked_files": 593,
+    "changed_files": [],
+    "source_manifest_sha256": "e2dbd37f01ca0745cc3dc451fabca0a98d2b37c40c93849abdcf7243677b2188",
+    "same_candidate_for_both_runs": true,
+    "raw_count_verification": {
+      "long": {
+        "raw_event_count_matches_report": true,
+        "raw_event_count_matches_db": true,
+        "raw_adapters_match_report": true,
+        "raw_templates_match_report": true,
+        "raw_faults_match_report": true,
+        "raw_workspace_count": 24
+      },
+      "transport": {
+        "raw_event_count_matches_report": true,
+        "raw_event_count_matches_db": true,
+        "raw_adapters_match_report": true,
+        "raw_templates_match_report": true,
+        "raw_faults_match_report": true,
+        "raw_workspace_count": 24
+      }
+    },
+    "source_manifest_after_sha256": "e2dbd37f01ca0745cc3dc451fabca0a98d2b37c40c93849abdcf7243677b2188",
+    "before_after_manifests_identical": true
+  },
+  "mixed_load": {
+    "original_harness_status": "PASS",
+    "original_harness_errors": [],
+    "duration_real_seconds": 1800.017,
+    "old_or_supplemental_seconds_credited": 0,
+    "clients": 24,
+    "worker_processes": 4,
+    "concurrency_configured": 100,
+    "duplicate_start_requests": 1000,
+    "logical_groups": 1,
+    "duplicate_windows": 0,
+    "provider_http_during_enqueue": 0,
+    "duplicate_logical_jobs": 0,
+    "http_events": 19973,
+    "http_attempts_db": 19973,
+    "http_by_adapter": {
+      "ozon": 5109,
+      "wb": 1865,
+      "yandex_market": 12999
+    },
+    "http_by_template": {
+      "OZ-01": 719,
+      "WB-01": 24,
+      "YM-01": 732,
+      "WB-02": 1661,
+      "WB-03": 48,
+      "WB-04": 48,
+      "WB-05": 84,
+      "YM-02": 1587,
+      "YM-03": 2892,
+      "YM-04": 6697,
+      "YM-05": 900,
+      "YM-06": 191,
+      "OZ-02": 727,
+      "OZ-03": 764,
+      "OZ-04": 725,
+      "OZ-05": 724,
+      "OZ-06": 733,
+      "OZ-07": 717
+    },
+    "faults": {
+      "success": 14289,
+      "malformed": 393,
+      "429": 4399,
+      "disconnect": 373,
+      "timeout": 154,
+      "503": 365
+    },
+    "retry_events": 5291,
+    "receipt_recoveries": 30,
+    "counts": {
+      "parallel_clients": 100,
+      "duplicate_starts": 1000,
+      "single_group": 1,
+      "cancellations_resumed": 1762,
+      "cross_client_denials": 1768,
+      "worker_process_restarts": 90,
+      "controlled_retries_after_validation": 393,
+      "injected_process_crashes_after_local_commit": 30,
+      "daily_maintenance_enqueues": 24,
+      "samples_with_durable_deferred": 353
+    },
+    "initial_and_daily_completed_operations": {
+      "ozon": {
+        "initial": 8,
+        "daily": 8
+      },
+      "wb": {
+        "initial": 8,
+        "daily": 8
+      },
+      "yandex_market": {
+        "initial": 8,
+        "daily": 8
+      }
+    },
+    "collection_scope": "Counts show stores with at least one completed initial and daily operation, proving both workloads made progress; this does not claim that maximum historical backfill was completed.",
+    "per_provider_shop_http_distribution": {
+      "ozon": {
+        "shops": 8,
+        "minimum_http": 321,
+        "maximum_http": 795,
+        "total_http": 5109
+      },
+      "wb": {
+        "shops": 8,
+        "minimum_http": 34,
+        "maximum_http": 801,
+        "total_http": 1865
+      },
+      "yandex_market": {
+        "shops": 8,
+        "minimum_http": 1438,
+        "maximum_http": 1924,
+        "total_http": 12999
+      }
+    },
+    "invariant_violations": 0,
+    "peak_resources": {
+      "rss_total_mb": 292.25,
+      "open_descriptors_total": 69,
+      "open_sockets_total": 24,
+      "queued_tasks": 526
+    },
+    "mean_cpu_cores": 0.325,
+    "throughput_http_per_second": 11.096,
+    "operation_endpoint_latency": {
+      "count": 6312,
+      "p50_ms": 3.046,
+      "p95_ms": 367.077,
+      "p99_ms": 460.207,
+      "max_ms": 593.331
+    },
+    "worker_step_latency": {
+      "count": 62158,
+      "p50_ms": 3.253,
+      "p95_ms": 20.912,
+      "p99_ms": 55.55,
+      "max_ms": 685.179
+    },
+    "recovery_latency": {
+      "count": 30,
+      "p50_ms": 34245.389,
+      "p95_ms": 44193.508,
+      "p99_ms": 48394.797,
+      "max_ms": 52156.552
+    },
+    "fixed_budgets": {
+      "ui_p95_ms": 2000,
+      "ui_p99_ms": 5000,
+      "worker_step_p95_ms": 2000,
+      "rss_total_mb": 1536,
+      "mean_cpu_cores": 4,
+      "open_descriptors_total": 512,
+      "queued_tasks": 50000,
+      "early_requests": 0,
+      "uncontrolled_crashes": 0,
+      "cross_client_leaks": 0,
+      "integrity_errors": 0,
+      "model_calls": 0,
+      "minimum_wall_seconds": 1800,
+      "minimum_shops": 20,
+      "parallel_clients": 100,
+      "duplicate_starts": 1000
+    },
+    "model_calls": 0,
+    "local_read_provider_http_calls": 0,
+    "live_provider_calls": 0
+  },
+  "transport_supplement": {
+    "original_harness_status": "SMOKE",
+    "transport_gate_status": "PASS",
+    "errors": [],
+    "thirty_minute_acceptance_credit_seconds": 0,
+    "http_events": 3353,
+    "http_by_adapter": {
+      "ozon": 1155,
+      "wb": 1077,
+      "yandex_market": 1121
+    },
+    "faults": {
+      "success": 2523,
+      "malformed": 56,
+      "429": 643,
+      "disconnect": 73,
+      "timeout": 2,
+      "503": 56
+    },
+    "retry_events": 774,
+    "receipt_recoveries": 1,
+    "model_calls": 0,
+    "live_provider_calls": 0
+  },
+  "notes": [
+    "The mixed-load report and the transport supplement are separate raw runs. Their clocks are never added.",
+    "The source was unchanged for the accepted candidate. Historical aborted candidates are not accepted evidence.",
+    "Initial/daily counts prove completed operations and progress for every synthetic shop; they do not assert maximum available live historical coverage.",
+    "Key rotation/fencing scenarios belong to the separate full regression on the same SHA."
+  ],
+  "evidence_files": {
+    "mixed/baseline.json": {
+      "sha256": "ff5eaa7812765126e62d0b9f9c0b4cd4d8b654fbe71d703d4e86c908bb99c67f",
+      "bytes": 270
+    },
+    "mixed/console.log": {
+      "sha256": "7773905ac72f0357b7a5ba3f61a4a9fd2a2dcdc5e1736e3b1288e2a2ec083244",
+      "bytes": 1628
+    },
+    "mixed/execution.json": {
+      "sha256": "9901b61f0240ade9520155b85e6d567313c2e549c10797e4b35dd5ea8930127e",
+      "bytes": 1403
+    },
+    "mixed/http-events.jsonl": {
+      "sha256": "69122873ab8cdd0c75727bc0f8ea2f34d827552d55121a78ca83ab3e4f43ff5c",
+      "bytes": 7325415
+    },
+    "mixed/preflight.json": {
+      "sha256": "6f14ee24d1c1398776fa4153f77d29fe9268b5b71e134795e6d0bcff81d971e9",
+      "bytes": 1171
+    },
+    "mixed/raw-count-verification.json": {
+      "sha256": "49c4ef4443aee855c14f4490267c05e8c856ca1cfc55f9b8ea523fc3ccd97f50",
+      "bytes": 222
+    },
+    "mixed/report.json": {
+      "sha256": "68fe440a36e672febdd436c606c3a7dcdaa8f10941de3407771b1bf84233d22b",
+      "bytes": 371832
+    },
+    "tools/combine_stress_gates.py": {
+      "sha256": "cbaabef4944497ded4cfc21e269673669f17440151634ec2733e2cd92b3871c5",
+      "bytes": 8281
+    },
+    "tools/launch_long_stress.py": {
+      "sha256": "01df0a97c9400f317d1770df5604f6c1ed67be526318f442b0e31bdc9f4eff31",
+      "bytes": 2467
+    },
+    "tools/publish_stress_summary.py": {
+      "sha256": "4421aabdda54a97e2ef4ebf85651333c055b70dab75e26030fb415e176479550",
+      "bytes": 5215
+    },
+    "tools/summarize_stress.py": {
+      "sha256": "596bde3d46df844ea306a6a6badff2feca4a197bebd7ab69ae0288dc07763c51",
+      "bytes": 2440
+    },
+    "tools/transport_supplement.py": {
+      "sha256": "92f8b835a40cabb49117eedfcb780e80372683c44557cd64bcf796a81233a2fb",
+      "bytes": 7064
+    },
+    "transport/baseline.json": {
+      "sha256": "3b6a48e852448621778411c38cd32ebe33665787309a9df516808f92cc1b434a",
+      "bytes": 270
+    },
+    "transport/console.log": {
+      "sha256": "e2f36cc1bba75ec24bc8d2d53f50b28abfc1aecf20d85b9f68f8b074ade59524",
+      "bytes": 388
+    },
+    "transport/execution.json": {
+      "sha256": "65a3885c11f946255ed29a19ef3804c7d87d7bedc39169b6296230bb0a77a540",
+      "bytes": 1387
+    },
+    "transport/http-events.jsonl": {
+      "sha256": "fbc140172810d9bf21ba5e8a9c0ffc1ccabdebf5060c7912d470bbe906c9c4f0",
+      "bytes": 1218068
+    },
+    "transport/raw-count-verification.json": {
+      "sha256": "49c4ef4443aee855c14f4490267c05e8c856ca1cfc55f9b8ea523fc3ccd97f50",
+      "bytes": 222
+    },
+    "transport/report.json": {
+      "sha256": "c661a624763345af01596d9a12d62c86751fd674a59fd5ba0a0353d59433f04f",
+      "bytes": 49871
+    },
+    "mixed/source-end-guard.json": {
+      "sha256": "42819d79d96006572b56b9423c6731a836786d28a013064cecc54a0fa7754114",
+      "bytes": 357
+    }
+  }
+}

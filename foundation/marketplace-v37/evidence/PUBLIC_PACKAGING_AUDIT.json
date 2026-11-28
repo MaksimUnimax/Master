@@ -1,0 +1,70 @@
+{
+  "schema": "marketplace-public-packaging-audit/v1",
+  "candidate_sha": "db0d660f132ae3b7d3db7620fd4b1110fc75022f",
+  "reviewed_at": "2026-11-28T09:12:50.506237+00:00",
+  "status": "PASS_FOR_REVIEWED_SNAPSHOT",
+  "complete_release_acceptance": "BLOCKED",
+  "criteria_counts": {
+    "PASS": 44,
+    "BLOCKED": 4
+  },
+  "publication_scope": {
+    "authored_files": 73,
+    "private_full_core_files_omitted": 6,
+    "source_files_verified": 593,
+    "public_rebuild_inputs_verified": 78,
+    "public_files_in_snapshot": 94,
+    "public_owner_mirror_identical": true,
+    "private_core_bodies_or_databases_found": false
+  },
+  "generic_scan": {
+    "files_in_public_and_owner_snapshots": 1337,
+    "git_history_blobs": 646,
+    "git_commits": 5,
+    "archive_layers_including_repeated_source_and_git_content": 30,
+    "archive_formats": {
+      "gzip": 14,
+      "brotli": 8,
+      "zip": 6,
+      "tar": 2
+    },
+    "coverage_gaps": 0,
+    "public_secret_pattern_matches": 0,
+    "unexplained_secret_matches": 0,
+    "owner_synthetic_fixture_literal_count": 2,
+    "owner_and_git_synthetic_fixture_occurrences": 6,
+    "possible_secret_values_emitted": false
+  },
+  "privacy_review": {
+    "public_evidence_json_files": 13,
+    "three_authored_documents_fully_reviewed": true,
+    "actual_commercial_values_or_personal_data_found": false,
+    "two_contact_pattern_matches_are_synthetic_url_validation_fixtures": true
+  },
+  "actual_known_secret_review": {
+    "corrected_scan_report_sha256": "16e909da57a3da1377c1ad79bf2cc06f15309c1522caade9f270e3b633480d94",
+    "scanner_sha256": "51c4024b666d54404e0f83a00c12bd55913573f325bb04da57e151357596dbbd",
+    "known_secret_fields_checked_without_disclosure": 4,
+    "encryption_key_encodings_checked": true,
+    "hash_named_frontend_brotli_members_confirmed_in_source_and_history": true,
+    "scope": "Corrected stage02 assembled snapshot. Final full-payload/sealed-ZIP scan is reported by the external delivery attestation after assembly."
+  },
+  "claims_review": {
+    "final_matrix": {
+      "PASS": 44,
+      "BLOCKED": 4
+    },
+    "scoped_guards_and_metering_qualified": true,
+    "historic_results_not_credited_to_final_sha": true,
+    "raw_http_input_files_available_to_owner": 17,
+    "raw_http_receipts_reconciled": 815,
+    "historical_requests": 764,
+    "final_candidate_requests": 51,
+    "new_live_requests_or_product_tests_for_this_audit": 0
+  },
+  "source_or_public_files_modified_by_audit": false,
+  "packaging_audit_sha256": "bd4af8c0c164add1d570dd1f57ad80b97690e4f3ad7014538a24ea61cfaa6a5a",
+  "bundle_sha256": "8611494b4ab8753dca0cd4409707a262fe40abae3fd73835fa4057f2d67db462",
+  "snapshot_qualification": "Own final audit outputs, later file-manifest metadata and the external sealed-ZIP attestation are excluded from this reviewed snapshot to avoid self-hash cycles. Final archive digest and actual-secret scan attestation are intentionally outside the ZIP.",
+  "distribution": "PUBLIC_SAFE_STATUS_AND_TECHNICAL_COUNTERS_ONLY"
+}

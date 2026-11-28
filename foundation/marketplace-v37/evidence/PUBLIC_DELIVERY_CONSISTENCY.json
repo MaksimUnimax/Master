@@ -1,0 +1,19 @@
+{
+  "schema": "marketplace-delivery-consistency/v1",
+  "candidate_sha": "db0d660f132ae3b7d3db7620fd4b1110fc75022f",
+  "passed": true,
+  "source_files_exact": 593,
+  "indexed_asset_links_verified": 182,
+  "matrix_asset_links_verified": 174,
+  "criteria_counts": {
+    "PASS": 44,
+    "BLOCKED": 4
+  },
+  "public_private_statuses_equal": true,
+  "public_authored_files_exact": 73,
+  "private_core_files_absent": 6,
+  "source_and_public_manifests_equal": true,
+  "owner_and_public_report_equal": true,
+  "bundle_hash_matches": true,
+  "qualification": "This verifies assembly, links, hashes and status consistency. It does not replace tests, actual-secret scanning or external live acceptance."
+}

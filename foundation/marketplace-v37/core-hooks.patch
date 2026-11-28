@@ -1,0 +1,79 @@
+--- a/products/harness-platform/platform_core/chat_api.py
++++ b/products/harness-platform/platform_core/chat_api.py
+@@ -115,0 +116,5 @@
++                from .market_collect import Collector
++                app.state.market_collector=None
++                if os.getenv("PODMASTERYE_MARKET_WORKER","1")=="1":
++                    app.state.market_collector=Collector(app.state)
++                app.state.market_links.state=app.state
+@@ -140,0 +146,2 @@
++                    if app.state.market_collector:
++                        await app.state.market_collector.close()
+@@ -226 +233 @@
+-    from . import model_router
++    from . import model_router, podmasterye_market_operations
+@@ -238 +245 @@
+-        *chat_attachments.routes(_token),*podmasterye_scoped.routes(_token,_body),*podmasterye_services.routes(_token,_body),*podmasterye_market_links.routes(_token,_body),*podmasterye_telegram_config.routes(_token,_body),*podmasterye_matrix_admin.routes(_token,_body),
++        *chat_attachments.routes(_token),*podmasterye_scoped.routes(_token,_body),*podmasterye_services.routes(_token,_body),*podmasterye_market_operations.routes(_token,_body),*podmasterye_market_links.routes(_token,_body),*podmasterye_telegram_config.routes(_token,_body),*podmasterye_matrix_admin.routes(_token,_body),
+--- a/products/harness-platform/platform_core/market_collect.py
++++ b/products/harness-platform/platform_core/market_collect.py
+@@ -39,0 +40,4 @@
++        self.quantity=None
++        if hasattr(state,"market_links"):
++            from .market_quantity_runtime import Backend
++            self.quantity=Backend(state)
+@@ -42 +46,2 @@
+-        self.consumers.append(asyncio.create_task(self.serve(local_only=True)))
++        if self.quantity is None:
++            self.consumers.append(asyncio.create_task(self.serve(local_only=True)))
+@@ -50,0 +56,2 @@
++        if self.quantity is not None:
++            return await self.quantity.maintenance()
+@@ -91,0 +99,2 @@
++        if self.quantity is not None:
++            return self.quantity.claim(local_only)
+@@ -130 +139 @@
+-                    due=self.state.identity._db.execute("SELECT min(due) FROM market_data_tasks WHERE state='queued' AND due>unixepoch()").fetchone()[0]
++                    due=self.state.identity._db.execute("SELECT min(due) FROM market_data_tasks WHERE state IN ('queued','collecting','waiting_retry','deferred') AND due>unixepoch()").fetchone()[0]
+@@ -139,0 +149,2 @@
++        if self.quantity is not None:
++            return await self.quantity.run(job)
+--- a/products/harness-platform/platform_core/market_data.py
++++ b/products/harness-platform/platform_core/market_data.py
+@@ -19 +19 @@
+-PROVIDERS = {"wb", "ozon"}
++PROVIDERS = {"wb", "ozon", "yandex_market"}
+--- a/products/harness-platform/platform_core/web_ui.py
++++ b/products/harness-platform/platform_core/web_ui.py
+@@ -26 +26 @@
+-      <div id="cookie-choice" class="cookie-choice" hidden><p>Мы используем необходимые cookie для входа и сохранения контекста. Необязательная аналитика отключена.</p><a href="/privacy">Подробнее</a><button type="button" id="cookie-accept">Понятно</button><button type="button" class="secondary" id="cookie-decline">Только необходимые</button></div><script defer src="/assets/podmasterye-extra.js"></script><script defer src="/assets/podmasterye-accounting.js"></script><script defer src="/assets/podmasterye.js"></script><script defer src="/assets/podmasterye-market-links.js"></script><script defer src="/assets/presence.js"></script><script defer src="/ui-assets/project/checkout.js"></script></body></html>''',status_code=status,headers={**HEADERS,"X-Robots-Tag":"noindex, nofollow"})
++      <div id="cookie-choice" class="cookie-choice" hidden><p>Мы используем необходимые cookie для входа и сохранения контекста. Необязательная аналитика отключена.</p><a href="/privacy">Подробнее</a><button type="button" id="cookie-accept">Понятно</button><button type="button" class="secondary" id="cookie-decline">Только необходимые</button></div><script defer src="/assets/podmasterye-extra.js"></script><script defer src="/assets/podmasterye-accounting.js"></script><script defer src="/assets/podmasterye.js"></script><script defer src="/assets/podmasterye-market.js"></script><script defer src="/assets/podmasterye-market-links.js"></script><script defer src="/assets/presence.js"></script><script defer src="/ui-assets/project/checkout.js"></script></body></html>''',status_code=status,headers={**HEADERS,"X-Robots-Tag":"noindex, nofollow"})
+@@ -91 +91 @@
+-    <section data-panel="planning" hidden><h2>План закупок</h2><div class="toolstrip"><label>Горизонт, дней<input type="number" id="plan-horizon" value="30" min="1" max="365"></label><label>Срок поставки, дней<input type="number" id="plan-lead" value="7" min="0" max="365"></label><label>Страховой запас, дней<input type="number" id="plan-safety" value="3" min="0" max="365"></label><button id="plan-apply" type="button">Пересчитать</button></div><p class="hint">Чистые продажи последних 30 дней. Эквивалент по исторической рецептуре не равен списанию сырья.</p><div id="planning"></div><h3 class="section-subtitle">Эквивалент расхода по чистым продажам за выбранный период</h3><div id="consumption-period"></div><h3 class="section-subtitle">Фактическое списание сырья за выбранный период</h3><p class="hint">Выпуск, начало производства и дополнительный выпуск при продаже. Отдельно — списания вне производства.</p><div id="actual-consumption-period"></div>
++    <section data-panel="planning" hidden><h2>План закупок</h2><section class="panel"><h3>Коэффициенты брака</h3><p id="quality-policy-info" class="hint"></p><p class="hint">Брак возвратов — доля возвращённых изделий, непригодных для повторной продажи. Производственный брак — доля сырья, теряемого при изготовлении. Если значения неизвестны, оставьте поля пустыми; в прогнозе потери не будут учитываться.</p><button id="quality-policy-open" type="button" class="secondary">Настроить коэффициенты</button></section><div class="toolstrip"><label>Горизонт, дней<input type="number" id="plan-horizon" value="30" min="1" max="365"></label><label>Срок поставки, дней<input type="number" id="plan-lead" value="7" min="0" max="365"></label><label>Страховой запас, дней<input type="number" id="plan-safety" value="3" min="0" max="365"></label><button id="plan-apply" type="button">Пересчитать</button></div><p class="hint">Продажи последних 30 дней с учётом заданного брака возвратов и производственных потерь. Эквивалент по исторической рецептуре не равен списанию сырья.</p><div id="planning"></div><h3 class="section-subtitle">Эквивалент расхода по чистым продажам за выбранный период</h3><div id="consumption-period"></div><h3 class="section-subtitle">Фактическое списание сырья за выбранный период</h3><p class="hint">Выпуск, начало производства и дополнительный выпуск при продаже. Отдельно — списания вне производства.</p><div id="actual-consumption-period"></div>
+@@ -99 +99 @@
+-    <section data-panel="integrations" hidden><h2>Интеграции</h2><div class="panel"><h3>Маркетплейсы</h3><p class="hint">Подключения относятся к мастерской. Ключи хранятся зашифрованными. Проверка доступа не изменяет данные магазина.</p><form id="market-add"><label>Площадка<select name="provider"><option value="ozon">Ozon</option><option value="wb">Wildberries</option><option value="yandex_market">Яндекс Маркет</option></select></label><label>Название магазина<input name="name" maxlength="80" required></label><div id="market-key-fields" class="fields"></div><button type="submit">Сохранить подключение</button></form><p id="market-status" role="status"></p><div id="market-list"></div></div><div class="panel"><h3>Telegram</h3><p id="pm-telegram-status" role="status"></p><div class="button-group"><button type="button" data-pm-telegram="connect" disabled>Подключить Telegram</button><button type="button" data-pm-telegram="test" disabled>Проверить отправку</button><button type="button" data-pm-telegram="summary" disabled>Отправить сводку</button><button type="button" class="secondary" data-pm-telegram="disconnect" disabled>Отключить</button></div><p class="hint">Отчёт отправляется только в подтверждённый чат этого аккаунта.</p></div><p class="hint">Собственные магазины, витрины и боты могут передавать заказы по отдельному ключу. Подключение маркетплейсов будет показано только после настройки адаптера.</p><form id="source-create" class="panel"><h3>Подключить свой магазин</h3><label>Название источника<input name="name" maxlength="120" required></label><label class="check"><input type="checkbox" name="auto_produce"> Разрешить изготовление недостающих изделий</label><button>Создать источник</button></form><div class="panel" id="source-key-box" hidden><h3>Новый API-ключ</h3><p>Сохраните его на стороне магазина: повторно ключ не отображается.</p><pre class="source-key" id="source-key"></pre><div class="button-group"><button id="source-copy" type="button">Копировать</button><button id="source-hide" class="secondary" type="button">Скрыть</button></div></div><p id="source-status" role="status"></p><details class="panel"><summary>Инструкция для разработчика</summary><p>POST /api/hook/order · Authorization: Bearer ВАШ_КЛЮЧ · Content-Type: application/json. Передавайте выполненный оплаченный заказ.</p><pre>Пример структуры: order_ref, date (ГГГГ-ММ-ДД), shop_name, items (список позиций offer_id, name, price в рублях, qty).</pre><p>Сопоставьте внешний артикул с изделием. Повтор того же заказа не создаёт вторую продажу. Возврат: POST /api/hook/event, поля event_id, order_ref, line (индекс позиции с 0), kind=return, date, quantity, refund, restock (true/false).</p><a href="/api/integration-docs">Полная схема API</a></details><div id="sources-list"></div></section>
++    <section data-panel="integrations" hidden><h2>Интеграции</h2><div class="panel"><h3>Маркетплейсы</h3><p class="hint">Подключения относятся к мастерской. Ключи хранятся зашифрованными. Проверка доступа не изменяет данные магазина.</p><p id="market-status" role="status"></p><div id="market-list"></div></div><div class="panel"><h3>Telegram</h3><p id="pm-telegram-status" role="status"></p><div class="button-group"><button type="button" data-pm-telegram="connect" disabled>Подключить Telegram</button><button type="button" data-pm-telegram="test" disabled>Проверить отправку</button><button type="button" data-pm-telegram="summary" disabled>Отправить сводку</button><button type="button" class="secondary" data-pm-telegram="disconnect" disabled>Отключить</button></div><p class="hint">Отчёт отправляется только в подтверждённый чат этого аккаунта.</p></div><p class="hint">Собственные магазины, витрины и боты могут передавать заказы по отдельному ключу. Количественные данные маркетплейсов учитываются отдельно; исторический сбор не создаёт хозяйственные проводки.</p><form id="source-create" class="panel"><h3>Подключить свой магазин</h3><label>Название источника<input name="name" maxlength="120" required></label><label class="check"><input type="checkbox" name="auto_produce"> Разрешить изготовление недостающих изделий</label><button>Создать источник</button></form><div class="panel" id="source-key-box" hidden><h3>Новый API-ключ</h3><p>Сохраните его на стороне магазина: повторно ключ не отображается.</p><pre class="source-key" id="source-key"></pre><div class="button-group"><button id="source-copy" type="button">Копировать</button><button id="source-hide" class="secondary" type="button">Скрыть</button></div></div><p id="source-status" role="status"></p><details class="panel"><summary>Инструкция для разработчика</summary><p>POST /api/hook/order · Authorization: Bearer ВАШ_КЛЮЧ · Content-Type: application/json. Передавайте выполненный оплаченный заказ.</p><pre>Пример структуры: order_ref, date (ГГГГ-ММ-ДД), shop_name, items (список позиций offer_id, name, price в рублях, qty).</pre><p>Сопоставьте внешний артикул с изделием. Повтор того же заказа не создаёт вторую продажу. Возврат: POST /api/hook/event, поля event_id, order_ref, line (индекс позиции с 0), kind=return, date, quantity, refund, restock (true/false).</p><a href="/api/integration-docs">Полная схема API</a></details><div id="sources-list"></div></section>
+@@ -121 +121 @@
+-    if name not in ("podmasterye-public-calculator.js","podmasterye-public.js","podmasterye-public.css","podmasterye.js","podmasterye-composer.js","live-turn.js","file-cost.js","file-drafts.js","voice.js","podmasterye-market-links.js","podmasterye-matrix-admin.js","podmasterye-admin.js","podmasterye-admin.css","admin-visits.js","podmasterye-accounting.js","podmasterye-extra.js","podmasterye-theme.js","podmasterye.css","checkout.js","checkout.css","payment-return.js","theme.js","appearance.css","admin.css","presence.js","admin-statistics.js"): raise HTTPException(404)
++    if name not in ("podmasterye-public-calculator.js","podmasterye-public.js","podmasterye-public.css","podmasterye.js","podmasterye-composer.js","live-turn.js","file-cost.js","file-drafts.js","voice.js","podmasterye-market.js","podmasterye-market-links.js","podmasterye-matrix-admin.js","podmasterye-admin.js","podmasterye-admin.css","admin-visits.js","podmasterye-accounting.js","podmasterye-extra.js","podmasterye-theme.js","podmasterye.css","checkout.js","checkout.css","payment-return.js","theme.js","appearance.css","admin.css","presence.js","admin-statistics.js"): raise HTTPException(404)
+--- a/products/harness-platform/platform_core/workshop_write_permissions.py
++++ b/products/harness-platform/platform_core/workshop_write_permissions.py
+@@ -70,0 +71 @@
++ "quality_policy":r"(?:процент|коэффициент|дол[яюи]).{0,48}(?:брак|потер|пригод)|брак.{0,40}(?:%|процент|коэффициент)|пригодн\w*.{0,24}повторн|производственн\w* потер",
+@@ -111 +112 @@
+-SAFE={"material","product","recipe_line","task","task_state","worker","cost_policy","channel_rates","opening","purchase","manufacture","work_start","work_finish","component_transfer","sale","payment","sale_fee","expense","worker_payment","asset_acquire"}
++SAFE={"material","product","recipe_line","task","task_state","worker","cost_policy","quality_policy","channel_rates","opening","purchase","manufacture","work_start","work_finish","component_transfer","sale","payment","sale_fee","expense","worker_payment","asset_acquire"}
+@@ -142 +143,3 @@
+-        if mode!="confirm" and not result.get("confirmedDraft") and not result.get("legacyReviewRequired"):
++        market_only=(any(isinstance(result.get(k),dict) for k in ("marketCard","marketResult","marketJob"))
++                     and not any(k in result for k in ("accountingDraft","formDraft","correctionDraft","draft","recipeRevision")))
++        if mode!="confirm" and not result.get("confirmedDraft") and not result.get("legacyReviewRequired") and not market_only:
+--- a/products/harness-platform/tests/test_browser_session.py
++++ b/products/harness-platform/tests/test_browser_session.py
+@@ -53 +53,4 @@
+-        self.assertIn("Подмастерье",page.text)
++        # The service is Мастерская; Подмастерье names its assistant. Preserve
++        # the authentication/security assertions below on the current public UI.
++        self.assertIn('aria-label="Мастерская"',page.text)
++        self.assertIn('data-public-key="login"',page.text)

@@ -1,0 +1,49 @@
+{
+  "schema": "marketplace-public-regression/v1",
+  "candidate_sha": "db0d660f132ae3b7d3db7620fd4b1110fc75022f",
+  "passed": true,
+  "source_files_unchanged": 593,
+  "finished_at": "2026-11-28T08:46:20.326921+00:00",
+  "counting_qualification": "Full executions include repeated/imported/inherited methods. Unique unittest IDs and distinct source declarations are separate counts. subTest records are executions, not independent top-level tests. Wallet readiness and native acceptance overlap full; Node behavioural tests and JS syntax files are reported separately.",
+  "full_python": {
+    "executions": 704,
+    "unique_unittest_ids": 664,
+    "distinct_declared_scenarios": 441,
+    "subtest_execution_records": 1520,
+    "unique_subtest_ids": 1463,
+    "all_case_records": 2224,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "wall_seconds": 2390.945
+  },
+  "javascript_syntax": {
+    "files": 72,
+    "passed": 72
+  },
+  "native": {
+    "executions": 44,
+    "passed": 44,
+    "subtest_records": 7,
+    "overlap_with_full": 44
+  },
+  "node": {
+    "tests": 73,
+    "pass": 73,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "test_files": 13,
+    "node_version": "v24.22.2"
+  },
+  "primary_result_sha256": {
+    "full_python": "051867378d6dd50accf4293fb94b3b01e879de72cff17cb5cadde19b5421cc5d",
+    "native_acceptance": "0b58e69120837f3e40f8e0cd015e82fff7223036ba6685e5d15992a34176a4e5",
+    "node_behavioural": "51c7fd8a87b8ff85d6bacd8ea03b32fe32511aa9d10e7e9d6d448ddf402cb203"
+  },
+  "live_provider_requests": false,
+  "production_changes": false,
+  "live_model_calls": 0,
+  "metering_qualification": "Synthetic native protocol fixtures and isolated test accounts exercise token, meter and charge records. No live model API was called and no owner production balance was debited by these regression runs."
+}

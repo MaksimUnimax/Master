@@ -1,0 +1,16 @@
+{
+  "candidate_sha": "db0d660f132ae3b7d3db7620fd4b1110fc75022f",
+  "source_files": 593,
+  "source_changes": [],
+  "status": "PASS",
+  "passed": true,
+  "started_at": 1795852751.6567574,
+  "finished_at": 1795852752.4622426,
+  "original_tables": 84,
+  "decryptable_connections": 3,
+  "keys_byte_identical": true,
+  "rollback_matches_baseline": true,
+  "production_written": false,
+  "production_open_mode": "read-only",
+  "raw_report": "verification-final/evidence/data-preservation.json"
+}

@@ -1,0 +1,92 @@
+{
+  "schema": "marketplace-public-final-delivery-attestation/v1",
+  "candidate_sha": "db0d660f132ae3b7d3db7620fd4b1110fc75022f",
+  "attested_at": "2026-11-28T09:17:47.986541+00:00",
+  "artifact": {
+    "filename": "masterskaya_marketplaces_db0d660_2026-11-28.zip",
+    "bytes": 44844585,
+    "sha256": "33e8bfcaaedc0407e434bad2178b42d5f132be1b93472deda2ac92cb42788cb7",
+    "payload_files": 1261,
+    "archive_entries": 1263,
+    "crc_and_every_payload_hash_verified": true,
+    "local_and_alisa_bytes_identical": true,
+    "format": "ZIP_STORED; sorted paths; fixed timestamps; regular files only"
+  },
+  "extracted_zip_verification": {
+    "source": "Exact sealed ZIP bytes extracted into a new directory before scanning",
+    "files": 1263,
+    "crc_passed": true,
+    "every_payload_hash_and_sha256sum_verified": true,
+    "primary_report_sha256": "32a25cb5e329eb76d545c34a1eea60971e5ed0fd60329d9ebae28cf93fb0e0f3"
+  },
+  "actual_secret_scan": {
+    "passed": true,
+    "files": 1263,
+    "known_secret_fields_compared_without_disclosure": 4,
+    "encryption_key_raw_hex_base64_checked": true,
+    "uncompressed_git_history_blobs": 646,
+    "recursive_containers": 30,
+    "archive_formats": {
+      "zip": 6,
+      "gzip": 14,
+      "tar": 2,
+      "brotli": 8
+    },
+    "nested_members": 276,
+    "brotli_layers": 8,
+    "known_frontend_pack_decodes": 4,
+    "both_frontend_payloads_decoded_in_source_and_history": true,
+    "compressed_payload_hashes": [
+      "73d29539d4d38861bf4ebbc7b02f82fbc90f9fef9079a33e369e007d94691a25",
+      "38a56c24243613915e705a457d04dcc80f9331d40646ec7d777960c2ae444f1d"
+    ],
+    "decoded_hashes_equal_member_names": true,
+    "archive_limits": {
+      "depth": 5,
+      "member_bytes": 67108864,
+      "total_bytes": 536870912,
+      "members": 20000
+    },
+    "scanner_sha256": "51c4024b666d54404e0f83a00c12bd55913573f325bb04da57e151357596dbbd",
+    "primary_report_sha256": "d97c85556102d7cabd727b2248cc56c8e663fc032845728d4dc519103d75b402",
+    "credential_values_or_signed_urls_disclosed": false
+  },
+  "assembly": {
+    "source_files_exact": 593,
+    "indexed_evidence_links": 182,
+    "matrix_assets": 174,
+    "public_authored_files_exact": 73,
+    "private_full_core_files_omitted": 6,
+    "owner_and_public_statuses_equal": true,
+    "mirror_manifest_sha256": "82a35e66259d9e797170a3277c5be5a93b685336141336440c9ddcbf36d85c2d",
+    "mirror_files": 1261,
+    "consistency_report_sha256": "8f01115326145e612f2570a8754b5caf3eea293c59a5bdf76fb1eb08cdaed606",
+    "packaging_audit_sha256": "bd4af8c0c164add1d570dd1f57ad80b97690e4f3ad7014538a24ea61cfaa6a5a",
+    "bundle_sha256": "8611494b4ab8753dca0cd4409707a262fe40abae3fd73835fa4057f2d67db462"
+  },
+  "acceptance": {
+    "criteria_counts": {
+      "PASS": 44,
+      "BLOCKED": 4
+    },
+    "external_blockers": [
+      "MP-T03",
+      "MP-T21",
+      "MP-T23",
+      "MP-T35"
+    ],
+    "full_acceptance_passed": false,
+    "production_deployed": false,
+    "deployment_authorized": false,
+    "final_assembly_scan_and_seal_gates_completed": true
+  },
+  "production_recheck": {
+    "read_only": true,
+    "parallel_source_gate_passed": true,
+    "master_sha": "c5927ce090a80cbd28cb701a7ba46a42a5f5f4ad",
+    "octoport_sha": "180660c019e5a9fa530e5ec48c9e55724a93c3ae",
+    "github_main_sha_at_publication_base": "c7a02f632208f39f185b8419cfa14d819cec9e5c",
+    "primary_report_sha256": "382c0be64725829adc986b2560c5e4f25f81acc2e086cd32957af996c36652fd"
+  },
+  "qualification": "This safe metadata attestation is created after the final ZIP is sealed and intentionally stays outside that ZIP to avoid a self-hash cycle. It contains no owner code, merchant data, credential values or signed URLs. Assembly and security PASS do not close the four external acceptance blockers."
+}

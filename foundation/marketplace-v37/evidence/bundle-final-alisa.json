@@ -1,0 +1,12 @@
+{
+  "candidate_sha": "db0d660f132ae3b7d3db7620fd4b1110fc75022f",
+  "status": "PASS",
+  "passed": true,
+  "bundle_sha256": "8611494b4ab8753dca0cd4409707a262fe40abae3fd73835fa4057f2d67db462",
+  "bundle_bytes": 4800921,
+  "verified_tree_files": 593,
+  "git_fsck": "PASS",
+  "tree_matches_source_manifest": true,
+  "commits": 5,
+  "verified_at": 1795852774.991547
+}

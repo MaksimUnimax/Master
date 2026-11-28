@@ -1,0 +1,184 @@
+{
+  "acceptance_blocked": [
+    "MP-T03",
+    "MP-T21",
+    "MP-T23",
+    "MP-T35"
+  ],
+  "all_available_templates_observed_complete": true,
+  "billing_calls": 0,
+  "distribution": "PUBLIC_SAFE_STATUS_ONLY",
+  "encrypted_credentials_preserved": true,
+  "http_status_counts": {
+    "200": 43,
+    "204": 1
+  },
+  "identity_jobs_not_applicable": 3,
+  "jobs": 19,
+  "limitations": [
+    "A bounded live window does not establish the complete maximum history.",
+    "Source-to-local equality is not seller-cabinet reconciliation.",
+    "Unavailable fulfillment and credential variants have contract tests, not live evidence.",
+    "No natural429 occurred. Injected failures are reported separately.",
+    "Detailed private quantities and connection data are excluded from this public status."
+  ],
+  "live": true,
+  "model_calls": 0,
+  "natural_http429_count": 0,
+  "quantity_jobs_match": 16,
+  "real_http_requests": 44,
+  "run": "20261128T075843Z",
+  "schema": "market-quantity-public-live-status/v1",
+  "source_files_unchanged_during_run": true,
+  "source_sha": "db0d660f132ae3b7d3db7620fd4b1110fc75022f",
+  "sqlite_integrity": "ok",
+  "synthetic_responses": 0,
+  "template_results": [
+    {
+      "api_local_reconciliation": [
+        "NOT_APPLICABLE_IDENTITY"
+      ],
+      "http_requests": 1,
+      "result": "OBSERVED_COMPLETE",
+      "template": "OZ-01"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 2,
+      "result": "OBSERVED_COMPLETE",
+      "template": "OZ-02"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 10,
+      "result": "OBSERVED_COMPLETE",
+      "template": "OZ-03"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 1,
+      "result": "OBSERVED_COMPLETE",
+      "template": "OZ-04"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 2,
+      "result": "OBSERVED_COMPLETE",
+      "template": "OZ-05"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 5,
+      "result": "OBSERVED_COMPLETE",
+      "template": "OZ-06"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 1,
+      "result": "OBSERVED_COMPLETE",
+      "template": "OZ-07"
+    },
+    {
+      "api_local_reconciliation": [
+        "NOT_APPLICABLE_IDENTITY"
+      ],
+      "http_requests": 1,
+      "result": "OBSERVED_COMPLETE",
+      "template": "WB-01"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 2,
+      "result": "OBSERVED_COMPLETE",
+      "template": "WB-02"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 1,
+      "result": "OBSERVED_COMPLETE",
+      "template": "WB-03"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 2,
+      "result": "OBSERVED_COMPLETE",
+      "template": "WB-04"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 3,
+      "result": "OBSERVED_COMPLETE",
+      "template": "WB-05"
+    },
+    {
+      "api_local_reconciliation": [
+        "NOT_APPLICABLE_IDENTITY"
+      ],
+      "http_requests": 2,
+      "result": "OBSERVED_COMPLETE",
+      "template": "YM-01"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 2,
+      "result": "OBSERVED_COMPLETE",
+      "template": "YM-02"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 1,
+      "result": "OBSERVED_COMPLETE",
+      "template": "YM-03"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 1,
+      "result": "OBSERVED_COMPLETE",
+      "template": "YM-04"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 2,
+      "result": "OBSERVED_COMPLETE",
+      "template": "YM-05"
+    },
+    {
+      "api_local_reconciliation": [
+        "MATCH"
+      ],
+      "http_requests": 5,
+      "result": "OBSERVED_COMPLETE",
+      "template": "YM-06"
+    }
+  ],
+  "templates": 18,
+  "unknown_physical_return_coverage_preserved": true
+}

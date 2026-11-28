@@ -1,0 +1,25 @@
+{
+  "production_sha": "c5927ce090a80cbd28cb701a7ba46a42a5f5f4ad",
+  "candidate_sha": "db0d660f132ae3b7d3db7620fd4b1110fc75022f",
+  "base_core_sha256": {
+    "products/harness-platform/platform_core/chat_api.py": "4b02bdcf767e81c25d8ce58cc0de8f7ce0099ff4148b72260413f1af49955296",
+    "products/harness-platform/platform_core/market_collect.py": "3b7d4e14d87363cb8afb7d7b77f4741e7e783a70a1868496de3dbda223ab66e4",
+    "products/harness-platform/platform_core/market_data.py": "cfdb0ffc1adb350928e74881b05d9ef8ae2d1669ef30c79f8bc52df8fb187e20",
+    "products/harness-platform/platform_core/web_ui.py": "8d5df5f83bab35bd43cc298dafd4dc2255dedb33cef853ab032d2f943dac2a91",
+    "products/harness-platform/platform_core/workshop_write_permissions.py": "b55b28ead516e77991270c6d61c0c43921770049389504a5b71ff1ae954a372f",
+    "products/harness-platform/tests/test_browser_session.py": "6d2c5ff68469317dc563c26251e7ce82eadec78c733b52659ff8693edf443674"
+  },
+  "target_core_sha256": {
+    "products/harness-platform/platform_core/chat_api.py": "50e9c4e01590ecdb4c6bd2c2ab9ad55b64eea67fd0b951ac72061c7e384d737b",
+    "products/harness-platform/platform_core/market_collect.py": "afccb109738db5c2a4b2068dfaf93d5e4d772ca21f4b74fcb11ae43ac3141cce",
+    "products/harness-platform/platform_core/market_data.py": "555a43b077fb713283826df7a8a15b840fd002a4d7881b81c64691d1e49e895b",
+    "products/harness-platform/platform_core/web_ui.py": "6df6a54b8b5adc3e9b995929b9188ea2f1f3e5a929cdfa787878d90a7ac0dcc0",
+    "products/harness-platform/platform_core/workshop_write_permissions.py": "e91f2163166181eeed6142ec6b90af2096b00135763f3e16cbde87b4db81e5d3",
+    "products/harness-platform/tests/test_browser_session.py": "9ee79ff49ed1db557c85696529b5dd4ecd27bfa167b3120522c820663eb92123"
+  },
+  "patch_sha256": "c9f6effafc0223fcf79338bc4f3b9ecfc9088166e3e2ad442022df856fdf181b",
+  "patch_bytes": 18130,
+  "apply_options": [
+    "--unidiff-zero"
+  ]
+}

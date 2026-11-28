@@ -1,0 +1,312 @@
+{
+  "schema": "ozon-total-contract-consumer-audit/v1",
+  "reviewed_at": "2026-11-28T07:55:49.910002+00:00",
+  "base_candidate_sha": "ce372fe3d052f22fca11ca086b61d7e5c1cdc024",
+  "candidate_sha": "db0d660f132ae3b7d3db7620fd4b1110fc75022f",
+  "branch": "marketplace-full-v37-final-r2-20261128",
+  "search": {
+    "scope": "All Git-tracked text source plus read-only inspection of packaged Python runtime and affected endpoint/delegation callers.",
+    "command": "git ls-files -z | xargs -0 rg -n 'total_items|\\btotal\\b'",
+    "tracked_files": 593,
+    "matching_lines": 467,
+    "matching_files": 100,
+    "matching_paths": [
+      "integrations/harness-native-lab/gateway/server.mjs",
+      "integrations/harness-native-lab/gateway/server.test.mjs",
+      "products/harness-platform/acceptance/files_browser_live.py",
+      "products/harness-platform/acceptance/files_lifecycle.py",
+      "products/harness-platform/acceptance/files_local.py",
+      "products/harness-platform/acceptance/market_quantity_live.py",
+      "products/harness-platform/compatibility/octoport-tests/admin_statistics_removal_reference.txt",
+      "products/harness-platform/compatibility/octoport-tests/browser/test_account_browser.py",
+      "products/harness-platform/compatibility/octoport-tests/browser/test_attachment_browser.py",
+      "products/harness-platform/compatibility/octoport-tests/browser/test_metered_browser.py",
+      "products/harness-platform/compatibility/octoport-tests/test_market_data_account.py",
+      "products/harness-platform/compatibility/octoport-tests/test_openrouter_operations.py",
+      "products/harness-platform/compatibility/octoport-tests/test_ozon_plugin.py",
+      "products/harness-platform/compatibility/octoport-tests/test_web_ui.py",
+      "products/harness-platform/compatibility/octoport-tests/test_wildberries_plugin.py",
+      "products/harness-platform/docs/MARKETPLACE_MATRIX_ACCEPTANCE.md",
+      "products/harness-platform/docs/integrations/MARKETPLACE_V37_DEPLOY_ROLLBACK_RU.md",
+      "products/harness-platform/docs/integrations/MARKET_QUANTITY_PROVIDER_EVIDENCE_RU.md",
+      "products/harness-platform/native/capability-filter.test.mjs",
+      "products/harness-platform/native/document-tools.mjs",
+      "products/harness-platform/native/document_author.py",
+      "products/harness-platform/native/file_reader.py",
+      "products/harness-platform/native/native-spill.test.mjs",
+      "products/harness-platform/native/octopus-knowledge.mjs",
+      "products/harness-platform/native/openrouter-turn.test.mjs",
+      "products/harness-platform/native/web/checkout.css",
+      "products/harness-platform/native/web/checkout.js",
+      "products/harness-platform/native/web/payment.html",
+      "products/harness-platform/native/web/podmasterye-market.js",
+      "products/harness-platform/native/web/podmasterye-public.css",
+      "products/harness-platform/native/web/podmasterye-public.js",
+      "products/harness-platform/platform_core/admin_statistics.py",
+      "products/harness-platform/platform_core/checkout.py",
+      "products/harness-platform/platform_core/coins.py",
+      "products/harness-platform/platform_core/guest_activity.py",
+      "products/harness-platform/platform_core/guest_billing.py",
+      "products/harness-platform/platform_core/guest_selector.py",
+      "products/harness-platform/platform_core/market_economics.py",
+      "products/harness-platform/platform_core/market_offline.py",
+      "products/harness-platform/platform_core/market_quantity.py",
+      "products/harness-platform/platform_core/market_quantity_providers.py",
+      "products/harness-platform/platform_core/market_quantity_registry.py",
+      "products/harness-platform/platform_core/market_query.py",
+      "products/harness-platform/platform_core/market_sources.py",
+      "products/harness-platform/platform_core/marketplace_matrix/action_templates.json",
+      "products/harness-platform/platform_core/marketplace_matrix/action_templates.py",
+      "products/harness-platform/platform_core/marketplace_matrix/campaign_inventory.py",
+      "products/harness-platform/platform_core/marketplace_matrix/campaign_snapshot.py",
+      "products/harness-platform/platform_core/marketplace_matrix/ozon_coefficients.py",
+      "products/harness-platform/platform_core/marketplace_matrix/ozon_cpo_actions.py",
+      "products/harness-platform/platform_core/marketplace_matrix/ozon_customer_actions.py",
+      "products/harness-platform/platform_core/marketplace_matrix/ozon_seller_promotions.py",
+      "products/harness-platform/platform_core/marketplace_matrix/plugin.py",
+      "products/harness-platform/platform_core/marketplace_matrix/read_templates.json",
+      "products/harness-platform/platform_core/marketplace_matrix/read_templates.py",
+      "products/harness-platform/platform_core/marketplace_matrix/wb_ads_setup.py",
+      "products/harness-platform/platform_core/marketplace_matrix/wb_coefficients.py",
+      "products/harness-platform/platform_core/marketplace_matrix/wb_promotions.py",
+      "products/harness-platform/platform_core/marketplace_matrix/worker.py",
+      "products/harness-platform/platform_core/model_router.py",
+      "products/harness-platform/platform_core/podmasterye_book.py",
+      "products/harness-platform/platform_core/podmasterye_domain.py",
+      "products/harness-platform/platform_core/podmasterye_extra.py",
+      "products/harness-platform/platform_core/podmasterye_import.py",
+      "products/harness-platform/platform_core/podmasterye_market_analytics.py",
+      "products/harness-platform/platform_core/podmasterye_market_operations.py",
+      "products/harness-platform/platform_core/podmasterye_matrix.json",
+      "products/harness-platform/platform_core/podmasterye_matrix_admin.py",
+      "products/harness-platform/platform_core/podmasterye_public_pages.py",
+      "products/harness-platform/platform_core/podmasterye_router.py",
+      "products/harness-platform/platform_core/podmasterye_workshops.py",
+      "products/harness-platform/platform_core/provider_balance_alerts.py",
+      "products/harness-platform/public-info/styles.css",
+      "products/harness-platform/scripts/package_marketplace_matrix.py",
+      "products/harness-platform/tests/browser/test_podmasterye_accounting_browser.py",
+      "products/harness-platform/tests/browser/test_podmasterye_agent_ui.py",
+      "products/harness-platform/tests/browser/test_podmasterye_independent_ui.py",
+      "products/harness-platform/tests/browser/test_podmasterye_public_payment_v24_ui.py",
+      "products/harness-platform/tests/browser/test_podmasterye_seasonal_ui.py",
+      "products/harness-platform/tests/fixtures/market_quantity_cases.py",
+      "products/harness-platform/tests/fixtures/marketplace_edit_cases.py",
+      "products/harness-platform/tests/fixtures/marketplace_matrix_cases.py",
+      "products/harness-platform/tests/podmasterye_gateway.mjs",
+      "products/harness-platform/tests/test_admin_statistics.py",
+      "products/harness-platform/tests/test_checkout.py",
+      "products/harness-platform/tests/test_market_dual_browser.py",
+      "products/harness-platform/tests/test_market_dual_contract.py",
+      "products/harness-platform/tests/test_market_quantity_intervals.py",
+      "products/harness-platform/tests/test_market_quantity_providers.py",
+      "products/harness-platform/tests/test_podmasterye_accounting.py",
+      "products/harness-platform/tests/test_podmasterye_foundation.py",
+      "products/harness-platform/tests/test_podmasterye_market_analytics.py",
+      "products/harness-platform/tests/test_podmasterye_market_planning.py",
+      "products/harness-platform/tests/test_podmasterye_owner_v21.py",
+      "products/harness-platform/tests/test_podmasterye_public_v22.py",
+      "products/harness-platform/tests/test_podmasterye_quality.py",
+      "products/harness-platform/tests/test_podmasterye_seasonal.py",
+      "products/harness-platform/tests/test_podmasterye_seasonal_mcp.py",
+      "products/harness-platform/tests/test_workshop_permissions_v30.py",
+      "products/harness-platform/usage-reconciliation/test_reconcile.py"
+    ],
+    "raw_log": "evidence/acceptance-assets/current-ozon-audit-raw/OZON_TOTAL_CONSUMERS_FINAL_R2_RAW.txt",
+    "raw_log_sha256": "267a578ae0beb9064f71a6d0edc08828d0927122c24301b514f21ba948c4aba7",
+    "followup_patterns": [
+      "/v[345]/product/(list|info/(stocks|prices))",
+      "price_page_total",
+      "catalog_cards",
+      "sanitize_page"
+    ],
+    "raw_log_distribution": "PRIVATE_SOURCE_AUDIT_NOT_FOR_PUBLIC_GITHUB"
+  },
+  "consumers": [
+    {
+      "scope": "ACTIVE_QUANTITY",
+      "paths": [
+        "/v3/product/list",
+        "/v4/product/info/stocks"
+      ],
+      "source_ref": "quantity",
+      "status": "FIXED_IN_ce372fe",
+      "finding": "_oz_total validates preferred total_items and optional legacy total,types/equality;normalized checkpoint.total and pagination are unchanged."
+    },
+    {
+      "scope": "ACTIVE_ACCEPTANCE_OBSERVER",
+      "paths": [
+        "/v3/product/list"
+      ],
+      "source_ref": "observer",
+      "status": "FIXED_IN_db0d660",
+      "finding": "Independent empty-catalogue wire parser validates explicit counters;only valid equal zero produces catalog.rows=0. Missing/invalid/conflicting totals return UNSUPPORTED_WIRE_SCHEMA without counters. No _oz_total import."
+    },
+    {
+      "scope": "LEGACY_OCTOPORT_ONLY",
+      "paths": [
+        "/v3/product/list"
+      ],
+      "source_refs": [
+        "legacy_sanitizer",
+        "legacy_catalog"
+      ],
+      "status": "UNCHANGED_OUTSIDE_REACHABLE_MASTERSKAYA_CONTRACT",
+      "finding": "create_app rejects product composition modules,omits user_plugins.service routes and installs market_links. Collector selects quantity Backend and delegates adopt_existing/claim/run before legacy fetch/sanitize/catalog branches. Current Store uses quantity jobs. These preserved legacy consumers are not reached by Masterskaya application flow."
+    },
+    {
+      "scope": "EXISTING_PRICING_RUNTIME",
+      "paths": [
+        "/v5/product/info/prices"
+      ],
+      "source_refs": [
+        "pricing_builder",
+        "pricing_consumer"
+      ],
+      "status": "ALREADY_COMPATIBLE_NO_CHANGE",
+      "finding": "price_page_total exists in actual runtime.tar.gz and is called by tariff_cohort.step/normalizer. No pricing algorithm or archive changes."
+    },
+    {
+      "scope": "OTHER_ENDPOINTS_OR_LOCAL_FIELDS",
+      "status": "UNAFFECTED_NO_CHANGE",
+      "finding": "Remaining totals are Performance campaign/CPO inventory,Seller promotions/actions,WB claims/users/cursors,local report/progress counts,economics aggregates or fixtures;they are outside the three announced endpoint contracts."
+    }
+  ],
+  "references": {
+    "quantity": {
+      "path": "products/harness-platform/platform_core/market_quantity_providers.py",
+      "sha256": "1f92f430f55f73b6cfe0f29a22287b9b1c24ca03f13d9f00c9c5025887b17697",
+      "lines": [
+        76,
+        928,
+        993
+      ]
+    },
+    "observer": {
+      "path": "products/harness-platform/acceptance/market_quantity_live.py",
+      "sha256": "c027a6390294a0cd8476dfa506d44ae9dc2108abfcdac93791415cd6de60b69f",
+      "lines": [
+        193,
+        198,
+        203,
+        210
+      ]
+    },
+    "application": {
+      "path": "products/harness-platform/platform_core/chat_api.py",
+      "sha256": "50e9c4e01590ecdb4c6bd2c2ab9ad55b64eea67fd0b951ac72061c7e384d737b",
+      "lines": [
+        89,
+        90,
+        91,
+        113,
+        118,
+        233,
+        245
+      ]
+    },
+    "collector": {
+      "path": "products/harness-platform/platform_core/market_collect.py",
+      "sha256": "afccb109738db5c2a4b2068dfaf93d5e4d772ca21f4b74fcb11ae43ac3141cce",
+      "lines": [
+        35,
+        41,
+        43,
+        55,
+        56,
+        57,
+        98,
+        99,
+        100,
+        148,
+        149,
+        150,
+        273,
+        280,
+        281
+      ]
+    },
+    "store": {
+      "path": "products/harness-platform/platform_core/podmasterye_market_links.py",
+      "sha256": "780d5de2a3c9ceb4c0ccf029da9d9cc030aae2a72726d02c381ac3f7ccd3af92",
+      "lines": [
+        17,
+        113,
+        117,
+        119,
+        126,
+        132,
+        135,
+        143,
+        147,
+        153,
+        165,
+        176,
+        182
+      ]
+    },
+    "legacy_sanitizer": {
+      "path": "products/harness-platform/platform_core/market_sources.py",
+      "sha256": "237af3cf29c3eb9a38a7b2b86fa302c60a5867ce367286047e5a685f92d854c4",
+      "lines": [
+        111,
+        118,
+        121
+      ]
+    },
+    "legacy_catalog": {
+      "path": "products/harness-platform/platform_core/marketplace_matrix/ozon_coefficients.py",
+      "sha256": "809bb7b12f0b4cc3843a2034215d91f5cd4f31f2a0a738cac1402954f1e203e8",
+      "lines": [
+        40,
+        41,
+        44,
+        50,
+        51,
+        102,
+        103
+      ]
+    },
+    "pricing_builder": {
+      "path": "products/harness-platform/scripts/package_marketplace_matrix.py",
+      "sha256": "e2d22c497cac714f9e56851651e589aa491dfc4da0d268e73402247edf3b1377",
+      "lines": [
+        354,
+        358,
+        360,
+        364,
+        365,
+        382,
+        733
+      ]
+    },
+    "pricing_consumer": {
+      "path": "products/harness-platform/platform_core/marketplace_matrix/tariff_cohort.py",
+      "sha256": "e540719b4327e4e1b1be718d67da6e00ed4a7325558b2a9d0a3b30a81e66305a",
+      "lines": [
+        50,
+        71,
+        142
+      ]
+    }
+  },
+  "packaged_runtime": {
+    "path": "products/harness-platform/platform_core/marketplace_matrix/runtime.tar.gz",
+    "sha256": "05d9b282634626fcaab928ac42868f180d2b13f5e2e77bcde3176ffb35737e96",
+    "python_members_inspected": 88,
+    "normalizer_member": "parameter_support/economics_tariffs.py",
+    "normalizer_sha256": "632761565de8eeb72f59f08c5f31ac4b92bc7a15e1aae2c1bcc739e5ed79530d",
+    "runtime_member": "tariff_source_runtime.py",
+    "runtime_sha256": "1c8b7c4f375f947ab222e85e2c27b257514d41d55c61a0d9f76dc11cae3784e9",
+    "delegation": "tariff_source_runtime imports tariff_cohort.restore/step;tariff_cohort.step calls source.price_page_total(answer).",
+    "existing_compatibility": "Shipped pricing normalizer accepts either counter,validates all present strict ints and equal values;no archive edits."
+  },
+  "remaining_reachable_affected_consumers_identified": [],
+  "no_source_writes_outside_ownership": true,
+  "qualification": "Audit covers reachable Masterskaya quantity flow and acceptance observer. It does not certify a separate upgrade of dormant private Octoport product code.",
+  "distribution": "SUMMARY_PUBLIC_SAFE_REFERENCES_ONLY",
+  "freeze_qualification": {
+    "all_referenced_files_match_frozen_source": true,
+    "working_tree_clean": true
+  }
+}

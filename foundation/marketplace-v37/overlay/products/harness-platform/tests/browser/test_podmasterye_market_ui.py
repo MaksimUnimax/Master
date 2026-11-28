@@ -1,0 +1,53 @@
+"""Actual integration forms and the common queue; only HTTP seller data is synthetic."""
+from playwright.sync_api import expect
+from tests.browser.test_podmasterye_independent_ui import IndependentUI
+from tests.fixtures.market_dual import finish_fixture_job
+
+class MarketUI(IndependentUI):
+    def test_market_forms(self):
+        self.sign_in();p=self.page;self.nav("integrations");host=p.locator("#market-list")
+        host.get_by_role("button",name="Подключения",exact=True).click()
+        host.get_by_role("button",name="Подключить маркетплейс",exact=True).click()
+        f=host.locator("[data-market-connection-form=create]")
+        expect(f.locator("[name=client_id]")).to_be_visible()
+        expect(f.locator("[name=api_key]")).to_have_attribute("type","password")
+        expect(f.locator("[name=performance_secret]")).to_have_count(0)
+        for k,v in {"name":"Учебный Ozon","client_id":"12345","api_key":"seller-fixture"}.items():f.locator("[name="+k+"]").fill(v)
+        with p.expect_response(lambda r:r.request.method=="POST" and r.url.split("?")[0].endswith("/marketplaces/connection")) as saved:
+            f.get_by_role("button",name="Сохранить ключ",exact=True).click()
+        self.assertEqual(saved.value.status,200);connection=saved.value.json()
+        self.assertEqual(connection["state"],"collecting")
+        c=host.locator(".settings-card").filter(has_text="Учебный Ozon")
+        expect(c).to_contain_text("доступ ещё не проверен")
+        self.assertNotIn("seller-fixture",c.inner_text())
+        c.get_by_role("button",name="Проверить доступ",exact=True).click()
+        with p.expect_response(lambda r:r.request.method=="POST" and r.url.split("?")[0].endswith("/marketplaces/connection")) as checked:
+            c.get_by_role("button",name="Проверить",exact=True).click()
+        self.assertEqual(checked.value.json()["job_id"],connection["job_id"])
+        done,events=finish_fixture_job(self,connection["job_id"])
+        self.assertEqual(done["state"],"ready")
+        self.assertEqual([(e["template"],e["path"]) for e in events],[("OZ-01","/v1/roles")])
+        host.get_by_role("button",name="Подключения",exact=True).click()
+        expect(c).to_contain_text("Seller: Доступ подтверждён")
+        c.get_by_role("button",name="Заменить ключ",exact=True).click()
+        e=c.locator("[data-market-connection-form=rotate]")
+        expect(e.locator("[name=api_key]")).to_have_value("")
+        e.locator("[name=client_id]").fill("12345");e.locator("[name=api_key]").fill("new-fixture-key")
+        e.get_by_role("button",name="Сохранить ключ",exact=True).click()
+        expect(c).to_contain_text("доступ ещё не проверен")
+        host.get_by_role("button",name="Подключить маркетплейс",exact=True).click()
+        f=host.locator("[data-market-connection-form=create]")
+        f.get_by_role("combobox",name="Площадка",exact=True).select_option("wb")
+        expect(f.locator("[name=client_id]")).to_have_count(0)
+        expect(f.locator("[name=token]")).to_have_attribute("type","password")
+        f.locator("[name=name]").fill("Учебный WB");f.locator("[name=token]").fill("wb-fixture")
+        f.get_by_role("button",name="Сохранить ключ",exact=True).click()
+        wb=host.locator(".settings-card").filter(has_text="Учебный WB");expect(wb).to_be_visible()
+        wb.get_by_role("button",name="Отключить",exact=True).click()
+        wb.get_by_role("button",name="Подтвердить отключение",exact=True).click()
+        expect(wb).to_have_count(0)
+        expect(p.locator('[data-pm-telegram=connect]')).to_be_disabled()
+        expect(p.locator("#pm-telegram-status")).to_contain_text("не настроен")
+        self.assertFalse(p.locator("#tg-config-form").count())
+        p.set_viewport_size({"width":390,"height":844})
+        self.assertLessEqual(p.evaluate("document.documentElement.scrollWidth * Number(getComputedStyle(document.documentElement).zoom)"),390)

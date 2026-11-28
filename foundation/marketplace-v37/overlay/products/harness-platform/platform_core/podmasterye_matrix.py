@@ -1,0 +1,209 @@
+"""Versioned local routing matrix. No paid calls for unambiguous phrases."""
+import json
+import re
+from pathlib import Path
+from datetime import timedelta
+from decimal import Decimal
+from . import podmasterye_book as book
+from .podmasterye_domain import Conflict
+
+VERSION="accounting-v4"
+SERVICE_CARDS=json.loads(Path(__file__).with_name("podmasterye_service_faq.json").read_text(encoding="utf-8"))
+ITEMS=json.loads(Path(__file__).with_name("podmasterye_matrix.json").read_text(encoding="utf-8"))
+ITEMS.extend({"id":c["id"],"intent":"faq","aliases":c["aliases"],"public_topic":c["topic"],"answer":c["answer"]} for c in SERVICE_CARDS)
+SERVICE_ROWS={r["public_topic"]:r for r in ITEMS if "public_topic" in r}
+def norm(t):return " ".join(t.casefold().replace("ё","е").split()).strip("?! .")
+INDEX={}
+for entry in ITEMS:
+    for alias in entry["aliases"]:
+        key=norm(alias)
+        if key in INDEX:raise RuntimeError("Duplicate matrix alias")
+        INDEX[key]=entry
+    if entry["intent"]=="form" and entry["op"] not in book.FIELDS:raise RuntimeError("Unknown matrix operation")
+PERIODS=("за прошлый месяц","за этот месяц","за текущий месяц","за последние 30 дней","за сегодня","за вчера","за весь период","за месяц")
+METRICS={"net_profit":"Чистая прибыль","revenue":"Выручка","cashflow":"Денежный поток","inventory_rub":"Стоимость текущих запасов",
+         "expenses":"Расходы","purchases":"Закупки","current_receivables_rub":"Текущая задолженность покупателей","writeoffs":"Стоимость списаний","depreciation":"Амортизация","wip_inventory_rub":"Стоимость НЗП","sale_fees":"Удержания по продажам","worker_payments":"Выплаты работникам","equipment_book_rub":"Остаточная стоимость оборудования","gross_profit":"Валовая прибыль","sales_quantity":"Продано изделий","margin_percent":"Валовая маржа"}
+def dates(s):
+    now=book.today();start=now.replace(day=1);end=now
+    if s=="за прошлый месяц":end=start-timedelta(days=1);start=end.replace(day=1)
+    elif s=="за последние 30 дней":start=now-timedelta(days=29)
+    elif s=="за вчера":start=end=now-timedelta(days=1)
+    elif s=="за сегодня":start=now
+    elif s=="за весь период":return None,None
+    return start.isoformat(),end.isoformat()
+
+def name_key(value):
+    return tuple(norm(value).split())
+def read_material(db,w,name):
+    allrows=db.execute("SELECT id,name FROM pm_materials WHERE workspace=? ORDER BY normalized",(w,)).fetchall()
+    exact=[r for r in allrows if name_key(r[1])==name_key(name)]
+    if len(exact)==1:return exact[0]
+    def stems(value):
+        variants=set()
+        for word in name_key(value):
+            if len(word)<4:return set()
+            forms={word}
+            for ending in ("ами","ями","ов","ев","ей","ам","ям","ах","ях","ы","и","а","я","у","ю","е","ом","ем"):
+                if word.endswith(ending) and len(word)-len(ending)>=4:forms.add(word[:-len(ending)])
+            variants.add(frozenset(forms))
+        return variants
+    # Only a single lexical token is matched approximately; multiword names require exact match.
+    if len(name_key(name))!=1:return None
+    query=stems(name)
+    matches=[r for r in allrows if len(name_key(r[1]))==1 and any(a&b for a in query for b in stems(r[1]))]
+    return matches[0] if len(matches)==1 else None
+def specific(db,w,t):
+    suffix=None
+    for p in PERIODS:
+        if t.endswith(" "+p):t=t[:-len(p)-1];suffix=p;break
+    patterns=(
+      ("stock",r"сколько (?:материала )?(.+?) осталось(?: на складе)?"),
+      ("consumption",r"сколько (?:упаковок|пачек|штук) (.+?) (?:ушло|израсходовано|продано)"),
+      ("planning",r"сколько (.+?) (?:нужно |надо )?(?:купить|закупить)"),
+    )
+    for kind,pat in patterns:
+        m=re.fullmatch(pat,t)
+        if not m:continue
+        found=read_material(db,w,m[1])
+        out={"matrixId":{"stock":"A-R13","consumption":"A-R14","planning":"A-R15"}[kind],"matrixVersion":VERSION}
+        if not found:
+            return {**out,"unresolved":True,"text":"Не нашёл однозначный материал. Укажите его точное название из справочника.","ui":{"page":"materials"}}
+        mid,name=found
+        if kind=="stock":
+            d=book.report(db,w,view="stock");v=next(x for x in d["materials"] if x["id"]==mid)
+            text=f'{name}: учётный остаток {v["quantity"]} {v["unit"]}, стоимость {v["value_rub"]} ₽.' if v["valued"] else f'{name}: фактический остаток пока не введён.'
+            return {**out,"text":text,"ui":{"page":"stock","entity":name}}
+        if kind=="consumption":
+            start,end=dates(suffix);d=book.report(db,w,start,end,view="planning")
+            v=next((x for x in d["consumption"] if x["material_id"]==mid),None)
+            text=f'{name}: по чистым продажам {v["quantity"]} {v["unit"]}, эквивалент {v["pack_equivalent"]} упаковки.' if v else f'{name}: за период нет расхода по учтённым чистым продажам.'
+            return {**out,"text":text+" Это эквивалент по продажам, не фактическое списание сырья.","ui":{"page":"planning","entity":name,"filters":{"from":start,"to":end}}}
+        d=book.report(db,w,view="planning");v=next(x for x in d["planning"] if x["material_id"]==mid)
+        return {**out,"text":f'{name}: по прогнозу на 30 дней — {v["buy_packs"]} упаковок, ориентировочная дата заказа {v["order_day"] or "нет спроса"}. Без резервов и поставок в пути.',"ui":{"page":"planning","entity":name}}
+    return None
+
+MARKET_SOURCES={"маркетплейсов":"all_marketplaces","всех площадок":"all_marketplaces","все площадки":"all_marketplaces",
+    "ozon":"ozon","озон":"ozon","wildberries":"wb","wb":"wb","вб":"wb","вайлдберриз":"wb",
+    "яндекс маркета":"yandex_market","яндекс маркет":"yandex_market","яндекс":"yandex_market"}
+
+def market_route(db,w,text,request_id=None):
+    """Closed grammar. Read-only local data or the same durable queue dispatch."""
+    from . import podmasterye_market_operations as market
+    t=norm(text);operation=None;args={};ident="MP-U03"
+    if t in ("управление маркетплейсами","план закупок маркетплейсов","настрой коэффициенты брака"):
+        tab={"управление маркетплейсами":"sync","план закупок маркетплейсов":"planning","настрой коэффициенты брака":"quality"}[t]
+        return {"text":"Управление доступно прямо в этой карточке чата.","marketCard":{"kind":"workspace","tab":tab,"workshop":w},"ui":{},"matrixId":"MP-U09","matrixVersion":VERSION}
+    names="|".join(re.escape(x) for x in sorted(MARKET_SOURCES,key=len,reverse=True))
+    if t in ("статус маркетплейсов","статус синхронизации","история синхронизации","покажи статус маркетплейсов"):
+        operation="market_sync_status"
+    elif t in ("подключения маркетплейсов","покажи подключения маркетплейсов"):
+        operation="market_connection";args={"action":"list"};ident="MP-U08"
+    elif m:=re.fullmatch(r"(?:подключи|подключить) ("+names+r")",t):
+        source=MARKET_SOURCES[m[1]]
+        if source=="all_marketplaces":return None
+        operation="market_connection";args={"action":"connect","provider":source};ident="MP-U08"
+    elif m:=re.fullmatch(r"(?:проверь подключение|смени ключ|отключи подключение) ([a-z0-9_-]{1,160})",t):
+        action="verify" if t.startswith("проверь") else "rotate" if t.startswith("смени") else "disconnect"
+        operation="market_connection";args={"action":action,"connection_id":m[1]};ident="MP-U08"
+    elif m:=re.fullmatch(r"(?:обнови|обновить|собери|собрать|загрузи|загрузить) историю ("+names+r")(?: с (\d{4}-\d{2}-\d{2}) по (\d{4}-\d{2}-\d{2}))?",t):
+        operation="market_sync_request";args={"source":MARKET_SOURCES[m[1]],"refresh":t.startswith(("обнови ","обновить "))};ident="MP-U04"
+        if m[2]:args.update({"from":m[2],"to":m[3]})
+    elif m:=re.fullmatch(r"(останови|продолжи|повтори) сбор ([a-z0-9_-]{1,160})",t):
+        operation="market_sync_control";args={"action":{"останови":"cancel","продолжи":"resume","повтори":"retry"}[m[1]],"job_id":m[2]};ident="MP-U05"
+    elif m:=re.fullmatch(r"(?:покажи )?(коэффициенты потерь|несвязанные артикулы|каталог) ("+names+r")",t):
+        operation="market_loss_rates" if m[1]=="коэффициенты потерь" else "market_catalog";args={"source":MARKET_SOURCES[m[2]]};ident="MP-U02" if operation=="market_loss_rates" else "MP-U06"
+        if m[1]=="несвязанные артикулы":args["unmapped_only"]=True
+    elif m:=re.fullmatch(r"(?:покажи )?продажи ("+names+r")(?: с (\d{4}-\d{2}-\d{2}) по (\d{4}-\d{2}-\d{2})|( за (?:прошлый месяц|этот месяц|текущий месяц|последние 30 дней|сегодня|вчера)))?",t):
+        start,end=(m[2],m[3]) if m[2] else dates((m[4] or "за этот месяц").strip())
+        operation="market_sales";args={"source":MARKET_SOURCES[m[1]],"from":start,"to":end,"group_by":"product"};ident="MP-U01"
+    if operation is None:return None
+    if operation in ("market_sync_request","market_sync_control") and request_id is None:
+        return {"text":"Укажите действие в карточке сбора.","marketCard":{"kind":"workspace","tab":"sync","arguments":args},"ui":{},"matrixId":ident,"matrixVersion":VERSION}
+    value=market.execute(db,w,operation,args,request_id=request_id,channel="chat")
+    out={"text":market.summary(operation,value),"ui":{},"matrixId":ident,"matrixVersion":VERSION,
+         "marketResult":{"operation":operation,"arguments":args,"result":value}}
+    out.update({k:value[k] for k in ("marketCard","marketDraft") if k in value})
+    return out
+
+def route(db,w,text,faq=None,request_id=None):
+    market=market_route(db,w,text,request_id)
+    if market:return market
+    t=norm(text);suffix=None;entry=INDEX.get(t)
+    if not entry:
+        for p in PERIODS:
+            if t.endswith(" "+p) and t[:-len(p)-1] in INDEX:
+                e=INDEX[t[:-len(p)-1]]
+                if e["intent"] in ("report","ui"):entry=e;suffix=p
+                break
+    args=None
+    if not entry:
+        found=specific(db,w,t)
+        if found:return found
+        for e in ITEMS:
+            if e["intent"]=="form" and e.get("pattern") and (m:=re.fullmatch(e["pattern"]," ".join(text.strip().rstrip("!.").split()),re.I)):
+                entry=e;args=m.groupdict();break
+    if not entry:return None
+    kind=entry["intent"]
+    ui={"page":entry.get("page",book.PAGES.get(entry.get("op"),"summary"))}
+    if suffix:
+        a,b=dates(suffix);ui.update(filters={"from":a,"to":b})
+    answer=entry.get("answer")
+    out={"ui":ui,"matrixId":entry["id"],"matrixVersion":VERSION}
+    if kind=="faq" and "public_topic" in entry:
+        from .guest_billing import fill_terms
+        out["text"]=fill_terms(db,faq.template(entry["public_topic"]) if faq is not None else answer)
+        out["ui"]={}
+        return out
+    if kind=="faq" or kind=="ui":
+        out["text"]=answer or "Открываю нужный раздел."
+        return out
+    if kind=="report":
+        start,end=dates(suffix);d=book.report(db,w,start,end,view=entry["view"])
+        if entry.get("metric"):
+            k=entry["metric"];value=d["summary"][k];suffix_unit="%" if k=="margin_percent" else " шт." if k=="sales_quantity" else " ₽";out["text"]=f"{METRICS[k]}: "+(str(value)+suffix_unit if value is not None else "не определена")+". "
+            ui["highlight"]=k
+            if k not in ("inventory_rub","current_receivables_rub","equipment_book_rub","wip_inventory_rub"):
+                ui["filters"]={"from":start,"to":end}
+                out["text"]+=f" Период: {start or 'все даты'} — {end}."
+        elif entry["view"]=="planning":
+            suggestions=[p for p in d["planning"] if p["buy_packs"]>0]
+            out["text"]=("Рекомендуемые закупки: "+ "; ".join(f'{p["material"]} — {p["buy_packs"]} уп.' for p in suggestions[:10])+".") if suggestions else "По чистым продажам последних 30 дней модель не выявила потребности в закупке. Проверьте полноту данных."
+            out["text"]+=" Прогноз без резервов и ожидаемых поставок."
+        elif entry["view"]=="stock":
+            out["text"]="Текущие учётные остатки: "+("; ".join(f'{m["name"]}: {m["quantity"]} {m["unit"]}' for m in d["materials"][:10]) or "нет материалов")+"."
+        else:
+            ui["filters"]={"from":start,"to":end}
+            out["text"]="Отчёт рассчитан; подробные данные показаны в разделе."
+        return out
+    op=entry["op"]
+    if args:
+        if "quantity" in args:args["quantity"]=int(args["quantity"])
+        if "purchase_unit" in args:args["purchase_unit"]="pack" if args["purchase_unit"].casefold().startswith(("пач","упаков")) else "base"
+        if "category" in args:
+            cats=[c for c in book.CATEGORIES if norm(c)==norm(args["category"])]
+            aliases={"рекламу":"Реклама","аренду":"Аренда","доставку":"Доставка","упаковку":"Упаковка","оплату труда":"Оплата труда"}
+            args["category"]=cats[0] if cats else aliases.get(norm(args["category"]),"")
+        # Resolve IDs exactly; an ambiguous name stays for user correction in the form.
+        for field in ("material","product"):
+            if field in args:
+                try:args[field]=book.entity(db,w,field,args[field])[0]
+                except ValueError:pass
+    args={**entry.get("defaults",{}),**(args or {})}
+    out["accountingDraft"]={"operation":op,"arguments":args}
+    out["text"]="Подготовил форму «"+book.FIELDS[op][0]+"». Проверьте данные, выполните предварительный расчёт и подтвердите запись."
+    return out
+
+def operation_schema(ops=None):
+    ops=list(book.FIELDS) if ops is None else list(ops)
+    return {"type":"object","properties":{"operation":{"type":"string","enum":ops},
+            "arguments":{"type":"object","additionalProperties":{"type":["string","integer","boolean","null"]}}},
+            "required":["operation","arguments"],"additionalProperties":False}
+
+def report_schema(views=None):
+    return {"type":"object","properties":{"view":{"type":"string","enum":views or ["summary","stock","sales","planning","finance","journal","tasks","workers","unit","catalog","assets"]},
+        "start":{"type":"string"},"end":{"type":"string"},"source":{"type":"string","maxLength":160},"target_profit":{"type":"string"},"horizon":{"type":"integer","minimum":1,"maximum":365},
+        "lead":{"type":"integer","minimum":0,"maximum":365},"safety":{"type":"integer","minimum":0,"maximum":365},
+        "limit":{"type":"integer","minimum":1,"maximum":30}},"required":["view"],"additionalProperties":False}
+
+def operation_description(ops=None):
+    return "Подготовить черновик хозяйственной операции, не записывает склад или деньги. Схему полей выбранной операции получи через form_catalog, form=book.<operation>. Указывай только известные параметры. После проверки сервер проводит обычную запись при наличии разрешения текущего поручения; иначе требуется подтверждение в чате или кабинете. Опасные операции требуют подтверждения конкретной записи."

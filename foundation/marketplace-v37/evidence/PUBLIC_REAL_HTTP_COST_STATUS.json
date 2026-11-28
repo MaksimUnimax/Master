@@ -1,0 +1,194 @@
+{
+  "schema": "market-quantity-real-http-cost-ledger/v2",
+  "candidate_sha": "db0d660f132ae3b7d3db7620fd4b1110fc75022f",
+  "totals_all_retained_runs": {
+    "real_http_requests": 815,
+    "http_status_counts": {
+      "200": 769,
+      "204": 40,
+      "403": 1,
+      "400": 4,
+      "429": 1
+    },
+    "natural_http429_count": 1,
+    "requests_by_provider": {
+      "ozon": 354,
+      "wb": 141,
+      "yandex_market": 320
+    },
+    "requests_by_template": {
+      "OZ-01": 8,
+      "OZ-02": 14,
+      "OZ-03": 198,
+      "OZ-04": 8,
+      "OZ-05": 82,
+      "OZ-06": 37,
+      "OZ-07": 7,
+      "WB-01": 6,
+      "WB-02": 12,
+      "WB-03": 25,
+      "WB-04": 80,
+      "WB-05": 18,
+      "YM-01": 14,
+      "YM-02": 14,
+      "YM-03": 96,
+      "YM-04": 71,
+      "YM-05": 85,
+      "YM-06": 40
+    },
+    "report_generate_requests": 91,
+    "report_poll_requests": 172,
+    "report_download_requests": 70,
+    "repeat_attempts_same_durable_step": 5,
+    "transport_exception_counts": {}
+  },
+  "final_candidate_counts": {
+    "real_http_requests": 51,
+    "http_status_counts": {
+      "200": 46,
+      "204": 5
+    },
+    "natural_http429_count": 0,
+    "requests_by_provider": {
+      "ozon": 22,
+      "wb": 16,
+      "yandex_market": 13
+    },
+    "requests_by_template": {
+      "OZ-01": 1,
+      "OZ-02": 2,
+      "OZ-03": 10,
+      "OZ-04": 1,
+      "OZ-05": 2,
+      "OZ-06": 5,
+      "OZ-07": 1,
+      "WB-01": 1,
+      "WB-02": 2,
+      "WB-03": 1,
+      "WB-04": 9,
+      "WB-05": 3,
+      "YM-01": 2,
+      "YM-02": 2,
+      "YM-03": 1,
+      "YM-04": 1,
+      "YM-05": 2,
+      "YM-06": 5
+    },
+    "report_generate_requests": 5,
+    "report_poll_requests": 10,
+    "report_download_requests": 4,
+    "repeat_attempts_same_durable_step": 0,
+    "transport_exception_counts": {}
+  },
+  "historical_counts": {
+    "real_http_requests": 764,
+    "http_status_counts": {
+      "200": 723,
+      "204": 35,
+      "403": 1,
+      "400": 4,
+      "429": 1
+    },
+    "natural_http429_count": 1,
+    "requests_by_provider": {
+      "ozon": 332,
+      "wb": 125,
+      "yandex_market": 307
+    },
+    "requests_by_template": {
+      "OZ-01": 7,
+      "OZ-02": 12,
+      "OZ-03": 188,
+      "OZ-04": 7,
+      "OZ-05": 80,
+      "OZ-06": 32,
+      "OZ-07": 6,
+      "WB-01": 5,
+      "WB-02": 10,
+      "WB-03": 24,
+      "WB-04": 71,
+      "WB-05": 15,
+      "YM-01": 12,
+      "YM-02": 12,
+      "YM-03": 95,
+      "YM-04": 70,
+      "YM-05": 83,
+      "YM-06": 35
+    },
+    "report_generate_requests": 86,
+    "report_poll_requests": 162,
+    "report_download_requests": 66,
+    "repeat_attempts_same_durable_step": 5,
+    "transport_exception_counts": {}
+  },
+  "final_template_gate_counts": {
+    "real_http_requests": 44,
+    "http_status_counts": {
+      "200": 43,
+      "204": 1
+    },
+    "natural_http429_count": 0,
+    "requests_by_provider": {
+      "ozon": 22,
+      "wb": 9,
+      "yandex_market": 13
+    },
+    "requests_by_template": {
+      "OZ-01": 1,
+      "OZ-02": 2,
+      "OZ-03": 10,
+      "OZ-04": 1,
+      "OZ-05": 2,
+      "OZ-06": 5,
+      "OZ-07": 1,
+      "WB-01": 1,
+      "WB-02": 2,
+      "WB-03": 1,
+      "WB-04": 2,
+      "WB-05": 3,
+      "YM-01": 2,
+      "YM-02": 2,
+      "YM-03": 1,
+      "YM-04": 1,
+      "YM-05": 2,
+      "YM-06": 5
+    },
+    "report_generate_requests": 5,
+    "report_poll_requests": 10,
+    "report_download_requests": 4,
+    "repeat_attempts_same_durable_step": 0,
+    "transport_exception_counts": {}
+  },
+  "final_history_counts": {
+    "real_http_requests": 7,
+    "http_status_counts": {
+      "204": 4,
+      "200": 3
+    },
+    "natural_http429_count": 0,
+    "requests_by_provider": {
+      "wb": 7
+    },
+    "requests_by_template": {
+      "WB-04": 7
+    },
+    "report_generate_requests": 0,
+    "report_poll_requests": 0,
+    "report_download_requests": 0,
+    "repeat_attempts_same_durable_step": 0,
+    "transport_exception_counts": {}
+  },
+  "duplicate_receipt_lines_excluded": 0,
+  "cost": {
+    "deepseek_calls": 0,
+    "other_model_calls": 0,
+    "billing_api_calls": 0,
+    "additional_model_cost": 0,
+    "provider_monetary_charges_measured": false,
+    "provider_charge_amount": null,
+    "qualification": "Read endpoints do not expose provider monetary charges. Zero model/billing calls are observed for these executors; unrelated project spending is outside this ledger."
+  },
+  "synthetic_requests_included": 0,
+  "qualification": "Historical attempts, final attempts and synthetic fault tests are separate. A repeated durable step is not automatically classified as a product retry.",
+  "distribution": "PUBLIC_SAFE_STATUS_ONLY"
+}
