@@ -1,0 +1,45 @@
+{
+  "base_release": "2be1cf6f4e04765fea5af33bba8b9a3e32d359fe",
+  "changed_files": [
+    {
+      "path": "products/harness-platform/native/web/podmasterye-market-links.js",
+      "old_sha256": "de539771ca973ac6450b81c53c5f01c627abc324aef895fd3386b31241218df8",
+      "new_sha256": "983b04e66b44fe9fd42624c59313f712fe6362153763f51a1b41530c80bdfe1b"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_market_links.py",
+      "old_sha256": "1efd43e1f8eb6e127ab0344803ac4e5842635d7ec1cf12461251e467626b7234",
+      "new_sha256": "52585ea4a6f68b5c4d12962f6cf84eedaca7514e5537172eacd40fb577466a9e"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_public_catalog.json",
+      "old_sha256": "d1f4e75a500602045db4c2ef59ba39240abb02b27dfa30824be36793f52c3577",
+      "new_sha256": "a236c2d79231372046eeeb3c80f2b1685ac8cb69b468953866f56f8c3c1b2505"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_yandex_market.py",
+      "old_sha256": null,
+      "new_sha256": "cc67fe033ea843321dc4ebac92a5d0277fed8ca05281e501fb7352eaf9d5feb5"
+    },
+    {
+      "path": "products/harness-platform/platform_core/web_ui.py",
+      "old_sha256": "a37af961369063c491ab1baa4c48201fd0cf05a11792419793df38699d02f26b",
+      "new_sha256": "ab89a589c221a3e92a8708b0e8c5456a00d31ea1c4e68b19dd2b9eb17df274d6"
+    },
+    {
+      "path": "products/harness-platform/tests/browser/test_podmasterye_yandex_market_ui.py",
+      "old_sha256": null,
+      "new_sha256": "b2884791d689a34f4ca922165d62af89ab6ca09946bb77c09d7e6195a709e81f"
+    },
+    {
+      "path": "products/harness-platform/tests/test_podmasterye_guest_v17.py",
+      "old_sha256": "a43485f4a9e52f59776f2b607fb2519cba59b764d9782d2270f8223e209f3e6f",
+      "new_sha256": "1e200025c78b76737ebf65bebea6b543c670004cb534291abfea15da2be23eaf"
+    },
+    {
+      "path": "products/harness-platform/tests/test_podmasterye_yandex_market.py",
+      "old_sha256": null,
+      "new_sha256": "f7ceefe7ca4a6fb0de23e06fab802abd6b5dcef351786ba501a5056c38d2763b"
+    }
+  ]
+}

@@ -1,0 +1,443 @@
+--- a/products/harness-platform/native/web/podmasterye-market-links.js
++++ b/products/harness-platform/native/web/podmasterye-market-links.js
+@@ -2,18 +2,23 @@
+ (()=>{
+ const defs={
+  ozon:{title:'Ozon',fields:[['client_id','Client-Id продавца'],['api_key','Api-Key продавца'],['performance_id','Client ID Performance'],['performance_secret','Client Secret Performance']]},
+- wb:{title:'Wildberries',fields:[['token','API-токен WB']]}
++ wb:{title:'Wildberries',fields:[['token','API-токен WB']]},
++ yandex_market:{title:'Яндекс Маркет',fields:[['api_key','API-ключ Яндекс Маркета']]}
+ };
+ const q=s=>document.querySelector(s),el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!=null)n.textContent=text;if(cls)n.className=cls;return n;};
+ function button(text,fn){const b=el('button',text,'secondary');b.type='button';b.onclick=fn;return b;}
+ function fields(host,p){host.replaceChildren();for(const [key,label] of defs[p].fields){
+  const l=el('label',label),i=el('input');i.name=key;i.type='password';i.autocomplete='new-password';i.maxLength=8192;l.append(i);host.append(l);
+  }
++ if(p==='yandex_market'){
++  host.append(el('p','Создайте API-ключ с правом «Просмотр всех данных». Идентификаторы кабинета и магазинов получим автоматически.','hint'));
++  const a=el('a','Получить API-ключ в кабинете продавца');a.href='https://partner.market.yandex.ru/';a.target='_blank';a.rel='noopener noreferrer';host.append(a);return;
++ }
+  host.append(el('p',p==='ozon'?'Seller API — полная пара Client-Id и Api-Key. Performance API — отдельная пара Client ID и Client Secret. Можно добавить одну пару, затем вторую.':'Для заказов и продаж нужен токен с доступом к статистике; для рекламы — к продвижению.','hint'));
+ }
+ function values(form,p){return Object.fromEntries(defs[p].fields.map(([key])=>[key,form.elements[key]?.value.trim()||'']).filter(x=>x[1]));}
+ const statusNames={saved:'Ключи сохранены, связь не проверена',verified:'Связь подтверждена',partial:'Подтверждена часть доступов',unconfirmed:'Связь не подтверждена'};
+-const checkNames={verified:'Подтверждён',denied:'Отказ в доступе',unconfirmed:'Не подтверждён'};
++const checkNames={verified:'Подтверждён',denied:'Отказ в доступе',unconfirmed:'Не подтверждён',rate_limited:'Лимит запросов Маркета — повторите позже',incomplete:'Получены неполные данные — повторите проверку'};
+ let busy=false;
+ async function action(fn,message){
+  if(busy)return;busy=true;const status=q('#market-status');
+@@ -23,6 +28,19 @@
+  const box=el('section',null,'settings-card');box.append(el('h3',c.name+' · '+defs[c.provider].title),el('p',statusNames[c.status]||c.status,'hint'));
+  if(c.checked)box.append(el('p','Проверено: '+new Date(c.checked*1000).toLocaleString('ru-RU'),'hint'));
+  for(const [k,v] of Object.entries(c.checks))box.append(el('p',k+': '+(checkNames[v]||v)));
++ if(c.provider==='yandex_market'&&c.checked){
++  const d=c.details||{},scopes=d.scopes||[];
++  box.append(el('p','Права токена: '+(scopes.includes('ALL_METHODS_READ_ONLY')?'Просмотр всех данных':scopes.includes('ALL_METHODS')?'Полное управление (Мастерская использует только чтение)':scopes.length?scopes.join(', '):'Не подтверждены'),'hint'));
++  if(d.complete){
++   box.append(el('h4','Магазины: '+d.campaigns.length));
++   for(const shop of d.campaigns){
++    const text=(shop.name||'Магазин')+' · ID магазина: '+shop.campaignId+' · ID кабинета: '+shop.businessId+(shop.placementType?' · '+shop.placementType:'');
++    box.append(el('p',text),el('p',shop.apiAvailability==='AVAILABLE'?'API доступен':shop.apiAvailability?'Доступ к API магазина: '+shop.apiAvailability:'Статус API магазина не указан','hint'));
++   }
++   if(!d.campaigns.length)box.append(el('p','Токен действителен, но список магазинов пуст.','hint'));
++  }
++  box.append(el('p','Подключение проверяет токен и магазины. Импорт заказов и финансовых отчётов пока не запущен.','hint'));
++ }
+  const configured=new Set(c.configuredFields);
+  box.append(el('p',defs[c.provider].fields.map(([k,t])=>t+': '+(configured.has(k)?'сохранён':'не указан')).join(' · '),'hint'));
+  const controls=el('div',null,'button-group'),url='/api/integrations/marketplaces/'+encodeURIComponent(c.id);
+--- a/products/harness-platform/platform_core/podmasterye_market_links.py
++++ b/products/harness-platform/platform_core/podmasterye_market_links.py
+@@ -11,17 +11,35 @@
+ from starlette.responses import JSONResponse
+ from starlette.routing import Route
+ from .identity import _principal
+-from . import integrations as upstream, podmasterye_workshops as workshops
++from . import integrations as upstream, podmasterye_workshops as workshops, podmasterye_yandex_market as yandex
+ 
+ PROVIDERS={p:{"title":upstream.PROVIDERS[p]["title"],"fields":upstream.PROVIDERS[p]["fields"]} for p in ("ozon","wb")}
++PROVIDERS["yandex_market"]=yandex.PROVIDER
+ SCHEMA="""CREATE TABLE IF NOT EXISTS pm_market_connections(
+  id TEXT PRIMARY KEY, workspace TEXT NOT NULL REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
+- provider TEXT NOT NULL CHECK(provider IN('ozon','wb')), name TEXT NOT NULL,
++ provider TEXT NOT NULL CHECK(provider IN('ozon','wb','yandex_market')), name TEXT NOT NULL,
+  encrypted BLOB NOT NULL, version INTEGER NOT NULL DEFAULT 1,
+- checks TEXT NOT NULL DEFAULT '{}', checked INTEGER,
++ checks TEXT NOT NULL DEFAULT '{}', checked INTEGER, details TEXT NOT NULL DEFAULT '{}',
+  UNIQUE(workspace,provider,name COLLATE NOCASE))"""
+ 
+-def init(db):db.execute(SCHEMA)
++def init(db):
++    # Domain initialization owns the transaction. The old encrypted values and
++    # their associated-data identifiers are copied byte-for-byte.
++    row=db.execute("SELECT sql FROM sqlite_schema WHERE type='table' AND name='pm_market_connections'").fetchone()
++    if not row:
++        db.execute(SCHEMA)
++        return
++    if "'yandex_market'" in row[0]:
++        return
++    # Fail closed if a future release adds a foreign-key dependency.
++    for name, in db.execute("SELECT name FROM sqlite_schema WHERE type='table'"):
++        if any(fk[2]=="pm_market_connections" for fk in db.execute('PRAGMA foreign_key_list("'+name.replace('"','""')+'")')):
++            raise RuntimeError("Marketplace migration requires an updated dependent-table plan")
++    cols="id,workspace,provider,name,encrypted,version,checks,checked"
++    db.execute(SCHEMA.replace("IF NOT EXISTS pm_market_connections","pm_market_connections_v33",1))
++    db.execute("INSERT INTO pm_market_connections_v33("+cols+") SELECT "+cols+" FROM pm_market_connections")
++    db.execute("DROP TABLE pm_market_connections")
++    db.execute("ALTER TABLE pm_market_connections_v33 RENAME TO pm_market_connections")
+ 
+ def private_write(path,data):
+     fd,tmp=tempfile.mkstemp(prefix="."+path.name+"-",dir=path.parent)
+@@ -57,19 +75,23 @@
+         except (InvalidTag,ValueError):raise HTTPException(503,"Не удалось открыть хранилище ключей.") from None
+     def validate(self,p,fields):
+         if p not in PROVIDERS:raise ValueError("Неизвестная площадка.")
+-        return upstream.credentials(p,fields)
++        return yandex.credentials(fields) if p=="yandex_market" else upstream.credentials(p,fields)
+     def get(self,db,w,c):
+-        row=db.execute("SELECT provider,name,encrypted,version,checks,checked FROM pm_market_connections WHERE workspace=? AND id=?",(w,c)).fetchone()
++        row=db.execute("SELECT provider,name,encrypted,version,checks,checked,details FROM pm_market_connections WHERE workspace=? AND id=?",(w,c)).fetchone()
+         if not row:raise HTTPException(404,"Подключение не найдено.")
+         return row
+     def public(self,w,c,row):
+-        p,n,e,v,checks,checked=row;f=self.unpack(w,c,p,e)
++        p,n,e,v,checks,checked,details=row;f=self.unpack(w,c,p,e)
+         checks=json.loads(checks)
+         if p=="ozon":
+             status="verified" if checks.get("Seller")=="verified" and all(x=="verified" for x in checks.values()) else "partial" if "verified" in checks.values() else "unconfirmed"
++        elif p=="yandex_market":
++            status="verified" if checks and all(x=="verified" for x in checks.values()) else "partial" if "verified" in checks.values() else "unconfirmed"
+         else:status="verified" if "verified" in checks.values() else "unconfirmed"
+         if checked is None:status="saved"
+-        return {"id":c,"provider":p,"name":n,"version":v,"configuredFields":sorted(f),"checks":checks,"checked":checked,"status":status}
++        result={"id":c,"provider":p,"name":n,"version":v,"configuredFields":sorted(f),"checks":checks,"checked":checked,"status":status}
++        if p=="yandex_market":result["details"]=json.loads(details)
++        return result
+     def list(self,token,w):
+         with self.identity._lock:
+             db=self.identity._db;w=self.scope(db,token,w)
+@@ -88,11 +110,11 @@
+         except sqlite3.IntegrityError:raise HTTPException(409,"Магазин с таким названием уже существует.") from None
+     def update(self,token,w,c,version,fields):
+         with self.identity._write() as db:
+-            w=self.scope(db,token,w);p,n,e,v,_,_=self.get(db,w,c)
++            w=self.scope(db,token,w);p,n,e,v,_,_,_=self.get(db,w,c)
+             if type(version) is not int or version!=v:raise HTTPException(409,"Подключение изменилось. Обновите список.")
+             if not isinstance(fields,dict) or not fields:raise ValueError("Укажите новые ключи.")
+             f=self.validate(p,{**self.unpack(w,c,p,e),**self.validate(p,fields)})
+-            db.execute("UPDATE pm_market_connections SET encrypted=?,version=version+1,checks='{}',checked=NULL WHERE workspace=? AND id=?",(self.pack(w,c,p,f),w,c))
++            db.execute("UPDATE pm_market_connections SET encrypted=?,version=version+1,checks='{}',checked=NULL,details='{}' WHERE workspace=? AND id=?",(self.pack(w,c,p,f),w,c))
+             return self.public(w,c,self.get(db,w,c))
+     def remove(self,token,w,c,version):
+         with self.identity._write() as db:
+@@ -102,11 +124,12 @@
+         return {"removed":True}
+     async def check(self,token,w,c,client):
+         with self.identity._lock:
+-            db=self.identity._db;w=self.scope(db,token,w);p,_,e,v,_,_=self.get(db,w,c);f=self.unpack(w,c,p,e)
+-        results=await upstream.probe(client,p,f)
++            db=self.identity._db;w=self.scope(db,token,w);p,_,e,v,_,_,_=self.get(db,w,c);f=self.unpack(w,c,p,e)
++        if p=="yandex_market":results,details=await yandex.probe(client,f)
++        else:results,details=await upstream.probe(client,p,f),{}
+         with self.identity._write() as db:
+             self.scope(db,token,w)
+-            if not db.execute("UPDATE pm_market_connections SET checks=?,checked=unixepoch() WHERE workspace=? AND id=? AND version=?",(json.dumps(results,ensure_ascii=False),w,c,v)).rowcount:
++            if not db.execute("UPDATE pm_market_connections SET checks=?,checked=unixepoch(),details=? WHERE workspace=? AND id=? AND version=?",(json.dumps(results,ensure_ascii=False),json.dumps(details,ensure_ascii=False),w,c,v)).rowcount:
+                 raise HTTPException(409,"Ключи изменились во время проверки.")
+             return self.public(w,c,self.get(db,w,c))
+ 
+--- a/products/harness-platform/platform_core/podmasterye_public_catalog.json
++++ b/products/harness-platform/platform_core/podmasterye_public_catalog.json
+@@ -285,5 +285,20 @@
+     ],
+     "detail": "После входа, если администратор настроил бота, можно авторизовать Telegram, проверить доставку и отправить сводку своей мастерской. Гостевой режим не подключает Telegram и не отправляет сообщения. Настройка требует действующего бота и разрешённого домена.",
+     "access": "member"
++  },
++  {
++    "id": "capability/yandex_market",
++    "group": "Интеграции",
++    "title": "Яндекс Маркет",
++    "overview": "Подключение кабинета продавца по API-ключу",
++    "aliases": [
++      "яндекс маркет",
++      "ямаркет",
++      "я маркет",
++      "как подключить яндекс маркет",
++      "как подключить яндекс маркет к мастерской"
++    ],
++    "detail": "В разделе «Интеграции» сохраните API-ключ Яндекс Маркета с правом просмотра всех данных и нажмите «Проверить связь». Подмастерье проверит права токена и получит список магазинов и идентификаторы кабинетов. Автоматический импорт заказов и финансов пока не запущен. Ключ не отправляйте в чат.",
++    "access": "member"
+   }
+ ]
+--- /dev/null
++++ b/products/harness-platform/platform_core/podmasterye_yandex_market.py
+@@ -0,0 +1,82 @@
++"""Read-only Yandex Market connection discovery, isolated from Octoport."""
++import httpx
++
++PROVIDER={"title":"Яндекс Маркет","fields":{"api_key":"API-ключ Яндекс Маркета"}}
++ORIGIN="https://api.partner.market.yandex.ru"
++SCOPES=frozenset(("ALL_METHODS","ALL_METHODS_READ_ONLY","INVENTORY_AND_ORDER_PROCESSING",
++    "INVENTORY_AND_ORDER_PROCESSING_READ_ONLY","PRICING","PRICING_READ_ONLY",
++    "OFFERS_AND_CARDS_MANAGEMENT","OFFERS_AND_CARDS_MANAGEMENT_READ_ONLY",
++    "PROMOTION","PROMOTION_READ_ONLY","FINANCE_AND_ACCOUNTING","COMMUNICATION",
++    "SETTINGS_MANAGEMENT","SUPPLIES_MANAGEMENT_READ_ONLY"))
++MAX_PAGES=100
++
++def credentials(fields):
++    if not isinstance(fields,dict) or set(fields)!={"api_key"}:
++        raise ValueError("Укажите API-ключ Яндекс Маркета.")
++    value=fields["api_key"]
++    if not isinstance(value,str) or not 1<=len(value.strip())<=8192 or not value.isascii() or not value.isprintable() or any(c.isspace() for c in value.strip()):
++        raise ValueError("Некорректный API-ключ Яндекс Маркета.")
++    return {"api_key":value.strip()}
++
++async def call(client,method,path,key,**kw):
++    try:
++        r=await client.request(method,ORIGIN+path,headers={"Api-Key":key,"Accept":"application/json"},timeout=10,follow_redirects=False,**kw)
++        if r.status_code in (401,403):return "denied",None
++        if r.status_code==429:return "rate_limited",None
++        if not r.is_success:return "unconfirmed",None
++        d=r.json()
++        if not isinstance(d,dict) or d.get("status") not in (None,"OK"):return "unconfirmed",None
++        return "verified",d
++    except (httpx.HTTPError,ValueError,TypeError):
++        return "unconfirmed",None
++
++def label(v,key):
++    # Only the documented non-secret metadata is stored. Do not reflect a
++    # credential even if a malformed provider response echoes it.
++    if not isinstance(v,str) or key in v:return ""
++    return "".join(c for c in v if c.isprintable())[:200]
++
++async def probe(client,f):
++    key=f["api_key"]
++    checks={"Токен":"unconfirmed","Список магазинов":"unconfirmed"}
++    details={"scopes":[],"campaigns":[],"complete":False}
++    status,d=await call(client,"POST","/v2/auth/token",key)
++    checks["Токен"]=status
++    if status!="verified":return checks,details
++    try:
++        scopes=d["result"]["apiKey"]["authScopes"]
++        if not isinstance(scopes,list) or not scopes or not all(isinstance(x,str) for x in scopes):raise ValueError()
++        details["scopes"]=sorted(set(scopes)&SCOPES)
++    except (KeyError,TypeError,ValueError):
++        checks["Токен"]="unconfirmed";return checks,details
++    page=None;seen=set();rows={}
++    for _ in range(MAX_PAGES):
++        params={"limit":100}
++        if page is not None:params["pageToken"]=page
++        status,d=await call(client,"GET","/v2/campaigns",key,params=params)
++        if status!="verified":
++            checks["Список магазинов"]=status
++            return checks,details
++        try:
++            campaigns=d["campaigns"]
++            if not isinstance(campaigns,list) or len(campaigns)>100:raise ValueError()
++            for c in campaigns:
++                cid=c["id"];bid=c["business"]["id"]
++                if type(cid) is not int or cid<1 or type(bid) is not int or bid<1 or cid in rows:raise ValueError()
++                rows[cid]={"campaignId":cid,"businessId":bid,"name":label(c.get("domain"),key),
++                    "businessName":label(c["business"].get("name"),key),
++                    "placementType":c.get("placementType") if c.get("placementType") in ("FBS","FBY","DBS","LAAS") else "",
++                    "apiAvailability":c.get("apiAvailability") if c.get("apiAvailability") in ("AVAILABLE","DISABLED_BY_INACTIVITY","DISABLED_BY_NO_ACTIVE_CONTRACT","MANUALLY_DISABLED","DISABLED_BY_NO_PLACEMENT_TYPE") else ""}
++            paging=d.get("paging") or {}
++            if not isinstance(paging,dict):raise ValueError()
++            page=paging.get("nextPageToken")
++            if page is None or page=="":
++                details.update(campaigns=list(rows.values()),complete=True)
++                checks["Список магазинов"]="verified"
++                return checks,details
++            if not isinstance(page,str) or len(page)>8192 or page in seen:raise ValueError()
++            seen.add(page)
++        except (KeyError,TypeError,AttributeError,ValueError):
++            checks["Список магазинов"]="incomplete";return checks,details
++    checks["Список магазинов"]="incomplete"
++    return checks,details
+--- a/products/harness-platform/platform_core/web_ui.py
++++ b/products/harness-platform/platform_core/web_ui.py
+@@ -92,7 +92,7 @@
+     <section data-panel="unit" hidden><h2>Юнит-экономика</h2><p class="hint">История продаж за 90 дней и плановые тарифы каналов. Неизвестные комиссии не считаются нулевыми.</p><div class="toolstrip"><label>Целевая прибыль с единицы, ₽<input id="unit-target" value="200" inputmode="decimal"></label><button id="unit-apply" type="button">Рассчитать цену</button><button data-book-op="channel_rates" type="button" class="secondary">Тариф канала</button><button id="cost-policy-open" type="button" class="secondary">Накладные расходы</button></div><p class="hint" id="cost-policy-info"></p><p id="unit-period" class="hint"></p><div id="unit-table"></div><h3 class="section-subtitle">Плановые тарифы</h3><div id="unit-rates"></div></section>
+     <section data-panel="tasks" hidden><h2>Задачи</h2><div class="toolstrip"><button type="button" data-book-op="task">Добавить задачу</button><label>Статус<select id="task-filter"><option value="active">Активные</option><option value="done">Выполненные</option><option value="archived">Архив</option><option value="all">Все</option></select></label></div><div id="tasks-list"></div><h3>Напоминания</h3><p class="hint">Показываются в кабинете при открытии и обновлении данных; не требуют внешних сервисов.</p><div id="tasks-reminders"></div></section>
+     <section data-panel="workers" hidden><h2>Учёт труда</h2><p class="hint">Записи о работниках и выплатах; отдельные аккаунты и права доступа не создаются. Выплата отражается в расходах и денежном потоке.</p><div class="toolstrip"><button data-book-op="worker" type="button">Добавить работника</button><button data-book-op="worker_payment" type="button">Записать выплату</button></div><div id="workers-list"></div><h3 class="section-subtitle">Выплаты за период</h3><div data-event-table="workers"></div></section>
+-    <section data-panel="integrations" hidden><h2>Интеграции</h2><div class="panel"><h3>Маркетплейсы</h3><p class="hint">Подключения относятся к мастерской. Ключи хранятся зашифрованными. Проверка доступа не изменяет данные магазина.</p><form id="market-add"><label>Площадка<select name="provider"><option value="ozon">Ozon</option><option value="wb">Wildberries</option></select></label><label>Название магазина<input name="name" maxlength="80" required></label><div id="market-key-fields" class="fields"></div><button type="submit">Сохранить подключение</button></form><p id="market-status" role="status"></p><div id="market-list"></div></div><div class="panel"><h3>Telegram</h3><p id="pm-telegram-status" role="status"></p><div class="button-group"><button type="button" data-pm-telegram="connect" disabled>Подключить Telegram</button><button type="button" data-pm-telegram="test" disabled>Проверить отправку</button><button type="button" data-pm-telegram="summary" disabled>Отправить сводку</button><button type="button" class="secondary" data-pm-telegram="disconnect" disabled>Отключить</button></div><p class="hint">Отчёт отправляется только в подтверждённый чат этого аккаунта.</p></div><p class="hint">Собственные магазины, витрины и боты могут передавать заказы по отдельному ключу. Подключение маркетплейсов будет показано только после настройки адаптера.</p><form id="source-create" class="panel"><h3>Подключить свой магазин</h3><label>Название источника<input name="name" maxlength="120" required></label><label class="check"><input type="checkbox" name="auto_produce"> Разрешить изготовление недостающих изделий</label><button>Создать источник</button></form><div class="panel" id="source-key-box" hidden><h3>Новый API-ключ</h3><p>Сохраните его на стороне магазина: повторно ключ не отображается.</p><pre class="source-key" id="source-key"></pre><div class="button-group"><button id="source-copy" type="button">Копировать</button><button id="source-hide" class="secondary" type="button">Скрыть</button></div></div><p id="source-status" role="status"></p><details class="panel"><summary>Инструкция для разработчика</summary><p>POST /api/hook/order · Authorization: Bearer ВАШ_КЛЮЧ · Content-Type: application/json. Передавайте выполненный оплаченный заказ.</p><pre>Пример структуры: order_ref, date (ГГГГ-ММ-ДД), shop_name, items (список позиций offer_id, name, price в рублях, qty).</pre><p>Сопоставьте внешний артикул с изделием. Повтор того же заказа не создаёт вторую продажу. Возврат: POST /api/hook/event, поля event_id, order_ref, line (индекс позиции с 0), kind=return, date, quantity, refund, restock (true/false).</p><a href="/api/integration-docs">Полная схема API</a></details><div id="sources-list"></div></section>
++    <section data-panel="integrations" hidden><h2>Интеграции</h2><div class="panel"><h3>Маркетплейсы</h3><p class="hint">Подключения относятся к мастерской. Ключи хранятся зашифрованными. Проверка доступа не изменяет данные магазина.</p><form id="market-add"><label>Площадка<select name="provider"><option value="ozon">Ozon</option><option value="wb">Wildberries</option><option value="yandex_market">Яндекс Маркет</option></select></label><label>Название магазина<input name="name" maxlength="80" required></label><div id="market-key-fields" class="fields"></div><button type="submit">Сохранить подключение</button></form><p id="market-status" role="status"></p><div id="market-list"></div></div><div class="panel"><h3>Telegram</h3><p id="pm-telegram-status" role="status"></p><div class="button-group"><button type="button" data-pm-telegram="connect" disabled>Подключить Telegram</button><button type="button" data-pm-telegram="test" disabled>Проверить отправку</button><button type="button" data-pm-telegram="summary" disabled>Отправить сводку</button><button type="button" class="secondary" data-pm-telegram="disconnect" disabled>Отключить</button></div><p class="hint">Отчёт отправляется только в подтверждённый чат этого аккаунта.</p></div><p class="hint">Собственные магазины, витрины и боты могут передавать заказы по отдельному ключу. Подключение маркетплейсов будет показано только после настройки адаптера.</p><form id="source-create" class="panel"><h3>Подключить свой магазин</h3><label>Название источника<input name="name" maxlength="120" required></label><label class="check"><input type="checkbox" name="auto_produce"> Разрешить изготовление недостающих изделий</label><button>Создать источник</button></form><div class="panel" id="source-key-box" hidden><h3>Новый API-ключ</h3><p>Сохраните его на стороне магазина: повторно ключ не отображается.</p><pre class="source-key" id="source-key"></pre><div class="button-group"><button id="source-copy" type="button">Копировать</button><button id="source-hide" class="secondary" type="button">Скрыть</button></div></div><p id="source-status" role="status"></p><details class="panel"><summary>Инструкция для разработчика</summary><p>POST /api/hook/order · Authorization: Bearer ВАШ_КЛЮЧ · Content-Type: application/json. Передавайте выполненный оплаченный заказ.</p><pre>Пример структуры: order_ref, date (ГГГГ-ММ-ДД), shop_name, items (список позиций offer_id, name, price в рублях, qty).</pre><p>Сопоставьте внешний артикул с изделием. Повтор того же заказа не создаёт вторую продажу. Возврат: POST /api/hook/event, поля event_id, order_ref, line (индекс позиции с 0), kind=return, date, quantity, refund, restock (true/false).</p><a href="/api/integration-docs">Полная схема API</a></details><div id="sources-list"></div></section>
+     <section data-panel="settings" hidden><h2>Настройки</h2><form id="workshop-settings" class="panel"><h3>Мастерская</h3><div class="fields"><label>Название<input name="name" maxlength="120" required></label><label>Ставка мастера, ₽/час<input name="hourly_rate" inputmode="decimal" required></label><label>Цвет мастерской<select name="color"><option value="green">Зелёный</option><option value="blue">Синий</option><option value="amber">Янтарный</option><option value="violet">Фиолетовый</option><option value="gray">Серый</option></select></label><label>Описание<input name="description" maxlength="2000"></label></div><button>Сохранить</button></form><section class="panel" id="assistant-permission-card"><h3>Разрешения помощника</h3><label><input type="checkbox" id="agent-confirmation-toggle" checked disabled> Запрашивать подтверждение</label><p class="hint">Когда выключено, Подмастерье проводит обычные хозяйственные записи по вашим поручениям без отдельного клика. Архивирование, списания, сторно и исторические исправления требуют подтверждения конкретной операции.</p><p id="agent-permission-status" role="status"></p></section>{workshop_create}<div class="toolstrip">{workshop_demo}<label>Оформление<select id="theme-select"><option value="light">Светлое</option><option value="dark">Тёмное</option><option value="system">Системное</option></select></label></div><p id="workshop-status" role="status"></p>{workshop_list}</section>
+     <section data-panel="journal" hidden><h2>Журнал операций</h2><button data-book-op="reverse" type="button">Сторно по ID</button><div data-event-table="all"></div><h3>История исправлений</h3><div id="correction-history"></div></section>
+     <div class="event-pager" id="event-pager"><input id="event-offset" type="hidden" value="0"><button id="events-prev" class="secondary" type="button" disabled>Назад</button><span id="journal-count"></span><button id="events-next" class="secondary" type="button" disabled>Далее</button></div><p class="hint" id="accounting-assumptions"></p>
+--- /dev/null
++++ b/products/harness-platform/tests/browser/test_podmasterye_yandex_market_ui.py
+@@ -0,0 +1,39 @@
++"""Test the actual marketplace UI without accessing a live seller."""
++from unittest.mock import patch,AsyncMock
++from playwright.sync_api import expect
++from test_podmasterye_independent_ui import IndependentUI
++from platform_core import podmasterye_yandex_market as ym
++
++class YandexMarketUI(IndependentUI):
++    def test_market_connection_and_key_rotation(self):
++        self.sign_in();p=self.page;self.nav("integrations")
++        f=p.locator("#market-add")
++        f.locator("[name=provider]").select_option("yandex_market")
++        expect(f.locator("[name=api_key]")).to_have_attribute("type","password")
++        expect(f.locator("[name=client_id]")).to_have_count(0)
++        expect(f).to_contain_text("Просмотр всех данных")
++        f.locator("[name=name]").fill("Учебный Маркет")
++        f.locator("[name=api_key]").fill("fixture-ym-api-key")
++        f.get_by_role("button",name="Сохранить подключение").click()
++        c=p.locator("#market-list .settings-card").filter(has_text="Учебный Маркет")
++        expect(c).to_contain_text("Ключи сохранены, связь не проверена")
++        self.assertNotIn("fixture-ym-api-key",c.inner_text())
++        checks={"Токен":"verified","Список магазинов":"verified"}
++        details={"scopes":["ALL_METHODS_READ_ONLY"],"complete":True,"campaigns":[{"campaignId":25,"businessId":17,"name":"Учебный магазин","placementType":"FBS","apiAvailability":"AVAILABLE"}]}
++        with patch.object(ym,"probe",new_callable=AsyncMock,return_value=(checks,details)):
++            c.get_by_role("button",name="Проверить связь").click()
++            expect(c).to_contain_text("Связь подтверждена")
++            expect(c).to_contain_text("ID магазина: 25")
++            expect(c).to_contain_text("ID кабинета: 17")
++            expect(c).to_contain_text("Просмотр всех данных")
++        p.reload();self.ready();self.nav("integrations")
++        expect(c).to_contain_text("ID магазина: 25")
++        c.get_by_role("button",name="Изменить ключи").click()
++        e=c.locator("form")
++        expect(e.locator("[name=api_key]")).to_have_value("")
++        e.locator("[name=api_key]").fill("fixture-ym-new")
++        e.get_by_role("button",name="Сохранить новые ключи").click()
++        expect(c).to_contain_text("Ключи сохранены, связь не проверена")
++        expect(c).not_to_contain_text("ID магазина: 25")
++        c.get_by_role("button",name="Удалить",exact=True).click()
++        expect(c).to_have_count(0)
+--- a/products/harness-platform/tests/test_podmasterye_guest_v17.py
++++ b/products/harness-platform/tests/test_podmasterye_guest_v17.py
+@@ -35,7 +35,7 @@
+         return guest_selector.totals(self.store._db)[-1][1]
+     def test_catalog_all_direct_aliases_and_access_boundaries(self):
+         cards=catalog()
+-        self.assertEqual(len(cards),17)
++        self.assertEqual(len(cards),18)
+         for c in cards:
+             for alias in [c["title"],*c["aliases"]]:
+                 for text in (alias, "Пожалуйста, "+alias.upper()+"!"):
+--- /dev/null
++++ b/products/harness-platform/tests/test_podmasterye_yandex_market.py
+@@ -0,0 +1,120 @@
++"""Connection discovery contract, migration and scope isolation."""
++import asyncio
++import sqlite3
++import unittest
++from unittest.mock import patch
++import httpx
++from tests import test_podmasterye_market_links as base
++from platform_core import podmasterye_yandex_market as ym, podmasterye_market_links as links
++
++MARKET=base.MARKET
++SECRET="fixture-yandex-market-key"
++
++def campaign(cid,bid=12):
++    return {"id":cid,"business":{"id":bid,"name":"Учебный кабинет"},"domain":"Магазин "+str(cid),"placementType":"FBS","apiAvailability":"AVAILABLE"}
++
++def auth():
++    return {"status":"OK","result":{"apiKey":{"authScopes":["ALL_METHODS_READ_ONLY"],"name":"fixture"}}}
++
++class Probe(unittest.IsolatedAsyncioTestCase):
++    async def test_paging(self):
++        calls=[]
++        def respond(req):
++            self.assertEqual(req.url.host,"api.partner.market.yandex.ru")
++            self.assertEqual(req.headers["Api-Key"],SECRET)
++            self.assertNotIn(SECRET,str(req.url))
++            calls.append((req.method,req.url.path,dict(req.url.params)))
++            if req.url.path.endswith("/auth/token"):return httpx.Response(200,json=auth())
++            if "pageToken" not in req.url.params:return httpx.Response(200,json={"campaigns":[campaign(1)],"paging":{"nextPageToken":"second"}})
++            return httpx.Response(200,json={"campaigns":[campaign(2)],"paging":{}})
++        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as c:
++            checks,details=await ym.probe(c,{"api_key":SECRET})
++        self.assertEqual(checks,{"Токен":"verified","Список магазинов":"verified"})
++        self.assertTrue(details["complete"])
++        self.assertEqual([x["campaignId"] for x in details["campaigns"]],[1,2])
++        self.assertEqual(calls,[("POST","/v2/auth/token",{}),("GET","/v2/campaigns",{"limit":"100"}),("GET","/v2/campaigns",{"limit":"100","pageToken":"second"})])
++    async def test_failures_and_incomplete(self):
++        for status in (401,403,429,500,302):
++            with self.subTest(status=status):
++                calls=[]
++                def respond(req):
++                    calls.append(req.url.path)
++                    return httpx.Response(status,headers={"Location":"https://example.org"},json={"error":SECRET})
++                async with httpx.AsyncClient(transport=httpx.MockTransport(respond),follow_redirects=True) as c:
++                    checks,details=await ym.probe(c,{"api_key":SECRET})
++                self.assertEqual(len(calls),1)
++                self.assertNotEqual(checks["Токен"],"verified")
++                self.assertNotIn(SECRET,str(details))
++        for broken in ({"campaigns":[campaign(1)],"paging":{"nextPageToken":"loop"}},{"campaigns":[{"id":1}]},{"campaigns":None},{"status":"ERROR"}):
++            def respond(req):
++                return httpx.Response(200,json=auth() if req.url.path.endswith("/auth/token") else broken)
++            async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as c:
++                checks,details=await ym.probe(c,{"api_key":SECRET})
++            self.assertFalse(details["complete"]);self.assertEqual(details["campaigns"],[])
++            self.assertNotEqual(checks["Список магазинов"],"verified")
++    async def test_empty_and_no_credential_echo(self):
++        for shops in ([],[{"id":1,"business":{"id":2,"name":SECRET},"domain":SECRET}]):
++            def respond(req):
++                return httpx.Response(200,json=auth() if req.url.path.endswith("/auth/token") else {"campaigns":shops})
++            async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as c:
++                checks,details=await ym.probe(c,{"api_key":SECRET})
++            self.assertTrue(details["complete"])
++            self.assertNotIn(SECRET,str(details))
++    async def test_second_page_failure(self):
++        def respond(req):
++            if req.url.path.endswith("/auth/token"):return httpx.Response(200,json=auth())
++            if "pageToken" in req.url.params:return httpx.Response(429)
++            return httpx.Response(200,json={"campaigns":[campaign(1)],"paging":{"nextPageToken":"next"}})
++        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as c:
++            checks,details=await ym.probe(c,{"api_key":SECRET})
++        self.assertEqual(checks["Список магазинов"],"rate_limited")
++        self.assertFalse(details["complete"]);self.assertEqual(details["campaigns"],[])
++
++class YandexAPI(unittest.TestCase):
++    setUp=base.Integrations.setUp
++    h=base.Integrations.h
++    def test_connection_lifecycle(self):
++        self.assertIn("yandex_market",self.c.get(MARKET,headers=self.h()).json()["providers"])
++        r=self.c.post(MARKET,headers=self.h(),json={"provider":"yandex_market","name":"Яндекс","fields":{"api_key":SECRET}})
++        self.assertEqual(r.status_code,200,r.text);url=MARKET+"/"+r.json()["id"]
++        self.assertEqual(r.json()["status"],"saved");self.assertNotIn(SECRET,r.text)
++        for fields in ({},{"api_key":""},{"token":SECRET},{"api_key":"secret key"},{"api_key":SECRET,"url":"https://example.org"}):
++            self.assertEqual(self.c.post(MARKET,headers=self.h(),json={"provider":"yandex_market","name":"bad","fields":fields}).status_code,400)
++        self.assertEqual(self.c.get(MARKET,headers=self.h("other")).json()["connections"],[])
++        self.assertEqual(self.c.post(url+"/check",headers=self.h("other"),json={}).status_code,404)
++        self.assertEqual(self.c.post(url+"/keys",headers=self.h("other"),json={"version":1,"fields":{"api_key":"foreign"}}).status_code,404)
++        with self.app.state.identity._lock:
++            self.assertNotIn(SECRET.encode(),self.app.state.identity._db.execute("SELECT encrypted FROM pm_market_connections").fetchone()[0])
++        def respond(req):
++            return httpx.Response(200,json=auth() if req.url.path.endswith("/auth/token") else {"campaigns":[campaign(123)]})
++        client=httpx.AsyncClient(transport=httpx.MockTransport(respond))
++        with patch.object(self.app.state,"http",client):
++            r=self.c.post(url+"/check",headers=self.h(),json={})
++            self.assertEqual(r.status_code,200,r.text);self.assertEqual(r.json()["status"],"verified")
++            self.assertEqual(r.json()["details"]["campaigns"][0]["businessId"],12)
++        self.c.portal.call(client.aclose)
++        r=self.c.get(MARKET,headers=self.h());self.assertNotIn(SECRET,r.text)
++        self.assertTrue(r.json()["connections"][0]["details"]["complete"])
++        r=self.c.post(url+"/keys",headers=self.h(),json={"version":1,"fields":{"api_key":"new-fixture-market-key"}})
++        self.assertEqual(r.status_code,200,r.text);self.assertEqual(r.json()["status"],"saved")
++        self.assertEqual(r.json()["details"],{});self.assertEqual(r.json()["version"],2)
++        self.assertEqual(self.c.post(url+"/remove",headers=self.h(),json={"version":1}).status_code,409)
++        self.assertEqual(self.c.post(url+"/remove",headers=self.h(),json={"version":2}).status_code,200)
++    def test_migration_preserves_old_ciphertext(self):
++        for provider,fields in [("ozon",{"client_id":"1","api_key":"fixture-ozon"}),("wb",{"token":"fixture-wb"})]:
++            r=self.c.post(MARKET,headers=self.h(),json={"provider":provider,"name":provider,"fields":fields})
++            self.assertEqual(r.status_code,200,r.text)
++        store=self.app.state.identity
++        cols="id,workspace,provider,name,encrypted,version,checks,checked"
++        with store._write() as db:
++            db.execute("UPDATE pm_market_connections SET version=3,checked=1,checks='{}'")
++            old=db.execute("SELECT "+cols+" FROM pm_market_connections ORDER BY id").fetchall()
++            db.execute(links.SCHEMA.replace("IF NOT EXISTS pm_market_connections","pm_market_connections_legacy",1).replace(",'yandex_market'","").replace(", details TEXT NOT NULL DEFAULT '{}'",""))
++            db.execute("INSERT INTO pm_market_connections_legacy("+cols+") SELECT "+cols+" FROM pm_market_connections")
++            db.execute("DROP TABLE pm_market_connections")
++            db.execute("ALTER TABLE pm_market_connections_legacy RENAME TO pm_market_connections")
++            links.init(db);links.init(db)
++            self.assertEqual(old,db.execute("SELECT "+cols+" FROM pm_market_connections ORDER BY id").fetchall())
++            self.assertEqual(db.execute("pragma foreign_key_check").fetchall(),[])
++        self.assertEqual(len(self.c.get(MARKET,headers=self.h()).json()["connections"]),2)
++        self.assertEqual(self.c.post(MARKET,headers=self.h(),json={"provider":"yandex_market","name":"new","fields":{"api_key":SECRET}}).status_code,200)
