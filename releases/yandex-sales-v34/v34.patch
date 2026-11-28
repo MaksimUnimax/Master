@@ -1,0 +1,651 @@
+--- a/products/harness-platform/native/web/podmasterye-market-links.js
++++ b/products/harness-platform/native/web/podmasterye-market-links.js
+@@ -24,6 +24,73 @@
+  if(busy)return;busy=true;const status=q('#market-status');
+  try{await fn();await load();status.textContent=message;}catch(e){status.textContent=e.message;}finally{busy=false;}
+ }
++function salesPanel(c,shops){
++ const panel=el('details',null,'panel');panel.append(el('summary','Продажи и количество товаров'));
++ const w=window.PMWorkshopId,url='/api/integrations/marketplaces/'+encodeURIComponent(c.id);
++ const shop=el('select');for(const s of shops){
++  const o=el('option',(s.name||'Магазин')+' · '+s.campaignId);o.value=String(s.campaignId);shop.append(o);
++ }
++ const moscow=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Moscow',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
++ const part=t=>moscow.find(x=>x.type===t).value;
++ const current=part('year')+'-'+part('month'),today=current+'-'+part('day');
++ const month=el('input');month.type='month';month.value=current;month.max=current;
++ const from=el('input');from.type='date';from.value=current+'-01';from.max=today;
++ const to=el('input');to.type='date';to.value=today;to.max=today;
++ const field=(label,input)=>{const l=el('label',label);l.append(input);return l;};
++ const status=el('p','','hint'),out=el('div');status.setAttribute('role','status');
++ let working=false;
++ const isLive=()=>panel.isConnected&&window.PMWorkshopId===w;
++ const table=(title,headers,rows)=>{
++  const wrap=el('div');wrap.style.overflowX='auto';const t=el('table'),head=el('thead'),h=el('tr');
++  headers.forEach(v=>h.append(el('th',v)));head.append(h);t.append(head);
++  const b=el('tbody');for(const r of rows){const tr=el('tr');r.forEach(v=>tr.append(el('td',String(v??'—'))));b.append(tr);}t.append(b);
++  wrap.append(el('h4',title),t);return wrap;
++ };
++ function show(d,kind){
++  out.replaceChildren();
++  if(d.state!=='ready'){
++   status.textContent=d.message||(d.state==='pending'?'Маркет формирует отчёт…':d.state==='not_collected'?'Данные ещё не собраны.':d.state==='uncertain'?'Маркет не подтвердил заказ отчёта. Автоматический повтор отключён.':'Маркет не сформировал отчёт.');
++   return;
++  }
++  status.textContent='Получено: '+new Date(d.collected*1000).toLocaleString('ru-RU')+(d.message?' · '+d.message:'');
++  if(d.noData){out.append(el('p','Маркет вернул NO_DATA для выбранного периода. Сверьте период в кабинете продавца.'));return;}
++  const isReport=kind==='realization',x=d.totals;
++  out.append(el('h3',isReport?'Реализация за '+d.month:'Заказы, оформленные '+d.from+' — '+d.to));
++  if(isReport){
++   out.append(el('p','Доставлено: '+x.delivered+' шт. · Возвращено по отчёту: '+x.returned+' шт. · Разница: '+x.net+' шт. · Невыкуплено: '+x.unredeemed+' шт.'));
++   out.append(el('p','Заказов с доставленными товарами: '+d.orders+'. По FBS отчёт возвратов отражает возвраты через ПВЗ; данные по другим способам возврата требуют отдельной сверки.','hint'));
++   if(d.days?.length)out.append(table('По дням',['Дата','Доставлено','Возврат','Невыкуп','Разница'],d.days.map(r=>[r.date,r.delivered,r.returned,r.unredeemed,r.net])));
++   out.append(table('По артикулам',['Артикул','Товар','Доставлено','Возврат','Невыкуп','Разница'],d.products.map(r=>[r.sku,r.name,r.delivered,r.returned,r.unredeemed,r.net])));
++  }else{
++   out.append(el('p','Заказов: '+d.orders+' · Товаров в заказах: '+x.ordered+' шт. · Доставлено покупателю (с учётом возвращённых): '+x.delivered+' шт. · Возвращено: '+x.returned+' шт. · Осталось у покупателей: '+x.net+' шт.'));
++   out.append(el('p','Без подтверждённого статуса единиц: '+x.unknown+' шт. Это не реализация за календарный период. Не подтверждённые единицы не считаются продажей.','hint'));
++   out.append(table('По артикулам',['Артикул','Товар','В заказах','Доставлено','Возврат','Осталось','Не подтверждено'],d.products.map(r=>[r.sku,r.name,r.ordered,r.delivered,r.returned,r.net,r.unknown])));
++  }
++ }
++ const run=async(kind,refresh)=>{
++  if(working||!isLive())return;working=true;
++  const payload=kind==='realization'?{campaignId:Number(shop.value),month:month.value,refresh}:{campaignId:Number(shop.value),from:from.value,to:to.value,refresh};
++  const buttons=[...panel.querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);out.replaceChildren();status.textContent='Запрашиваем данные Маркета…';
++  try{
++   let d=await post(url+'/'+kind,payload);
++   if(!isLive())return;show(d,kind);
++   // Browser-driven polling resumes the same report job; no repeated generation.
++   for(let i=0;i<15&&d.state==='pending'&&isLive();i++){
++    await new Promise(resolve=>setTimeout(resolve,4000));if(!isLive())return;
++    d=await post(url+'/'+kind,{...payload,refresh:false});if(!isLive())return;show(d,kind);
++   }
++   if(isLive()&&d.state==='pending')status.textContent='Отчёт ещё формируется. Нажмите «Показать сохранённые данные» для проверки готовности.';
++  }catch(e){if(isLive())status.textContent=e.message;}
++  finally{working=false;buttons.forEach(b=>b.disabled=false);}
++ };
++ const reportActions=el('div',null,'button-group');
++ reportActions.append(button('Собрать продажи',()=>run('realization',true)),button('Показать сохранённые данные',()=>run('realization',false)));
++ const orderActions=el('div',null,'button-group');orderActions.append(button('Собрать заказы',()=>run('orders',true)),button('Показать сохранённые заказы',()=>run('orders',false)));
++ const f=el('div',null,'fields');f.append(field('Месяц реализации',month));const df=el('div',null,'fields');df.append(field('С даты оформления',from),field('По дату оформления',to));
++ panel.append(field('Магазин',shop),el('h4','Фактическая реализация'),f,reportActions,el('p','Отчёт Маркета по доставленным, возвращённым и невыкупленным товарам.','hint'),el('h4','Заказы и количество'),df,orderActions,status,out,el('p','Сбор только для чтения: данные сохраняются для сверки, хозяйственный учёт и магазин не меняются.','hint'));
++ return panel;
++}
++
+ function card(c){
+  const box=el('section',null,'settings-card');box.append(el('h3',c.name+' · '+defs[c.provider].title),el('p',statusNames[c.status]||c.status,'hint'));
+  if(c.checked)box.append(el('p','Проверено: '+new Date(c.checked*1000).toLocaleString('ru-RU'),'hint'));
+@@ -39,7 +106,7 @@
+    }
+    if(!d.campaigns.length)box.append(el('p','Токен действителен, но список магазинов пуст.','hint'));
+   }
+-  box.append(el('p','Подключение проверяет токен и магазины. Импорт заказов и финансовых отчётов пока не запущен.','hint'));
++  if(d.complete&&d.campaigns.length)box.append(salesPanel(c,d.campaigns));
+  }
+  const configured=new Set(c.configuredFields);
+  box.append(el('p',defs[c.provider].fields.map(([k,t])=>t+': '+(configured.has(k)?'сохранён':'не указан')).join(' · '),'hint'));
+--- a/products/harness-platform/platform_core/podmasterye_domain.py
++++ b/products/harness-platform/platform_core/podmasterye_domain.py
+@@ -55,6 +55,8 @@
+         integrations.init(db)
+         from . import podmasterye_market_links as market_links
+         market_links.init(db)
++        from . import podmasterye_yandex_sales as ym_sales
++        ym_sales.init(db)
+         from . import podmasterye_agent_forms as agent
+         agent.init(db)
+         from . import podmasterye_router as router
+--- a/products/harness-platform/platform_core/podmasterye_market_links.py
++++ b/products/harness-platform/platform_core/podmasterye_market_links.py
+@@ -1,4 +1,7 @@
+ """Workshop-owned marketplace connections. Credentials are never returned or sent to AI."""
++import asyncio
++import time
++from weakref import WeakValueDictionary
+ import hashlib
+ import json
+ import os
+@@ -11,6 +14,7 @@
+ from starlette.responses import JSONResponse
+ from starlette.routing import Route
+ from .identity import _principal
++from . import podmasterye_yandex_sales as sales
+ from . import integrations as upstream, podmasterye_workshops as workshops, podmasterye_yandex_market as yandex
+ 
+ PROVIDERS={p:{"title":upstream.PROVIDERS[p]["title"],"fields":upstream.PROVIDERS[p]["fields"]} for p in ("ozon","wb")}
+@@ -51,7 +55,7 @@
+ 
+ class Store:
+     def __init__(self,identity,root):
+-        self.identity=identity;self.path=Path(root)/"market-connections.key"
++        self.identity=identity;self.path=Path(root)/"market-connections.key";self.sales_locks=WeakValueDictionary()
+     def cipher(self):
+         if not self.path.exists():
+             if self.identity._db.execute("SELECT 1 FROM pm_market_connections LIMIT 1").fetchone():raise HTTPException(503,"Ключ шифрования отсутствует.")
+@@ -122,6 +126,93 @@
+             if type(version) is not int or version!=row[3]:raise HTTPException(409,"Подключение изменилось.")
+             db.execute("DELETE FROM pm_market_connections WHERE workspace=? AND id=?",(w,c))
+         return {"removed":True}
++    def _sales_lock(self,c):
++        lock=self.sales_locks.get(c)
++        if lock is None:lock=asyncio.Lock();self.sales_locks[c]=lock
++        return lock
++    def _sales_scope(self,db,token,w,c,campaign,version=None):
++        w=self.scope(db,token,w)
++        p,_,e,v,checks,_,details=self.get(db,w,c)
++        if p!="yandex_market":raise HTTPException(400,"Сбор доступен для Яндекс Маркета.")
++        if version is not None and version!=v:raise HTTPException(409,"Подключение изменилось. Повторите проверку.")
++        if type(campaign) is not int:raise ValueError("Укажите магазин.")
++        d=json.loads(details)
++        shop=next((s for s in d.get("campaigns",[]) if s["campaignId"]==campaign),None)
++        if not d.get("complete") or not shop or shop.get("apiAvailability") not in ("","AVAILABLE"):raise HTTPException(409,"Сначала проверьте доступ к выбранному магазину.")
++        return w,v,shop,e
++    @staticmethod
++    def _report_view(data,state="ready",message=None):
++        result={"state":state}
++        if data:result.update({k:v for k,v in data.items() if k!="rows"})
++        if message:result["message"]=message
++        return result
++    async def collect_orders(self,token,w,c,campaign,a,b,refresh,client):
++        a,b=(x.isoformat() for x in sales.dates(a,b))
++        if type(refresh) is not bool:raise ValueError("Некорректный запрос.")
++        async with self._sales_lock(c):
++            with self.identity._lock:
++                db=self.identity._db;w,v,shop,e=self._sales_scope(db,token,w,c,campaign)
++                key=(c,v,campaign,a,b)
++                saved=db.execute("SELECT data FROM pm_ym_order_snapshots WHERE cid=? AND version=? AND campaign=? AND date_from=? AND date_to=?",key).fetchone()
++                if not refresh:return self._report_view(json.loads(saved[0])) if saved else {"state":"not_collected"}
++                f=self.unpack(w,c,"yandex_market",e)
++            def guard():
++                with self.identity._lock:self._sales_scope(self.identity._db,token,w,c,campaign,v)
++            data=await sales.orders(client,f,shop,a,b,guard=guard)
++            with self.identity._write() as db:
++                self._sales_scope(db,token,w,c,campaign,v)
++                db.execute("INSERT INTO pm_ym_order_snapshots VALUES(?,?,?,?,?,?,?) ON CONFLICT(cid,version,campaign,date_from,date_to) DO UPDATE SET collected=excluded.collected,data=excluded.data",(*key,data["collected"],json.dumps(data,ensure_ascii=False)))
++            return self._report_view(data)
++    async def realization(self,token,w,c,campaign,m,refresh,client):
++        sales.month_value(m)
++        if type(refresh) is not bool:raise ValueError("Некорректный запрос.")
++        async with self._sales_lock(c):
++            with self.identity._write() as db:
++                w,v,shop,e=self._sales_scope(db,token,w,c,campaign);key=(c,v,campaign,m)
++                row=db.execute("SELECT state,report_id,requested,updated,data,error FROM pm_ym_realization WHERE cid=? AND version=? AND campaign=? AND month=?",key).fetchone()
++                now=int(time.time());start=False
++                if not row:
++                    if not refresh:return {"state":"not_collected"}
++                    start=True
++                else:
++                    state,rid,requested,updated,raw,error=row
++                    if state=="starting":
++                        state="uncertain"
++                        db.execute("UPDATE pm_ym_realization SET state='uncertain' WHERE cid=? AND version=? AND campaign=? AND month=?",key)
++                    if state in ("ready","failed","uncertain"):
++                        if not refresh:return self._report_view(json.loads(raw) if raw else None,state,error)
++                        if now-requested<120:return self._report_view(json.loads(raw) if raw else None,state,"Новый отчёт можно заказать через 2 минуты после предыдущего запроса.")
++                        start=True
++                    elif state=="pending" and now-updated<2:return self._report_view(json.loads(raw) if raw else None,"pending")
++                if start:
++                    # One generation at a time per cabinet/connection. A started request
++                    # is durable even if the process exits before the response arrives.
++                    other=db.execute("SELECT 1 FROM pm_ym_realization WHERE cid=? AND version=? AND (campaign!=? OR month!=?) AND state IN ('starting','pending') AND requested>? LIMIT 1",(c,v,campaign,m,now-900)).fetchone()
++                    recent=db.execute("SELECT 1 FROM pm_ym_realization WHERE cid=? AND version=? AND requested>? LIMIT 1",(c,v,now-120)).fetchone()
++                    if other or recent:raise HTTPException(429,"Другой отчёт Маркета ещё формируется или не прошли 2 минуты.")
++                    db.execute("""INSERT INTO pm_ym_realization VALUES(?,?,?,?,'starting',NULL,?,?,NULL,NULL)
++                        ON CONFLICT(cid,version,campaign,month) DO UPDATE SET state='starting',report_id=NULL,requested=excluded.requested,updated=excluded.updated,error=NULL""",(*key,now,now))
++                elif not row:return {"state":"not_collected"}
++                f=self.unpack(w,c,"yandex_market",e)
++            def guard():
++                with self.identity._lock:self._sales_scope(self.identity._db,token,w,c,campaign,v)
++            if start:
++                guard()
++                status,rid=await sales.request_report(client,f,shop,m)
++                state="pending" if status=="verified" else "failed" if status in ("denied","rate_limited") else "uncertain"
++                error=None if state=="pending" else "Маркет не подтвердил создание отчёта ("+status+"). Автоматический повтор отключён."
++                with self.identity._write() as db:
++                    self._sales_scope(db,token,w,c,campaign,v)
++                    db.execute("UPDATE pm_ym_realization SET state=?,report_id=?,updated=?,error=? WHERE cid=? AND version=? AND campaign=? AND month=?",(state,rid,int(time.time()),error,*key))
++                return self._report_view(None,state,error)
++            guard()
++            state,data=await sales.report_result(client,f,rid,m,guard=guard)
++            error="Маркет не сформировал отчёт." if state=="failed" else None
++            with self.identity._write() as db:
++                self._sales_scope(db,token,w,c,campaign,v)
++                db.execute("UPDATE pm_ym_realization SET state=?,updated=?,data=COALESCE(?,data),error=? WHERE cid=? AND version=? AND campaign=? AND month=?",(state,int(time.time()),json.dumps(data,ensure_ascii=False) if data else None,error,*key))
++            return self._report_view(data,state,error)
++
+     async def check(self,token,w,c,client):
+         with self.identity._lock:
+             db=self.identity._db;w=self.scope(db,token,w);p,_,e,v,_,_,_=self.get(db,w,c);f=self.unpack(w,c,p,e)
+@@ -144,6 +235,12 @@
+         kind=req.path_params["action"]
+         if kind=="check":
+             await body(req);return JSONResponse(await s.check(t,w,c,req.app.state.http))
++        if kind=="orders":
++            a=await body(req,"campaignId","from","to","refresh")
++            return JSONResponse(await s.collect_orders(t,w,c,a["campaignId"],a["from"],a["to"],a["refresh"],req.app.state.http))
++        if kind=="realization":
++            a=await body(req,"campaignId","month","refresh")
++            return JSONResponse(await s.realization(t,w,c,a["campaignId"],a["month"],a["refresh"],req.app.state.http))
+         if kind=="keys":
+             a=await body(req,"version","fields");return JSONResponse(s.update(t,w,c,a["version"],a["fields"]))
+         if kind=="remove":
+--- a/products/harness-platform/platform_core/podmasterye_public_catalog.json
++++ b/products/harness-platform/platform_core/podmasterye_public_catalog.json
+@@ -298,7 +298,7 @@
+       "как подключить яндекс маркет",
+       "как подключить яндекс маркет к мастерской"
+     ],
+-    "detail": "В разделе «Интеграции» сохраните API-ключ Яндекс Маркета с правом просмотра всех данных и нажмите «Проверить связь». Подмастерье проверит права токена и получит список магазинов и идентификаторы кабинетов. Автоматический импорт заказов и финансов пока не запущен. Ключ не отправляйте в чат.",
++    "detail": "В разделе «Интеграции» сохраните API-ключ Яндекс Маркета с правом просмотра всех данных и нажмите «Проверить связь». Подмастерье проверит права токена и получит список магазинов и идентификаторы кабинетов. В карточке подключения можно собрать количество заказанных, доставленных, возвращённых и невыкупленных товаров по артикулам. Сбор сохраняется для сверки; автоматическое проведение продаж и импорт комиссий пока не включены. Ключ не отправляйте в чат.",
+     "access": "member"
+   }
+ ]
+--- /dev/null
++++ b/products/harness-platform/platform_core/podmasterye_yandex_sales.py
+@@ -0,0 +1,224 @@
++"""Read-only seller data: calendar realization and order-cohort quantities."""
++import asyncio,csv,io,json,re,time,zipfile
++from collections import defaultdict
++from datetime import date,datetime
++from pathlib import PurePosixPath
++from urllib.parse import urlsplit,quote
++from zoneinfo import ZoneInfo
++import httpx
++from starlette.exceptions import HTTPException
++from . import podmasterye_yandex_market as ym
++from .web_access import check_dns
++
++SCHEMA=(
++"""CREATE TABLE IF NOT EXISTS pm_ym_order_snapshots(
++ cid TEXT NOT NULL REFERENCES pm_market_connections(id) ON DELETE CASCADE,
++ version INTEGER NOT NULL,campaign INTEGER NOT NULL,date_from TEXT NOT NULL,date_to TEXT NOT NULL,
++ collected INTEGER NOT NULL,data TEXT NOT NULL,PRIMARY KEY(cid,version,campaign,date_from,date_to))""",
++"""CREATE TABLE IF NOT EXISTS pm_ym_realization(
++ cid TEXT NOT NULL REFERENCES pm_market_connections(id) ON DELETE CASCADE,
++ version INTEGER NOT NULL,campaign INTEGER NOT NULL,month TEXT NOT NULL,
++ state TEXT NOT NULL,report_id TEXT,requested INTEGER NOT NULL,updated INTEGER NOT NULL,
++ data TEXT,error TEXT,PRIMARY KEY(cid,version,campaign,month))"""
++)
++def init(db):
++    for sql in SCHEMA:db.execute(sql)
++
++def today():return datetime.now(ZoneInfo("Europe/Moscow")).date()
++def month_value(m):
++    if not isinstance(m,str) or not re.fullmatch(r"\d{4}-\d{2}",m):raise ValueError("Укажите месяц в формате ГГГГ-ММ.")
++    a=date.fromisoformat(m+"-01")
++    if a>today() or a.year<2000:raise ValueError("Некорректный месяц.")
++    return a
++def dates(a,b):
++    if not all(isinstance(v,str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}",v) for v in (a,b)):raise ValueError("Укажите даты.")
++    a,b=date.fromisoformat(a),date.fromisoformat(b)
++    if a>b or (b-a).days>29 or b>today():raise ValueError("Выберите период до 30 дней, не в будущем.")
++    return a,b
++def positive(v,allow_zero=False):
++    if type(v) is not int or not (int(not allow_zero)<=v<=10**10):raise ValueError("Некорректное количество.")
++    return v
++def ident(v,allow_zero=False):
++    if type(v) is not int or not int(not allow_zero)<=v<2**63:raise ValueError("Некорректный идентификатор.")
++    return v
++def failure(status):
++    code={"denied":403,"rate_limited":429}.get(status,502)
++    raise HTTPException(code,{"denied":"Маркет отказал в доступе к данным.","rate_limited":"Лимит запросов Маркета. Повторите позже."}.get(status,"Маркет не подтвердил получение данных."))
++def clean(v,key,limit=200):
++    if not isinstance(v,str) or not v or len(v)>limit or not v.isprintable() or key in v:raise ValueError("Некорректные данные товара.")
++    return v
++def summary(rows,fields):
++    bysku={}
++    for r in rows:
++        x=bysku.setdefault(r["sku"],{"sku":r["sku"],"name":r["name"],**{k:0 for k in fields}})
++        for k in fields:x[k]+=r.get(k,0)
++    return {"totals":{k:sum(x[k] for x in bysku.values()) for k in fields},"products":sorted(bysku.values(),key=lambda x:x["sku"])}
++
++async def orders(client,f,shop,a,b,guard=lambda:None):
++    a,b=dates(a,b)
++    key=f["api_key"];campaign=shop["campaignId"];business=shop["businessId"]
++    payload={"campaignIds":[campaign],"dates":{"creationDateFrom":a.isoformat(),"creationDateTo":b.isoformat()},"fake":False}
++    path=f"/v1/businesses/{business}/orders";rows=[];seen=set();pages=set();page=None
++    statuses=defaultdict(int);skipped=0
++    unit_states={"CREATED","SHIPPED","CANCELLED","DELIVERED_TO_BUYER","LOST","REJECTED","RETURNED"}
++    order_states={"PLACING","RESERVED","UNPAID","PROCESSING","DELIVERY","PICKUP","DELIVERED","CANCELLED","PENDING","PARTIALLY_RETURNED","RETURNED","PARTIALLY_DELIVERED","UNKNOWN"}
++    for _ in range(100):
++        params={"limit":50}
++        if page:params["pageToken"]=page
++        guard()
++        state,data=await ym.call(client,"POST",path,key,params=params,json=payload)
++        if state!="verified":failure(state)
++        try:
++            batch=data["orders"]
++            if not isinstance(batch,list) or len(batch)>50:raise ValueError()
++            for o in batch:
++                oid=ident(o["orderId"])
++                if oid in seen or o["campaignId"]!=campaign:raise ValueError()
++                seen.add(oid)
++                if o.get("fake") is True:
++                    skipped+=1;continue
++                if o.get("fake") is not False:raise ValueError()
++                created=datetime.fromisoformat(o["creationDate"].replace("Z","+00:00"))
++                if created.tzinfo is None or not a<=created.astimezone(ZoneInfo("Europe/Moscow")).date()<=b:raise ValueError()
++                status=o.get("status")
++                status=status if status in order_states else "UNKNOWN"
++                statuses[status]+=1
++                items=o["items"];ids=set()
++                if not isinstance(items,list):raise ValueError()
++                for i in items:
++                    iid=ident(i["id"],True)
++                    if iid in ids:raise ValueError()
++                    ids.add(iid)
++                    sku=clean(i["offerId"],key,255);name=clean(i["offerName"],key,1000)
++                    n=positive(i["count"],True);counts={};u=i.get("itemStatuses")
++                    if u is not None:
++                        if not isinstance(u,list) or not u:raise ValueError()
++                        for x in u:
++                            s=x["status"]
++                            if s not in unit_states or s in counts:raise ValueError()
++                            counts[s]=positive(x["count"],True)
++                    # Order status alone is not proof of individual-unit status.
++                    # Keep the unconfirmed quantity explicit instead of inventing sales.
++                    if u is not None and sum(counts.values())==n:
++                        net=counts.get("DELIVERED_TO_BUYER",0);ret=counts.get("RETURNED",0)
++                        unknown=0
++                    else:
++                        net=ret=0;unknown=n
++                    rows.append({"orderId":oid,"itemId":iid,"sku":sku,"name":name,
++                        "created":created.isoformat(),"status":status,"ordered":n,
++                        "delivered":net+ret,"returned":ret,"net":net,"unknown":unknown})
++            paging=data.get("paging") or {}
++            if not isinstance(paging,dict):raise ValueError()
++            page=paging.get("nextPageToken")
++            if page is None or page=="":
++                result=summary(rows,("ordered","delivered","returned","net","unknown"))
++                return {"kind":"orders","from":a.isoformat(),"to":b.isoformat(),"orders":sum(statuses.values()),"statuses":dict(statuses),"skipped":skipped,"pages":_+1,"collected":int(time.time()),**result,"rows":rows}
++            if not isinstance(page,str) or page in pages or len(page)>8192:raise ValueError()
++            pages.add(page)
++        except (KeyError,TypeError,ValueError,AttributeError):
++            raise HTTPException(502,"Неполная или неизвестная структура заказов Маркета. Данные не сохранены.") from None
++    raise HTTPException(502,"Слишком много страниц заказов. Выберите меньший период.")
++
++async def request_report(client,f,shop,m):
++    a=month_value(m)
++    status,d=await ym.call(client,"POST","/v2/reports/goods-realization/generate",f["api_key"],params={"format":"CSV"},json={"campaignId":shop["campaignId"],"year":a.year,"month":a.month})
++    if status!="verified":return status,None
++    try:
++        rid=d["result"]["reportId"]
++        if not isinstance(rid,str) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,255}",rid):raise ValueError()
++        return "verified",rid
++    except (KeyError,TypeError,ValueError):return "unconfirmed",None
++
++MAX_ZIP=32*1024**2
++MAX_UNZIP=128*1024**2
++async def download(client,url):
++    # Only a link returned by the official report API, never a client URL.
++    # Signed object-store URL must not receive the marketplace API header.
++    try:
++        if not isinstance(url,str) or len(url)>8192 or any(ord(c)<33 for c in url) or "\\" in url:raise ValueError()
++        u=urlsplit(url);host=u.hostname or ""
++        roots=("storage.yandexcloud.net","s3.mds.yandex.net","s3.mdst.yandex.net","market.yandex.ru","market.yandex.net")
++        if u.scheme!="https" or u.username is not None or u.password is not None or u.port not in (None,443) or u.fragment or not any(host==r or host.endswith("."+r) for r in roots):raise ValueError()
++        await check_dns(host)
++        data=bytearray()
++        async with client.stream("GET",url,headers={"Accept":"application/zip"},follow_redirects=False,timeout=30) as response:
++            if response.status_code!=200:raise ValueError()
++            async for chunk in response.aiter_bytes():
++                if len(data)+len(chunk)>MAX_ZIP:raise ValueError()
++                data.extend(chunk)
++        return bytes(data)
++    except (ValueError,httpx.HTTPError):raise HTTPException(502,"Не удалось безопасно скачать отчёт Маркета.") from None
++
++def calendar_day(v,m):
++    # Preserve report date semantics, not order creation or delivery to a pickup point.
++    if not isinstance(v,str):raise ValueError()
++    for pattern in ("%Y-%m-%d","%d.%m.%Y"):
++        try:
++            d=datetime.strptime(v.strip(),pattern).date()
++            if d.isoformat()[:7]!=m:raise ValueError()
++            return d.isoformat()
++        except ValueError:pass
++    raise ValueError("Дата операции не относится к выбранному месяцу.")
++def parse_report(raw,m,key):
++    fields={"delivered":("DELIVERED_COUNT","DELIVERY_DATE","delivered"),
++            "returned":("RETURNED_COUNT","RETURN_WAREHOUSE_OR_SC_ACCEPT_DATE","returned"),
++            "unredeemed":("UNREDEEMED_COUNT","UNREDEEMED_WAREHOUSE_OR_SC_ACCEPT_DATE","unredeemed")}
++    rows=[];names=set();signatures=set()
++    try:
++        if len(raw)>MAX_ZIP:raise ValueError()
++        with zipfile.ZipFile(io.BytesIO(raw)) as z:
++            entries=z.infolist()
++            if len(entries)>50 or sum(e.file_size for e in entries)>MAX_UNZIP:raise ValueError()
++            for e in entries:
++                name=PurePosixPath(e.filename).name
++                if not name.endswith(".csv") or name[:-4] not in fields:continue
++                kind=name[:-4]
++                if kind in names:raise ValueError()
++                names.add(kind)
++                qty_col,day_col,metric=fields[kind]
++                text=z.read(e).decode("utf-8-sig")
++                # Header detection is based on the documented machine column names.
++                first=text.splitlines()[0] if text else ""
++                delim=";" if ";" in first else ","
++                reader=csv.DictReader(io.StringIO(text,newline=""),delimiter=delim)
++                required=("ORDER_ID","YOUR_SKU","OFFER_NAME",qty_col,day_col)
++                if any((reader.fieldnames or []).count(k)!=1 for k in required):raise ValueError()
++                for r in reader:
++                    # Only accounting columns are retained, not buyer names, receipt links, etc.
++                    if None in r or any(r.get(k) is None for k in required):raise ValueError()
++                    if not re.fullmatch(r"\d{1,16}",r["ORDER_ID"]) or not re.fullmatch(r"\d{1,10}",r[qty_col]):raise ValueError()
++                    n=positive(int(r[qty_col]),True)
++                    if not n:continue
++                    day=calendar_day(r[day_col],m)
++                    sku=clean(r["YOUR_SKU"],key,255);label=clean(r["OFFER_NAME"],key,1000)
++                    sig=(kind,tuple(r.items()))
++                    if sig in signatures:raise ValueError()
++                    signatures.add(sig)
++                    rows.append({"kind":kind,"orderId":r["ORDER_ID"],"sku":sku,"name":label,"date":day,metric:n})
++            if names!=set(fields):raise ValueError()
++        r=summary(rows,("delivered","returned","unredeemed"))
++        for x in [r["totals"],*r["products"]]:x["net"]=x["delivered"]-x["returned"]
++        days={}
++        for row in rows:
++            d=days.setdefault(row["date"],{"date":row["date"],"delivered":0,"returned":0,"unredeemed":0})
++            for k in ("delivered","returned","unredeemed"):d[k]+=row.get(k,0)
++        for d in days.values():d["net"]=d["delivered"]-d["returned"]
++        r["days"]=sorted(days.values(),key=lambda d:d["date"])
++        return {"kind":"realization","month":m,"collected":int(time.time()),"orders":len({x["orderId"] for x in rows if x["kind"]=="delivered"}),**r,"rows":rows}
++    except (ValueError,KeyError,TypeError,UnicodeError,zipfile.BadZipFile,RuntimeError,csv.Error):
++        raise HTTPException(502,"Структура отчёта реализации не подтверждена. Неполные данные не сохранены.") from None
++
++async def report_result(client,f,rid,m,guard=lambda:None):
++    s,d=await ym.call(client,"GET","/v2/reports/info/"+quote(rid,safe=""),f["api_key"])
++    if s!="verified":failure(s)
++    try:r=d["result"];status=r["status"]
++    except (KeyError,TypeError):raise HTTPException(502,"Неизвестный ответ отчёта.") from None
++    if status in ("PENDING","PROCESSING"):return "pending",None
++    if status=="FAILED":
++        if r.get("subStatus")=="NO_DATA":
++            return "ready",{"kind":"realization","month":m,"collected":int(time.time()),"orders":0,"totals":{"delivered":0,"returned":0,"unredeemed":0,"net":0},"products":[],"rows":[],"noData":True}
++        return "failed",None
++    if status!="DONE":raise HTTPException(502,"Неизвестный статус отчёта.")
++    guard()
++    raw=await download(client,r.get("file"))
++    return "ready",await asyncio.to_thread(parse_report,raw,m,f["api_key"])
+--- /dev/null
++++ b/products/harness-platform/tests/browser/test_podmasterye_yandex_sales_ui.py
+@@ -0,0 +1,33 @@
++"""Browser contract for the seller's manual, read-only collection."""
++from unittest.mock import patch,AsyncMock
++from playwright.sync_api import expect
++from test_podmasterye_independent_ui import IndependentUI
++from platform_core import podmasterye_yandex_market as ym, podmasterye_yandex_sales as sales
++from tests.test_podmasterye_yandex_sales import archive,order,MONTH
++
++class SalesUI(IndependentUI):
++    def test_orders_and_realization(self):
++        self.sign_in();p=self.page;self.nav("integrations")
++        f=p.locator("#market-add");f.locator("[name=provider]").select_option("yandex_market")
++        f.locator("[name=name]").fill("Учебный Маркет");f.locator("[name=api_key]").fill("fixture-market-key")
++        f.get_by_role("button",name="Сохранить подключение").click()
++        c=p.locator("#market-list .settings-card").filter(has_text="Учебный Маркет")
++        expect(c).to_be_visible()
++        with patch.object(ym,"probe",new_callable=AsyncMock,return_value=({"Токен":"verified","Список магазинов":"verified"},{"scopes":["ALL_METHODS_READ_ONLY"],"complete":True,"campaigns":[{"campaignId":123,"businessId":12,"name":"Маркет","placementType":"FBS","apiAvailability":"AVAILABLE"}]})):
++            c.get_by_role("button",name="Проверить связь").click()
++            expect(c).to_contain_text("Связь подтверждена")
++        c.get_by_text("Продажи и количество товаров",exact=True).click()
++        c.locator('input[type=month]').fill(MONTH)
++        report=sales.parse_report(archive(),MONTH,"fixture-market-key")
++        with patch.object(sales,"request_report",new_callable=AsyncMock,return_value=("verified","fixture-report")) as gen,patch.object(sales,"report_result",new_callable=AsyncMock,return_value=("ready",report)):
++            c.get_by_role("button",name="Собрать продажи",exact=True).click()
++            expect(c).to_contain_text("Доставлено: 6 шт.",timeout=15000)
++            expect(c).to_contain_text("Возвращено по отчёту: 1 шт.")
++            expect(c).to_contain_text("Разница: 5 шт.")
++            self.assertEqual(gen.await_count,1)
++        p.reload();self.ready();self.nav("integrations")
++        c.get_by_text("Продажи и количество товаров",exact=True).click()
++        c.locator('input[type=month]').fill(MONTH)
++        c.get_by_role("button",name="Показать сохранённые данные",exact=True).click()
++        expect(c).to_contain_text("Доставлено: 6 шт.")
++        self.assertNotIn("fixture-market-key",c.inner_text())
+--- a/products/harness-platform/tests/test_podmasterye_yandex_market.py
++++ b/products/harness-platform/tests/test_podmasterye_yandex_market.py
+@@ -111,6 +111,8 @@
+             old=db.execute("SELECT "+cols+" FROM pm_market_connections ORDER BY id").fetchall()
+             db.execute(links.SCHEMA.replace("IF NOT EXISTS pm_market_connections","pm_market_connections_legacy",1).replace(",'yandex_market'","").replace(", details TEXT NOT NULL DEFAULT '{}'",""))
+             db.execute("INSERT INTO pm_market_connections_legacy("+cols+") SELECT "+cols+" FROM pm_market_connections")
++            db.execute("DROP TABLE pm_ym_order_snapshots")
++            db.execute("DROP TABLE pm_ym_realization")
+             db.execute("DROP TABLE pm_market_connections")
+             db.execute("ALTER TABLE pm_market_connections_legacy RENAME TO pm_market_connections")
+             links.init(db);links.init(db)
+--- /dev/null
++++ b/products/harness-platform/tests/test_podmasterye_yandex_sales.py
+@@ -0,0 +1,133 @@
++"""Sales counts and durable report jobs through the authenticated integration."""
++import csv,io,json,sqlite3,unittest,zipfile
++from unittest.mock import patch,AsyncMock
++import httpx
++from starlette.exceptions import HTTPException
++from tests import test_podmasterye_market_links as base
++from platform_core import podmasterye_yandex_sales as sales
++from tests.test_podmasterye_yandex_market import auth,campaign,SECRET
++
++MARKET=base.MARKET
++MONTH="2026-10"
++SHOP=campaign(123)
++def archive(duplicate=False,missing=False,wrong_date=False):
++    b=io.BytesIO()
++    with zipfile.ZipFile(b,"w",zipfile.ZIP_DEFLATED) as z:
++        fields=[("delivered","DELIVERED_COUNT","DELIVERY_DATE",[
++            ["100","A","Изделие A","3","2026-10-05"],["101","A","Изделие A","2","2026-10-06"],["102","B","Изделие B","1","2026-10-05"]]),
++            ("returned","RETURNED_COUNT","RETURN_WAREHOUSE_OR_SC_ACCEPT_DATE",[["99","A","Изделие A","1","2026-10-06"]]),
++            ("unredeemed","UNREDEEMED_COUNT","UNREDEEMED_WAREHOUSE_OR_SC_ACCEPT_DATE",[["103","B","Изделие B","2","2026-10-06"]])]
++        for name,qty,day,rows in fields:
++            if missing and name=="returned":continue
++            w=io.StringIO();writer=csv.writer(w,delimiter=";")
++            writer.writerow(["ORDER_ID","YOUR_SKU","OFFER_NAME",qty,day,"ORGANIZATION"])
++            if duplicate and name=="delivered":rows=rows+rows[:1]
++            if wrong_date and name=="delivered":rows[0][-1]="2026-09-01"
++            for r in rows:writer.writerow(r+["not-retained-buyer"])
++            z.writestr(name+".csv",w.getvalue().encode("utf-8-sig"))
++    return b.getvalue()
++def order(oid,status,units,counts=None,fake=False):
++    i={"id":oid,"offerId":"A","offerName":"Изделие A","count":units}
++    if counts is not None:i["itemStatuses"]=[{"status":k,"count":v} for k,v in counts.items()]
++    return {"orderId":oid,"campaignId":123,"creationDate":"2026-10-05T10:00:00+03:00","status":status,"fake":fake,"items":[i],
++        "delivery":{"address":{"street":"not-retained-buyer"}}}
++class Parse(unittest.TestCase):
++    def test_actual_quantities_and_no_buyer_data(self):
++        d=sales.parse_report(archive(),MONTH,SECRET)
++        self.assertEqual(d["totals"],{"delivered":6,"returned":1,"unredeemed":2,"net":5})
++        self.assertEqual(d["orders"],3)
++        self.assertEqual(d["products"][0]["net"],4)
++        self.assertEqual(d["days"][1]["net"],1)
++        self.assertNotIn("not-retained-buyer",json.dumps(d))
++    def test_bad_archive_fails_closed(self):
++        for data in (b"not-a-zip",archive(duplicate=True),archive(missing=True),archive(wrong_date=True)):
++            with self.subTest(size=len(data)):
++                with self.assertRaises(HTTPException):sales.parse_report(data,MONTH,SECRET)
++class Collect(unittest.IsolatedAsyncioTestCase):
++    async def test_orders_page_counts_and_unknown(self):
++        calls=[]
++        def reply(req):
++            calls.append(req)
++            self.assertEqual(req.url.host,"api.partner.market.yandex.ru")
++            self.assertEqual(req.url.path,"/v1/businesses/12/orders")
++            self.assertEqual(req.headers["Api-Key"],SECRET)
++            if "pageToken" not in req.url.params:
++                return httpx.Response(200,json={"orders":[order(111,"PARTIALLY_RETURNED",5,{"DELIVERED_TO_BUYER":3,"RETURNED":1,"REJECTED":1}),order(112,"DELIVERED",2)],"paging":{"nextPageToken":"next"}})
++            return httpx.Response(200,json={"orders":[order(113,"DELIVERED",1,{"DELIVERED_TO_BUYER":1}),order(114,"DELIVERED",7,{"DELIVERED_TO_BUYER":7},True)]})
++        async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as c:
++            d=await sales.orders(c,{"api_key":SECRET},{"businessId":12,"campaignId":123},"2026-10-01","2026-10-27")
++        self.assertEqual(d["totals"],{"ordered":8,"delivered":5,"returned":1,"net":4,"unknown":2})
++        self.assertEqual((d["orders"],d["skipped"],d["pages"]),(3,1,2))
++        self.assertNotIn("not-retained-buyer",json.dumps(d))
++    async def test_duplicate_and_bad_scope_not_saved(self):
++        for bad in ("dup","scope","page-fail"):
++            def reply(req):
++                o=order(1,"DELIVERED",1,{"DELIVERED_TO_BUYER":1})
++                if "pageToken" in req.url.params:
++                    if bad=="scope":o["campaignId"]=456
++                    if bad=="page-fail":return httpx.Response(429)
++                    return httpx.Response(200,json={"orders":[o]})
++                return httpx.Response(200,json={"orders":[o],"paging":{"nextPageToken":"next"}})
++            async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as c:
++                with self.assertRaises(HTTPException):await sales.orders(c,{"api_key":SECRET},{"businessId":12,"campaignId":123},"2026-10-01","2026-10-27")
++    async def test_download_host_and_no_credentials(self):
++        def reply(req):
++            self.assertNotIn("Api-Key",req.headers)
++            return httpx.Response(200,content=archive())
++        with patch.object(sales,"check_dns",new_callable=AsyncMock):
++            async with httpx.AsyncClient(transport=httpx.MockTransport(reply)) as c:
++                raw=await sales.download(c,"https://storage.yandexcloud.net/report.zip?signature=fixture")
++                self.assertEqual(sales.parse_report(raw,MONTH,SECRET)["totals"]["net"],5)
++                for u in ("http://storage.yandexcloud.net/file","https://storage.yandexcloud.net.evil.example/file","https://localhost/file"):
++                    with self.assertRaises(HTTPException):await sales.download(c,u)
++class Routes(unittest.TestCase):
++    setUp=base.Integrations.setUp
++    h=base.Integrations.h
++    def test_collection_lifecycle(self):
++        r=self.c.post(MARKET,headers=self.h(),json={"provider":"yandex_market","name":"Маркет","fields":{"api_key":SECRET}})
++        self.assertEqual(r.status_code,200,r.text);url=MARKET+"/"+r.json()["id"]
++        calls=[]
++        def reply(req):
++            path=req.url.path;calls.append(path)
++            if req.url.host=="storage.yandexcloud.net":
++                self.assertNotIn("Api-Key",req.headers)
++                return httpx.Response(200,content=archive())
++            self.assertEqual(req.url.host,"api.partner.market.yandex.ru");self.assertEqual(req.headers["Api-Key"],SECRET)
++            if path.endswith("/auth/token"):return httpx.Response(200,json=auth())
++            if path.endswith("/campaigns"):return httpx.Response(200,json={"campaigns":[SHOP]})
++            if path.endswith("/orders"):return httpx.Response(200,json={"orders":[order(123,"DELIVERED",3,{"DELIVERED_TO_BUYER":3})]})
++            if path.endswith("/generate"):return httpx.Response(200,json={"status":"OK","result":{"reportId":"fixture-report"}})
++            if path.endswith("/fixture-report"):return httpx.Response(200,json={"status":"OK","result":{"status":"DONE","file":"https://storage.yandexcloud.net/report.zip?signature=fixture"}})
++            raise AssertionError(path)
++        client=httpx.AsyncClient(transport=httpx.MockTransport(reply))
++        self.addCleanup(self.c.portal.call,client.aclose)
++        order_req={"campaignId":123,"from":"2026-10-01","to":"2026-10-27","refresh":True}
++        report_req={"campaignId":123,"month":MONTH,"refresh":True}
++        with patch.object(self.app.state,"http",client),patch.object(sales,"check_dns",new_callable=AsyncMock):
++            self.assertEqual(self.c.post(url+"/orders",headers=self.h(),json=order_req).status_code,409)
++            self.assertEqual(self.c.post(url+"/check",headers=self.h(),json={}).status_code,200)
++            self.assertEqual(self.c.post(url+"/orders",headers=self.h("other"),json=order_req).status_code,404)
++            self.assertEqual(self.c.post(url+"/orders",headers=self.h(),json={**order_req,"campaignId":999}).status_code,409)
++            d=self.c.post(url+"/orders",headers=self.h(),json=order_req);self.assertEqual(d.status_code,200,d.text);self.assertEqual(d.json()["totals"]["net"],3)
++            self.assertNotIn("rows",d.json())
++            self.assertEqual(self.c.post(url+"/orders",headers=self.h(),json=order_req).json()["totals"]["net"],3)
++            self.assertEqual(self.c.post(url+"/orders",headers=self.h(),json={**order_req,"refresh":False}).json()["totals"]["net"],3)
++            a=self.c.post(url+"/realization",headers=self.h(),json=report_req)
++            self.assertEqual(a.status_code,200,a.text);self.assertEqual(a.json()["state"],"pending")
++            self.assertEqual(self.c.post(url+"/realization",headers=self.h("other"),json=report_req).status_code,404)
++            # Avoid sleep; put the fixture beyond the two-second polling interval.
++            with self.app.state.identity._write() as db:db.execute("UPDATE pm_ym_realization SET updated=updated-5")
++            b=self.c.post(url+"/realization",headers=self.h(),json={**report_req,"refresh":False})
++            self.assertEqual(b.status_code,200,b.text);self.assertEqual(b.json()["totals"]["net"],5)
++            self.assertEqual(self.c.post(url+"/realization",headers=self.h(),json=report_req).json()["totals"]["net"],5)
++            self.assertEqual(calls.count("/v2/reports/goods-realization/generate"),1)
++            with self.app.state.identity._lock:
++                db=self.app.state.identity._db
++                self.assertEqual(db.execute("select count(*) from pm_ym_order_snapshots").fetchone()[0],1)
++                self.assertEqual(db.execute("select count(*) from pm_ym_realization").fetchone()[0],1)
++                self.assertNotIn("not-retained-buyer",db.execute("select data from pm_ym_realization").fetchone()[0])
++            self.assertEqual(self.c.post(url+"/keys",headers=self.h(),json={"version":1,"fields":{"api_key":"fixture-rotated"}}).status_code,200)
++            self.assertEqual(self.c.post(url+"/realization",headers=self.h(),json={**report_req,"refresh":False}).status_code,409)
++            self.assertEqual(self.c.post(url+"/remove",headers=self.h(),json={"version":2}).status_code,200)
++            with self.app.state.identity._lock:
++                self.assertEqual(self.app.state.identity._db.execute("select count(*) from pm_ym_realization").fetchone()[0],0)

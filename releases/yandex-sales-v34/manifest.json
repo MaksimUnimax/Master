@@ -1,0 +1,45 @@
+{
+  "base_release": "6731b997beab24fc51dc8813460e0ac3bc9b31c5",
+  "changed_files": [
+    {
+      "path": "products/harness-platform/native/web/podmasterye-market-links.js",
+      "old_sha256": "983b04e66b44fe9fd42624c59313f712fe6362153763f51a1b41530c80bdfe1b",
+      "new_sha256": "cfb49816c39260be8ff93e29ce68a097c79c270a7b8c2f2d34415db2d18347a9"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_domain.py",
+      "old_sha256": "cf91502ce3a498609878468acee1fa714b4136771dc778c7f73f5a512d3436de",
+      "new_sha256": "6423ab7cac52adf98ea2f61caccda59d5dab7bc07ae7ef4c5274a217ca9c0f1b"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_market_links.py",
+      "old_sha256": "52585ea4a6f68b5c4d12962f6cf84eedaca7514e5537172eacd40fb577466a9e",
+      "new_sha256": "7e389c464ac5938de5577af89443432247d018e197fc900d4e0b494178dec894"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_public_catalog.json",
+      "old_sha256": "a236c2d79231372046eeeb3c80f2b1685ac8cb69b468953866f56f8c3c1b2505",
+      "new_sha256": "9e07f8319ab714a09c5b7c74204fb1a6cd78628bd61e06b874b9185ac085a4f1"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_yandex_sales.py",
+      "old_sha256": null,
+      "new_sha256": "893ad054f7b0375c939b5ef761daa7ea648c4b93eb8ea95c2fe0f59cc89277bb"
+    },
+    {
+      "path": "products/harness-platform/tests/browser/test_podmasterye_yandex_sales_ui.py",
+      "old_sha256": null,
+      "new_sha256": "486acc213455579d279a4a9be242666fd2c72739516700cadb9917cad2ed0dd7"
+    },
+    {
+      "path": "products/harness-platform/tests/test_podmasterye_yandex_market.py",
+      "old_sha256": "f7ceefe7ca4a6fb0de23e06fab802abd6b5dcef351786ba501a5056c38d2763b",
+      "new_sha256": "d147ad34f0e7cac8ca39a00ffdf331ebfb5a57d4c27cda6d54eb733d27694880"
+    },
+    {
+      "path": "products/harness-platform/tests/test_podmasterye_yandex_sales.py",
+      "old_sha256": null,
+      "new_sha256": "4ab6c25bc5761fefaf9d39addfbb1dd7eb859d740348a963e6ad2dcfbf7b0719"
+    }
+  ]
+}
