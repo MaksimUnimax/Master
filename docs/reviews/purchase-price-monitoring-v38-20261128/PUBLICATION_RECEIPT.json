@@ -1,0 +1,71 @@
+{
+  "schema": "purchase-monitoring-publication-receipt/1",
+  "recorded_at_utc": "2026-11-28 08:12:50 UTC",
+  "candidate_sha": "c33a108e036feb4487ee4f3a247abca8e1950313",
+  "reporting_revision": "r2",
+  "status": "completed_artifact_delivery_with_functional_blockers",
+  "github_publication": {
+    "completed": true,
+    "repository": "MaksimUnimax/Master",
+    "branch": "docs/purchase-price-monitoring-v38-20261128",
+    "documents_commit_sha": "b526fb1605d5b3261abf50078b4712bfd3862ab2",
+    "documents_tree_sha": "962ea7956e1160d88160479ea22a3d3c7ef1622d",
+    "document_files_verified": 19,
+    "all_blob_hashes_matched": true,
+    "draft_pr": "https://github.com/MaksimUnimax/Master/pull/1",
+    "merged": false
+  },
+  "owner_file": {
+    "available": true,
+    "file_name": "purchase-price-monitoring-v38-c33a108-r2.zip",
+    "bytes": 90757329,
+    "sha256": "19cdca739328891ab2f28fc6629147eae8fe736d6ac6c75b2dc5801529da43e9",
+    "write_status": "succeeded",
+    "user_download_observed": false,
+    "privacy": "The owner-only download identifier is intentionally excluded from this public receipt."
+  },
+  "archive_verification": {
+    "zip_crc_pass": true,
+    "entries": 2177,
+    "member_sha256_checked": 2176,
+    "matrix_evidence_references_checked": 228,
+    "server_copy_byte_identical": true
+  },
+  "integrity": {
+    "external_delivery_manifest_sha256": "c3e08bb656ce659276d913a153e669b15c7959e35d9e09c63db4d9761736c4d6",
+    "reporting_revision_sha256": "a4aa7670b5824e64d19730c8d2082b058934417a6c1728d11112fbd18a7f710e",
+    "acceptance_matrix_sha256": "8dec74655a3011f1937157c9a464ca3249f48efe13d6d2425eda6124726e56db",
+    "bundle_sha256": "4c987d18c2441503d8b19fab5eaf0062cd442a0da4b19612e31b2b4ffcce5b50"
+  },
+  "functional_acceptance": {
+    "mc": {
+      "PASS": 22,
+      "FAIL": 0,
+      "BLOCKED": 28,
+      "NOT_RUN": 0
+    },
+    "dual": {
+      "PASS": 8,
+      "FAIL": 0,
+      "BLOCKED": 0,
+      "NOT_RUN": 0
+    },
+    "fully_accepted": false,
+    "live_product_cases_executed": 0,
+    "live_product_cases_required": 19
+  },
+  "continuation": {
+    "runtime_source_changed": false,
+    "runtime_tests_rerun": false,
+    "paid_provider_calls": 0,
+    "technical_cost_rub": 0,
+    "source_worktree_clean": true
+  },
+  "production": {
+    "deployed_by_this_task": false,
+    "observed_release_marker": "c5927ce090a80cbd28cb701a7ba46a42a5f5f4ad",
+    "main_pid_unchanged": 2512152,
+    "checked_at_utc": "2026-11-28T08:11:55.134109+00:00"
+  },
+  "interpretation": "This receipt records completed publication and file availability after the prepared reporting revision. It does not change the 28 functional blockers, assert a live Read URL implementation, or authorize production deployment. No self-hash or future commit identifier is embedded."
+}
