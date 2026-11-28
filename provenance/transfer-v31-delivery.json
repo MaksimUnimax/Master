@@ -3,10 +3,80 @@
   "testedRuntimeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
   "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
   "publicLayerStandalone": false,
-  "privateFullSourceDelivery": "Canonical Git bundle and complete source archive delivered to the project owner",
+  "privateFullSourceDelivery": "Verified complete archive and canonical Git bundle on Alisa; identical archive made available privately to the project owner on 2026-11-28.",
   "privateGitHubRemote": "blocked: no suitable private repository and no authenticated repository-creation capability",
   "productionDeployment": false,
   "sourceFiles": 53,
   "policySource": "foundation/README.md",
-  "secretsOrProductionStateIncluded": false
+  "secretsOrProductionStateIncluded": false,
+  "originalPublicSourceCommit": "07b92ae0e26204313e47e670e5fb3112a0d6d2f9",
+  "deliveryVerification": {
+    "schemaVersion": 1,
+    "verifiedAt": "2026-11-28T05:48:52.412245+05:00",
+    "archive": {
+      "name": "masterskaya_v31_2026-11-27.zip",
+      "bytes": 18299690,
+      "sha256": "c05f50b95f2a30208306aeeeb14f413ea97ea03b84a01e057d7002a047bb986f",
+      "crc": "PASS",
+      "memberChecksumsVerified": 1371
+    },
+    "canonicalReleaseCommit": "ce37307c3a1aa03d34f8c622cd0658630c700f77",
+    "testedCodeCommit": "9fe2c75017874d0505b69086497d39c1fad72041",
+    "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25",
+    "bundleSha256": "28fa7dfe7d6affeeda6e7ca1a130f1d394da118cda3a316616434172b19c4591",
+    "bundleClone": "PASS",
+    "gitFsck": "PASS",
+    "gitSourceFilesVerified": 651,
+    "sourceTreeExactMatch": true,
+    "originalPublicSourceCommit": "07b92ae0e26204313e47e670e5fb3112a0d6d2f9",
+    "recordedTestGates": {
+      "python": 519,
+      "additionalSharedServiceBilling": 17,
+      "native": 77,
+      "opera": 260,
+      "chromium": 260,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "runtimeSha256": "93da35e4222ce7f472d2579fc7aa3f180bc28c7c48cf85c220995d6a92624e25"
+    },
+    "criterionStatusCounts": {
+      "verified": 26,
+      "partial_external": 7,
+      "blocked": 2,
+      "domain_external": 2,
+      "compatibility": 5
+    },
+    "newPaidRequests": 0,
+    "newCostRub": "0",
+    "productionDeployment": false,
+    "verificationScope": "Archive downloaded from Alisa, checksum/CRC verified, Git bundle cloned locally, git fsck full and every source blob independently verified. Existing regression evidence retained without claiming a new test run.",
+    "serverVerification": {
+      "primaryDocumentVersion": "1.2",
+      "primaryDocumentSha256": "33dfaf761210df1876e9d9d9c7b00e38809bd830a827bc0fab2807e57b7cb125",
+      "supportingDocuments": 38,
+      "runtimeFilesVerified": 311,
+      "acceptanceIndexFilesVerified": 23,
+      "testSourceFilesVerified": 83,
+      "currentMasterBaselineFilesVerified": 542,
+      "currentOctoportManifestEntriesVerified": 622,
+      "currentMasterRelease": "2be1cf6f4e04765fea5af33bba8b9a3e32d359fe",
+      "currentOctoportRelease": "dacb7114476cad88b34932ade4c03942a058060a",
+      "sourceChanges": 0,
+      "serviceRestarts": 0
+    },
+    "externalConditions": {
+      "openrouterOwnKeyPresent": false,
+      "metrikaOwnConfigurationPresent": false,
+      "paymentsEnabled": false,
+      "telegramOwnConfigurationPresent": true,
+      "telegramSavedBindings": 1,
+      "telegramLiveDeliveryAccepted": false,
+      "irreversibleDeletionPolicyApproved": false,
+      "irreversibleDeletionExecutorImplemented": false,
+      "suitablePrivateGithubRepositoryAvailable": false,
+      "domainD0": "Separate acceptance; unchanged in this task"
+    }
+  },
+  "verificationReport": "docs/TRANSFER_DELIVERY_RU.md"
 }
