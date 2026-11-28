@@ -1,0 +1,95 @@
+{
+  "base_release": "4ef0c87d691c2c85243b729958741b5151d8ee8e",
+  "changed_files": [
+    {
+      "path": "products/harness-platform/native/native-spill.mjs",
+      "old_sha256": "bfd3f2ebe54236c90f052b1b5720f77878b14f2dfbb0007da8c38ffc1068315d",
+      "new_sha256": "993634d7a334b49507ebbca314008dbf860090353a95eb4dac40d96d6777b20c"
+    },
+    {
+      "path": "products/harness-platform/native/podmasterye-mcp.mjs",
+      "old_sha256": "8129e350c29cdca65d593b8bbc20c53c02bc5c036b80d6f264295fe7155efbd8",
+      "new_sha256": "b7c7a74316fb18b009bfa8205350958390c6b4e2082c9c248afe5bc1c16f270b"
+    },
+    {
+      "path": "products/harness-platform/native/web/podmasterye-accounting.js",
+      "old_sha256": "6246ff48f6ebb657dc13df7ed05767ab976374bf61398c801373be3998d91c09",
+      "new_sha256": "2bbbbc40186a8b2db177407180faa9e2e53868dff4ec7f49ba6637f52d4c1064"
+    },
+    {
+      "path": "products/harness-platform/native/web/podmasterye-market-links.js",
+      "old_sha256": "cfb49816c39260be8ff93e29ce68a097c79c270a7b8c2f2d34415db2d18347a9",
+      "new_sha256": "589ce569557e2746382d954f942825c4fd97073885594c4b2f788ee07e06eb8b"
+    },
+    {
+      "path": "products/harness-platform/native/web/podmasterye.js",
+      "old_sha256": "64b6195750a97d9b28b4a2b3be21658d6366cf7e5c1d9bbac500b0450ffbec58",
+      "new_sha256": "71e5a6fa13e91d0350984fdd0ee5d8243c35f11272da93ff77843c651a4b78ef"
+    },
+    {
+      "path": "products/harness-platform/native/workshop-dialog-policy.mjs",
+      "old_sha256": "18a72cb6fd6424e548b9ab76b8982776fd15707058306349cdec2fe6efe9ddfb",
+      "new_sha256": "dd5373a749318345ecc61af0e9d99e8949dfa802d8910fbde78dbd86b4bdd186"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_book.py",
+      "old_sha256": "5648a320a9a66be89ef742a7967f30cc75327587db8b8d069eea6245416bbf7e",
+      "new_sha256": "b2717745c5984ed0cb09e9fbdef71af9aa3e7e456b444d29fc7dd1c50b9ebbef"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_domain.py",
+      "old_sha256": "6423ab7cac52adf98ea2f61caccda59d5dab7bc07ae7ef4c5274a217ca9c0f1b",
+      "new_sha256": "8f2bc5b2c2c379d4cfd6a0de328f30ad205e72d4cc38946c067beb1d9b20dc3a"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_mcp.py",
+      "old_sha256": "a7577bdd12671c1fd7986c08007595e3edfce4020e3a652b5a87438176e3ac1a",
+      "new_sha256": "16e6bc54c986d107d4024d9c3711263d38b54f0d87a8205543b779e268089e37"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_scoped.py",
+      "old_sha256": "a4aa19e52b91077d6eb0ac68bccc8e4033eecec918173e418c43d784d0367b3a",
+      "new_sha256": "1bdff8a1768b99d8e4089dc78267d20f11b645b4643a77e7cfc1f14a833a9edc"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_seasonal.py",
+      "old_sha256": null,
+      "new_sha256": "230c6dc24c683e583dc8452a00cf739c57f8b1a8282b68cb7c11a4a9e722b616"
+    },
+    {
+      "path": "products/harness-platform/platform_core/podmasterye_yandex_sales.py",
+      "old_sha256": "893ad054f7b0375c939b5ef761daa7ea648c4b93eb8ea95c2fe0f59cc89277bb",
+      "new_sha256": "7e22dd475cee54b2b129456e8a6e9ebe3e7afe44d6533d64dc2541d8c5a0e0f0"
+    },
+    {
+      "path": "products/harness-platform/platform_core/web_ui.py",
+      "old_sha256": "ab89a589c221a3e92a8708b0e8c5456a00d31ea1c4e68b19dd2b9eb17df274d6",
+      "new_sha256": "8d5df5f83bab35bd43cc298dafd4dc2255dedb33cef853ab032d2f943dac2a91"
+    },
+    {
+      "path": "products/harness-platform/tests/browser/test_podmasterye_seasonal_ui.py",
+      "old_sha256": null,
+      "new_sha256": "de700cecde3cc989e9e0b07916b45df88b455a2e7c5623cd3ae374303270efd7"
+    },
+    {
+      "path": "products/harness-platform/tests/browser/test_podmasterye_yandex_sales_ui.py",
+      "old_sha256": "486acc213455579d279a4a9be242666fd2c72739516700cadb9917cad2ed0dd7",
+      "new_sha256": "08d1931784dbd7de05dfd6d2deaae55fc9dd7f578d68bad7cedd7ce55ea7a16c"
+    },
+    {
+      "path": "products/harness-platform/tests/test_podmasterye_seasonal.py",
+      "old_sha256": null,
+      "new_sha256": "a736f51668abff67a48ec9abdc1d2173ec0ccde69105b28148857fd46bcb3606"
+    },
+    {
+      "path": "products/harness-platform/tests/test_podmasterye_seasonal_mcp.py",
+      "old_sha256": null,
+      "new_sha256": "75fe025b13993d83b9ada5cae9af7dcb1a71799c608a1c98c2a57304ed03bf61"
+    },
+    {
+      "path": "products/harness-platform/tests/test_podmasterye_yandex_market.py",
+      "old_sha256": "d147ad34f0e7cac8ca39a00ffdf331ebfb5a57d4c27cda6d54eb733d27694880",
+      "new_sha256": "660c1ca3b186e441d9f3b7abab16bf65947bd6f14cdade3b4dd3a3b7bd6d5289"
+    }
+  ]
+}
