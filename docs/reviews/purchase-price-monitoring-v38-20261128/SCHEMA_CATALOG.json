@@ -1,0 +1,1118 @@
+{
+  "candidate_sha": "c33a108e036feb4487ee4f3a247abca8e1950313",
+  "table_count": 9,
+  "tables": [
+    {
+      "name": "pm_price_attempt_links",
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "attempt_id",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 1
+        },
+        {
+          "ordinal": 1,
+          "name": "item_id",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 2,
+          "name": "account",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 3,
+          "name": "workshop",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 4,
+          "name": "chat",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 5,
+          "name": "run_id",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 6,
+          "name": "stage",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 7,
+          "name": "provider_order_id",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 8,
+          "name": "created_at",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "sequence": 0,
+          "parent_table": "coin_attempts",
+          "column": "attempt_id",
+          "parent_column": "attempt_id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "pm_price_attempt_pending",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "item_id",
+            "run_id",
+            "attempt_id"
+          ]
+        },
+        {
+          "name": "pm_price_attempt_run",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "run_id",
+            "created_at"
+          ]
+        },
+        {
+          "name": "pm_price_attempt_item",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "account",
+            "workshop",
+            "item_id",
+            "created_at"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_pm_price_attempt_links_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "attempt_id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "pm_price_clarifications",
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 1
+        },
+        {
+          "ordinal": 1,
+          "name": "item",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 2,
+          "name": "template_version",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 3,
+          "name": "run_id",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 4,
+          "name": "state",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 5,
+          "name": "question",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 6,
+          "name": "options",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 7,
+          "name": "answer",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 8,
+          "name": "created_at",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 9,
+          "name": "resolved_at",
+          "type": "INTEGER",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "sequence": 0,
+          "parent_table": "pm_price_items",
+          "column": "item",
+          "parent_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "pm_price_one_question",
+          "unique": true,
+          "origin": "c",
+          "partial": true,
+          "columns": [
+            "item"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_pm_price_clarifications_2",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "run_id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_pm_price_clarifications_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "pm_price_commands",
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "account",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 1
+        },
+        {
+          "ordinal": 1,
+          "name": "workshop",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 2,
+          "name": "request_id",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 2
+        },
+        {
+          "ordinal": 3,
+          "name": "payload_hash",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 4,
+          "name": "item_id",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 5,
+          "name": "result",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 6,
+          "name": "created_at",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        }
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_pm_price_commands_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "account",
+            "request_id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "pm_price_financial_episodes",
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "account",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 1
+        },
+        {
+          "ordinal": 1,
+          "name": "active",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": "0",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 2,
+          "name": "episode",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": "0",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 3,
+          "name": "started_at",
+          "type": "INTEGER",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "sequence": 0,
+          "parent_table": "workspaces",
+          "column": "account",
+          "parent_column": "workspace_id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_pm_price_financial_episodes_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "account"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "pm_price_items",
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 1
+        },
+        {
+          "ordinal": 1,
+          "name": "actor",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 2,
+          "name": "account",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 3,
+          "name": "workshop",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 4,
+          "name": "chat",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 5,
+          "name": "canonical_url",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 6,
+          "name": "source",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 7,
+          "name": "product_key",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 8,
+          "name": "name",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": "''",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 9,
+          "name": "name_override",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": "0",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 10,
+          "name": "version",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": "1",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 11,
+          "name": "template_version",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": "0",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 12,
+          "name": "series",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": "0",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 13,
+          "name": "task_state",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": "'draft'",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 14,
+          "name": "pause_reason",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": "''",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 15,
+          "name": "resume_state",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 16,
+          "name": "last_status",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": "'draft'",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 17,
+          "name": "last_attempt_at",
+          "type": "INTEGER",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 18,
+          "name": "event_id",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 19,
+          "name": "schedule_configured",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": "0",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 20,
+          "name": "criteria",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": "'[{\"kind\":\"change\"}]'",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 21,
+          "name": "channels",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": "'[\"chat\"]'",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 22,
+          "name": "region",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": "'Москва'",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 23,
+          "name": "created_at",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 24,
+          "name": "updated_at",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "sequence": 0,
+          "parent_table": "timer_events",
+          "column": "event_id",
+          "parent_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "sequence": 0,
+          "parent_table": "chats",
+          "column": "chat",
+          "parent_column": "chat_id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 2,
+          "sequence": 0,
+          "parent_table": "workspaces",
+          "column": "workshop",
+          "parent_column": "workspace_id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 3,
+          "sequence": 0,
+          "parent_table": "workspaces",
+          "column": "account",
+          "parent_column": "workspace_id",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "pm_price_items_maintenance",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "task_state",
+            "pause_reason",
+            "account",
+            "chat"
+          ]
+        },
+        {
+          "name": "pm_price_items_owner",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "account",
+            "workshop",
+            "created_at",
+            "id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_pm_price_items_3",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "workshop",
+            "product_key"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_pm_price_items_2",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "event_id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_pm_price_items_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "pm_price_observations",
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type": "INTEGER",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 1
+        },
+        {
+          "ordinal": 1,
+          "name": "item",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 2,
+          "name": "series",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 3,
+          "name": "observed_at",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 4,
+          "name": "price",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 5,
+          "name": "run_id",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 6,
+          "name": "template_version",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "sequence": 0,
+          "parent_table": "pm_price_series",
+          "column": "item",
+          "parent_column": "item",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 0,
+          "sequence": 1,
+          "parent_table": "pm_price_series",
+          "column": "series",
+          "parent_column": "number",
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "sequence": 0,
+          "parent_table": "pm_price_items",
+          "column": "item",
+          "parent_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "pm_price_observation_series",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "item",
+            "series",
+            "id"
+          ]
+        },
+        {
+          "name": "pm_price_observation_time",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "item",
+            "observed_at",
+            "id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_pm_price_observations_1",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "run_id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "pm_price_run_bindings",
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "run_id",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 1
+        },
+        {
+          "ordinal": 1,
+          "name": "item",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 2,
+          "name": "template_version",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 3,
+          "name": "event_revision",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 4,
+          "name": "stage",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 5,
+          "name": "applied_status",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 6,
+          "name": "result_digest",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 7,
+          "name": "created_at",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "sequence": 0,
+          "parent_table": "pm_price_items",
+          "column": "item",
+          "parent_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        },
+        {
+          "id": 1,
+          "sequence": 0,
+          "parent_table": "timer_runs",
+          "column": "run_id",
+          "parent_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "pm_price_run_outcome",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "applied_status",
+            "item"
+          ]
+        },
+        {
+          "name": "pm_price_runs_item",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "item",
+            "created_at",
+            "run_id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_pm_price_run_bindings_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "run_id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "pm_price_series",
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "item",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 1
+        },
+        {
+          "ordinal": 1,
+          "name": "number",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 2
+        },
+        {
+          "ordinal": 2,
+          "name": "currency",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 3,
+          "name": "basis",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "sequence": 0,
+          "parent_table": "pm_price_items",
+          "column": "item",
+          "parent_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_pm_price_series_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "item",
+            "number"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "pm_price_templates",
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "item",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 1
+        },
+        {
+          "ordinal": 1,
+          "name": "version",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 2
+        },
+        {
+          "ordinal": 2,
+          "name": "instruction",
+          "type": "TEXT",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 3,
+          "name": "selection",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 4,
+          "name": "expected_context",
+          "type": "TEXT",
+          "not_null": 0,
+          "default": null,
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 5,
+          "name": "reset_series",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": "0",
+          "primary_key_position": 0
+        },
+        {
+          "ordinal": 6,
+          "name": "created_at",
+          "type": "INTEGER",
+          "not_null": 1,
+          "default": null,
+          "primary_key_position": 0
+        }
+      ],
+      "foreign_keys": [
+        {
+          "id": 0,
+          "sequence": 0,
+          "parent_table": "pm_price_items",
+          "column": "item",
+          "parent_column": "id",
+          "on_update": "NO ACTION",
+          "on_delete": "CASCADE",
+          "match": "NONE"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_pm_price_templates_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "item",
+            "version"
+          ]
+        }
+      ]
+    }
+  ],
+  "migrations": [
+    {
+      "id": "20261128_purchase_monitoring_v1",
+      "statement_count": 16,
+      "registered_checksum": "afe6af78b3ce792dc1fe0e833f15c52d5fe8e99939730728117374d417b3203c"
+    },
+    {
+      "id": "20261128_purchase_monitoring_maintenance_v2",
+      "statement_count": 3,
+      "registered_checksum": "83c1fa366caa7db5debf37906baf82d1ed8a9a6b67b68185cecb1ae692e7d259"
+    }
+  ],
+  "extraction_scope": "Documentation projection from an empty in-memory DDL model; no production data.",
+  "migration_acceptance": "Actual bootstrap/restore/rollback evidence is reported separately; this export is not a test PASS.",
+  "financial_authority": "Existing shared coin/service ledger; monitoring tables contain links, never another wallet."
+}

@@ -1,0 +1,72 @@
+{
+  "schema": "purchase-monitoring-delivery/2",
+  "candidate_sha": "c33a108e036feb4487ee4f3a247abca8e1950313",
+  "base_sha": "6fa468e7c7ed72eebe9de3c400b3052eeeba2cd3",
+  "created_at": "2026-11-28T08:08:12.279152+00:00",
+  "criteria_counts": {
+    "PASS": 30,
+    "FAIL": 0,
+    "BLOCKED": 28,
+    "NOT_RUN": 0
+  },
+  "fully_accepted": false,
+  "production_deployed": false,
+  "evidence_file_count": 2149,
+  "matrix_referenced_evidence_files_verified": 228,
+  "bundle_sha256": "4c987d18c2441503d8b19fab5eaf0062cd442a0da4b19612e31b2b4ffcce5b50",
+  "acceptance_matrix_sha256": "8dec74655a3011f1937157c9a464ca3249f48efe13d6d2425eda6124726e56db",
+  "assembly_sha256": "f8fd24e6624e3fc375b7998ff83b81a6c72eea12cc249d8aa1a0f5b76152af84",
+  "bundle_heads": [
+    "c33a108e036feb4487ee4f3a247abca8e1950313 refs/heads/implementation/purchase-price-monitoring-v38",
+    "4ed4baf3aeb76be5909c4672870c77b260ab510c refs/heads/marketplace-full-v37-20261128",
+    "5b53cd22fee356fd4bbcf1361c3c1c3ec78fe4c4 refs/heads/provenance/marketplace-v37-5b53cd2",
+    "4ed4baf3aeb76be5909c4672870c77b260ab510c refs/remotes/origin/HEAD",
+    "4ed4baf3aeb76be5909c4672870c77b260ab510c refs/remotes/origin/marketplace-full-v37-20261128",
+    "58f27859c93d0709268b0bda1462c8fae7c99585 refs/remotes/origin/master",
+    "6fa468e7c7ed72eebe9de3c400b3052eeeba2cd3 refs/remotes/transfer/candidate/calculator-results-v36-final",
+    "c33a108e036feb4487ee4f3a247abca8e1950313 HEAD"
+  ],
+  "archive_own_hash": "Recorded in the external DELIVERY_MANIFEST.json; not self-referential.",
+  "zip_compression": "stored; deterministic bytes across different zlib versions",
+  "reporting_revision": "r2",
+  "runtime_source_changes": 0,
+  "new_runtime_test_executions": 0,
+  "previous_archive_sha256": "13075a4b993347bba0e48cd421b4fffd92cd8148fcb6b98c057986b2ccb22363",
+  "reporting_scope": "Corrected delivery wording and links; preserved the frozen source, all raw test evidence and all 28 functional blockers.",
+  "external_publication_receipt": "PUBLICATION_RECEIPT.json beside the archive and in the documentation branch after publication",
+  "zip_entry_count": 2177,
+  "zip_integrity_verified": true,
+  "all_member_hashes_verified": true,
+  "files": [
+    {
+      "name": "purchase-price-monitoring-v38-c33a108-r2.zip",
+      "bytes": 90757329,
+      "sha256": "19cdca739328891ab2f28fc6629147eae8fe736d6ac6c75b2dc5801529da43e9"
+    },
+    {
+      "name": "purchase-price-monitoring-v38.bundle",
+      "bytes": 5635321,
+      "sha256": "4c987d18c2441503d8b19fab5eaf0062cd442a0da4b19612e31b2b4ffcce5b50"
+    },
+    {
+      "name": "REPORT_RU.md",
+      "bytes": 35962,
+      "sha256": "63670914be2c20b1392f21ce8e3a610d3cb4df46c781c770b2cba2cb4e4b6037"
+    },
+    {
+      "name": "acceptance-matrix.json",
+      "bytes": 1064427,
+      "sha256": "8dec74655a3011f1937157c9a464ca3249f48efe13d6d2425eda6124726e56db"
+    },
+    {
+      "name": "REPORTING_REVISION.json",
+      "bytes": 7047,
+      "sha256": "a4aa7670b5824e64d19730c8d2082b058934417a6c1728d11112fbd18a7f710e"
+    },
+    {
+      "name": "SHA256SUMS",
+      "bytes": 335287,
+      "sha256": "0c402d87f81ebd3539656bd0ed9eea58a5674a06caca15e46203be37b6bd2153"
+    }
+  ]
+}

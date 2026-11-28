@@ -1,0 +1,357 @@
+{
+  "schema": "purchase-monitoring-live-finance/1",
+  "candidate_sha": "c33a108e036feb4487ee4f3a247abca8e1950313",
+  "status": "BLOCKED",
+  "not_acceptance_of_previous_experiments": true,
+  "scope": "Only calls dispatched by the integrated monitoring candidate in this assignment",
+  "actual_external_paid_calls": 0,
+  "actual_external_spend": {
+    "RUB": "0",
+    "USD": "0",
+    "explanation": "No upstream paid call was dispatched; this is not a zero-priced successful request."
+  },
+  "actual_input_tokens": null,
+  "actual_cached_input_tokens": null,
+  "actual_output_tokens": null,
+  "actual_parser_market_units": null,
+  "actual_provider_receipts": [],
+  "setup_working_comparison": {
+    "status": "BLOCKED",
+    "setup_usage": null,
+    "working_usage": null,
+    "token_saving_percent": null,
+    "reason": "No accepted live DeepSeek Read URL route. Prompt length alone is not billable token usage or evidence of savings."
+  },
+  "required_live_selection": {
+    "marketplace_cards": {
+      "ozon": 3,
+      "wb": 3,
+      "ym": 3
+    },
+    "ordinary_product_urls": 10,
+    "ordinary_distinct_domains": 5
+  },
+  "live_cases": [
+    {
+      "id": "LIVE-OZON-01",
+      "source": "ozon",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": "own_parser_market_key_missing"
+    },
+    {
+      "id": "LIVE-OZON-02",
+      "source": "ozon",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": "own_parser_market_key_missing"
+    },
+    {
+      "id": "LIVE-OZON-03",
+      "source": "ozon",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": "own_parser_market_key_missing"
+    },
+    {
+      "id": "LIVE-WB-01",
+      "source": "wb",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": "own_parser_market_key_missing"
+    },
+    {
+      "id": "LIVE-WB-02",
+      "source": "wb",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": "own_parser_market_key_missing"
+    },
+    {
+      "id": "LIVE-WB-03",
+      "source": "wb",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": "own_parser_market_key_missing"
+    },
+    {
+      "id": "LIVE-YM-01",
+      "source": "ym",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": "own_parser_market_key_missing"
+    },
+    {
+      "id": "LIVE-YM-02",
+      "source": "ym",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": "own_parser_market_key_missing"
+    },
+    {
+      "id": "LIVE-YM-03",
+      "source": "ym",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": "own_parser_market_key_missing"
+    },
+    {
+      "id": "LIVE-WEB-01",
+      "source": "ordinary_public_store",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": [
+        "cumulative_token_bound_unverified",
+        "redirect_scope_unverified"
+      ]
+    },
+    {
+      "id": "LIVE-WEB-02",
+      "source": "ordinary_public_store",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": [
+        "cumulative_token_bound_unverified",
+        "redirect_scope_unverified"
+      ]
+    },
+    {
+      "id": "LIVE-WEB-03",
+      "source": "ordinary_public_store",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": [
+        "cumulative_token_bound_unverified",
+        "redirect_scope_unverified"
+      ]
+    },
+    {
+      "id": "LIVE-WEB-04",
+      "source": "ordinary_public_store",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": [
+        "cumulative_token_bound_unverified",
+        "redirect_scope_unverified"
+      ]
+    },
+    {
+      "id": "LIVE-WEB-05",
+      "source": "ordinary_public_store",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": [
+        "cumulative_token_bound_unverified",
+        "redirect_scope_unverified"
+      ]
+    },
+    {
+      "id": "LIVE-WEB-06",
+      "source": "ordinary_public_store",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": [
+        "cumulative_token_bound_unverified",
+        "redirect_scope_unverified"
+      ]
+    },
+    {
+      "id": "LIVE-WEB-07",
+      "source": "ordinary_public_store",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": [
+        "cumulative_token_bound_unverified",
+        "redirect_scope_unverified"
+      ]
+    },
+    {
+      "id": "LIVE-WEB-08",
+      "source": "ordinary_public_store",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": [
+        "cumulative_token_bound_unverified",
+        "redirect_scope_unverified"
+      ]
+    },
+    {
+      "id": "LIVE-WEB-09",
+      "source": "ordinary_public_store",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": [
+        "cumulative_token_bound_unverified",
+        "redirect_scope_unverified"
+      ]
+    },
+    {
+      "id": "LIVE-WEB-10",
+      "source": "ordinary_public_store",
+      "status": "BLOCKED",
+      "url": null,
+      "dispatches": 0,
+      "price": null,
+      "units": null,
+      "tokens": null,
+      "receipt": null,
+      "reason": [
+        "cumulative_token_bound_unverified",
+        "redirect_scope_unverified"
+      ]
+    }
+  ],
+  "blockers": [
+    {
+      "id": "own_parser_market_key_missing",
+      "code": "provider_denied",
+      "evidence": "evidence/environment/preflight.json",
+      "detail": "The workshop own provider key store reports parser-market=false. No key was borrowed from Octoport or another service."
+    },
+    {
+      "id": "cumulative_token_bound_unverified",
+      "code": "contract_blocked",
+      "detail": "The documented per-inference-step max_tokens is not a proven cap for aggregate billed tokens across the server-tool round. No arbitrary fixed reserve substitutes for the required bound."
+    },
+    {
+      "id": "redirect_scope_unverified",
+      "code": "contract_blocked",
+      "detail": "The reviewed official contract does not establish enforceable redirect/IP confinement of deepseek_read_url. This is an evidence gap, not a claim that the provider actually reaches private networks."
+    }
+  ],
+  "synthetic_testing": {
+    "billed_usage_is_fixture": true,
+    "not_real_spending": true,
+    "scope": "Actual common timer, application, grants, wallet and ledgers; only upstream supplier transport is controlled. ReadURL dispatch guard remains enabled."
+  },
+  "release_gate": "BLOCKED is not PASS. Production deployment is not authorized by this report.",
+  "counts": {
+    "required_product_scenarios": 19,
+    "PASS": 0,
+    "FAIL": 0,
+    "BLOCKED": 19,
+    "NOT_RUN": 0,
+    "executed": 0,
+    "minimum_scenarios_are_not_individual_paid_call_counts": true
+  },
+  "updated_at_utc": "2026-11-28T06:51:38.223523+00:00",
+  "environment_evidence": "evidence/environment/preflight.json",
+  "integration_remaining": {
+    "route": "DeepSeek Flash native deepseek_read_url",
+    "state": "implementation_blocked_by_unverified_contract",
+    "ready_to_enable_by_flag": false,
+    "remaining": [
+      "bounded shared reserve and paid dispatch",
+      "tool-result and final usage settlement",
+      "automatic reconfiguration",
+      "real setup/working and all-adapter acceptance"
+    ]
+  },
+  "other_live_branches": [
+    {
+      "id": "LIVE-TELEGRAM",
+      "status": "BLOCKED",
+      "requirement": "§14D",
+      "reason": "No separately authorized test account identified; actual native publication and controlled Telegram transport are separate evidence.",
+      "messages_sent_by_this_task": 0
+    },
+    {
+      "id": "LIVE-BALANCE",
+      "status": "BLOCKED",
+      "requirement": "§14D",
+      "reason": "No separately authorized live balance test account identified. Isolated ledger credits are controlled fixtures, not live top-ups.",
+      "live_topups_by_this_task": 0
+    }
+  ],
+  "final_environment_preflight": "evidence/environment/postflight.json"
+}
